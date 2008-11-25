@@ -1,3 +1,3 @@
-export PATH="~/bin:~/Applications/AIRSDK/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:$PATH"
+export PATH="~/bin:~/SDKs/AIRSDK/bin:/Applications/Adobe Flex Builder 3/sdks/3.0.0/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/man:/opt/local/man:$MANPATH"
 export CLASSPATH="~/Documents/workspace/avrora/bin"
