@@ -6,7 +6,7 @@ function c { cd ~/code/$1; }
 
 # ls
 
-alias ls="gls --color=auto"
+alias ls="ls --color=auto"
 alias l="ls -lAh"
 alias ll="ls -l"
 alias la='ls -A'
@@ -35,7 +35,8 @@ alias a='autotest -rails'
 alias tlog='tail -f log/development.log'
 alias scaffold='script/generate nifty_scaffold'
 alias migrate='rake db:migrate db:test:clone'
-alias bootstrap='rake db:reset app:bootstrap'
+alias bootstrap='rake db:reset db:bootstrap'
+alias asp='script/autospec'
 
 
 # misc

@@ -2,15 +2,21 @@
 	name = Joshua Bassett
 	email = josh.bassett@gmail.com
 [alias]
-	co = checkout
+  st = status
+  ci = commit
+  br = branch
+  co = checkout
+  df = diff
+  lg = log -p
 [color]
 	diff = auto
 	status = auto
 	branch = auto
 [core]
 	excludesfile = /Users/josh/.gitignore
-	editor = mate -w
+	editor = vim
 [apply]
 	whitespace = nowarn
 [github]
 	user = nullobject
+	token = 482991a483cb58c3ec10bd8630b42038
