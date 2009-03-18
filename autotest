@@ -1,14 +1,29 @@
-
 module Autotest::Growl
-  def self.growl title, msg, img, pri=0, sticky=""
+  ICON_DIR = '~/Library/Icons/autotest'
+  NUM_FAIL_ICONS = 5
+
+  def self.growl(title, msg, img, pri=0, sticky='')
     system "growlnotify -n autotest --image #{img} -p #{pri} -m #{msg.inspect} #{title} #{sticky}"
+    nil
   end
-  
+
+  def self.parse_results(results)
+    output = results.slice(/(\d+)\sexamples?,\s(\d+)\sfailures?/)
+    examples = $~[1].to_i
+    failures = $~[2].to_i
+    [output, examples, failures]
+  end
+
   Autotest.add_hook :red do |at|
-    growl "Test Results", "#{at.results.last.slice(/^(\d+) examples?, (\d+) failures?$/)}", "/Users/rgarver/Pictures/ProjectIcons/rails_fail.png", 2, "-s"
+    output, examples, failures = parse_results(at.results)
+    if examples > 0 && failures > 0
+      cnt = [(failures.to_f / examples.to_f * NUM_FAIL_ICONS).ceil, NUM_FAIL_ICONS].min
+      growl('Tests Failed', output, ICON_DIR + "/fail#{cnt}.png", 2)
+    end
   end
-  
+
   Autotest.add_hook :green do |at|
-    growl "Test Results", "#{at.results.last.slice(/^(\d+) examples?, (\d+) failures?$/)}", "/Users/rgarver/Pictures/ProjectIcons/rails_ok.png"
+    output, examples, failures = parse_results(at.results)
+    growl('Tests Passed', output, ICON_DIR + '/pass.png', 1)
   end
 end
