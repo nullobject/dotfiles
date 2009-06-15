@@ -1,6 +1,12 @@
-export PATH="~/bin:~/SDKs/AIRSDK/bin:/Applications/Adobe Flex Builder 3/sdks/3.3.0/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:$PATH"
+export PATH="~/bin:/opt/local/bin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/man:/opt/local/man:$MANPATH"
-export CLASSPATH="~/Documents/workspace/avrora/bin"
-export NCARG_ROOT="/usr/local"
-export OBJJ_HOME=/usr/local/share/objj
-export STEAM_BUILD=/Users/josh/objj_build
+
+# Apache Ant config.
+export ANT_HOME="/opt/local/share/java/apache-ant"
+
+# Flex config.
+export FLEX_HOME="/Applications/Adobe Flex Builder 3/sdks/3.3.0"
+export PATH="~/sdks/AIR/1.5.1/bin:$FLEX_HOME/bin:$PATH"
+
+# Scala config.
+export SCALA_HOME="/opt/local/share/scala"

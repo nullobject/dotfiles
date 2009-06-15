@@ -1,6 +1,8 @@
 [user]
 	name = Joshua Bassett
 	email = josh.bassett@gmail.com
+[push]
+  default = tracking
 [alias]
   st = status
   ci = commit
