@@ -26,4 +26,8 @@ module Autotest::Growl
     output, examples, failures = parse_results(at.results)
     growl('Tests Passed', output, ICON_DIR + '/pass.png', 1)
   end
+
+  Autotest.add_hook :initialize do |at|
+    at.add_exception(/\.log/)
+  end 
 end
