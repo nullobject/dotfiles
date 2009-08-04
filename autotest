@@ -31,3 +31,9 @@ module Autotest::Growl
     at.add_exception(/\.log/)
   end 
 end
+
+Autotest.add_hook :initialize do |at|
+  unless ARGV.empty?
+    at.find_directories = ["spec/#{ARGV.first}","app/#{ARGV.first}"]
+  end
+end
