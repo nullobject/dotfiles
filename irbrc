@@ -1,10 +1,23 @@
 #!/usr/bin/ruby
+
 require 'irb/completion'
 require 'rubygems'
-require 'wirble'
 
 ARGV.concat [ "--readline", "--prompt-mode", "simple" ]
-Wirble.init
-Wirble.colorize
+
+begin
+  require 'wirble'
+  Wirble.init
+  Wirble.colorize
+rescue LoadError => err
+  warn "Couldn't load Wirble: #{err}"
+end
+
+begin
+  require 'hirb'
+  Hirb.enable
+rescue LoadError => err
+  warn "Couldn't load Hirb: #{err}"
+end
 
 load File.dirname(__FILE__) + '/.railsrc' if $0 == 'irb' && ENV['RAILS_ENV']
