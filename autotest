@@ -34,6 +34,20 @@ end
 
 Autotest.add_hook :initialize do |at|
   unless ARGV.empty?
-    at.find_directories = ["spec/#{ARGV.first}","app/#{ARGV.first}"]
+    paths = ARGV
+    paths |= paths.map do |path|
+      path = path.dup
+      unless path =~ /^spec/
+        if path =~ /^app/
+          path.sub!(/^\w+/, 'spec') 
+        else
+          path = 'spec/' + path
+        end
+        path.sub!(/\.rb$/, '_spec.rb')
+      end
+      path
+    end
+    puts paths.inspect
+    at.find_directories = paths
   end
 end
