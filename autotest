@@ -43,7 +43,14 @@ Autotest.add_hook :initialize do |at|
         else
           path = 'spec/' + path
         end
-        path.sub!(/\.rb$/, '_spec.rb')
+        if path =~ /\.rb$/
+          path.sub!(/\.rb$/, '_spec.rb')
+        else
+          path += '_spec.rb'
+        end
+      end
+      at.add_mapping(%r[^#{path}$]) do |f, _|
+        at.files_matching(%r[^#{path}$])
       end
       path
     end
