@@ -2,5 +2,6 @@
 .svn
 *~
 *.tmproj
+.swp
 .*.swp
 *.perspectivev3

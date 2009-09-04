@@ -16,6 +16,7 @@ alias gci='git commit -v'
 alias gco='git checkout'
 alias gb='git branch -v'
 alias gs='git status'
+alias grh='git reset --hard'
 
 
 # rails
@@ -26,7 +27,6 @@ alias ss='script/server'
 alias sr='script/runner'
 alias a='autotest -rails'
 alias tlog='tail -f log/development.log'
-alias scaffold='script/generate nifty_scaffold'
 alias migrate='rake db:migrate db:test:clone'
 alias bootstrap='rake db:reset db:bootstrap'
 alias asp='script/autospec'
