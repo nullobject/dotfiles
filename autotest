@@ -45,7 +45,7 @@ Autotest.add_hook :initialize do |at|
         end
         if path =~ /\.rb$/
           path.sub!(/\.rb$/, '_spec.rb')
-        else
+        elsif path =~ /\.\w+$/
           path += '_spec.rb'
         end
       end
