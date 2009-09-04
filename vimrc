@@ -29,3 +29,7 @@ function! Cheat(command)
   setlocal nomodifiable
   1
 endfunction
+
+augroup mkd
+  autocmd BufRead *.mkd,*.markdown set ai formatoptions=tcroqn2 comments=n:>
+augroup END
