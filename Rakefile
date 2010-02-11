@@ -39,7 +39,7 @@ task :install do
 end
 
 def replace_file(file, target)
-  `rm #{target}`
+  `rm -rf #{target}`
   link_file(file, target)
 end
 
