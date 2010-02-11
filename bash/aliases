@@ -3,40 +3,46 @@
 alias ls="ls --color=auto"
 alias l="ls -lAh"
 alias ll="ls -lh"
-alias la='ls -A'
+alias la="ls -A"
 
 
 # git
 
-alias ga='git add'
-alias gl='git pull'
-alias glr='git pull --rebase'
-alias gp='git push'
-alias gd='git diff'
-alias gci='git commit -v'
-alias gco='git checkout'
-alias gb='git branch -v'
-alias gs='git status'
-alias grh='git reset --hard'
+alias ga="git add"
+alias gl="git pull"
+alias glr="git pull --rebase"
+alias gp="git push"
+alias gd="git diff"
+alias gci="git commit -v"
+alias gco="git checkout"
+alias gb="git branch -v"
+alias gs="git status"
+alias grh="git reset --hard"
 
 
 # rails
 
-alias sc='script/console'
-alias spi='script/plugin install'
-alias ss='script/server'
-alias sr='script/runner'
-alias a='autotest -rails'
-alias tlog='tail -f log/development.log'
-alias migrate='rake db:migrate db:test:clone'
-alias bootstrap='rake db:reset db:bootstrap'
-alias asp='script/autospec'
+alias sc="script/console"
+alias spi="script/plugin install"
+alias ss="script/server"
+alias sr="script/runner"
+alias a="autotest -rails"
+alias tlog="tail -f log/development.log"
+alias migrate="rake db:migrate db:test:clone"
+alias bootstrap="rake db:reset db:bootstrap"
+alias asp="autospec"
 
 
 # misc
 
-alias reload='. ~/.bash_profile'
-alias hs='history -a; history -n'
+alias reload=". ~/.bash_profile"
+alias hs="history -a; history -n"
+alias lp-2up-duplex="lp -d DocuCentre_III_C2201 -o number-up=2 -o sides=two-sided-long-edge"
+alias lp-2up="lp -d DocuCentre_III_C2201 -o number-up=2"
+alias a="cd ~/src/clear/exchange"
+alias v="mvim"
+alias knock-off="cd ~/src/clear/exchange && rake db:clear_prod_data"
+alias t="thor"
 
 
 # gems

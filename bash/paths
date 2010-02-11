@@ -1,4 +1,4 @@
-export PATH="~/bin:/opt/local/bin:/usr/local/bin:$PATH"
+export PATH="~/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/man:/opt/local/man:$MANPATH"
 
 # Apache Ant config.
