@@ -1,4 +1,16 @@
 :output:
+  Fact::Bid:
+    :options:
+      :fields:
+        - id
+        - source_id
+        - bid_sheet_id
+        - created_on
+        - closed_on
+        - expired_on
+        - filled_on
+        - quantity
+        - port_price_in_cents
   BinGrade:
     :options:
       :fields:
