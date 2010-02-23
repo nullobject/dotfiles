@@ -40,8 +40,11 @@
     :options:
       :fields:
         - id
+        - type
         - ticket_id
         - trade_id
+        - debtor_id
+        - creditor_id
         - description
         - debt_amount_in_cents
         - debt_gst_in_cents
@@ -98,6 +101,7 @@
         - owner
         - bhc_site
         - bin_grade
+        - delivered_weight
         - shrunk_weight
         - grain_season
         - created_at
