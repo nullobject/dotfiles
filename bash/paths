@@ -1,12 +1,5 @@
-export PATH="~/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:$PATH"
-export MANPATH="/usr/local/man:/opt/local/man:$MANPATH"
-
-# Apache Ant config.
-export ANT_HOME="/opt/local/share/java/apache-ant"
-
-# Flex config.
-export FLEX_HOME="/Applications/Adobe Flex Builder 3/sdks/3.3.0"
-export PATH="~/sdks/AIR/1.5.1/bin:$FLEX_HOME/bin:$PATH"
+export PATH="~/bin:/usr/local/sbin:/usr/local/bin:$PATH"
+export MANPATH="/usr/local/man:$MANPATH"
 
 # Scala config.
-export SCALA_HOME="/opt/local/share/scala"
+export SCALA_HOME="/usr/local/share/scala"

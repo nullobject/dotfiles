@@ -74,6 +74,10 @@ augroup ruby
   autocmd BufRead *.thor,Thorfile set ft=ruby
 augroup END
 
+augroup less
+  autocmd BufRead *.less set ft=css
+augroup END
+
 "Auto reload this file when editing it
 au! BufWritePost .vimrc source %
 
