@@ -104,6 +104,7 @@ alias ls="gls --color=auto"
 alias l="ls -lAh"
 alias ll="ls -lh"
 alias la="ls -A"
+alias lt="tree"
 
 
 # git
