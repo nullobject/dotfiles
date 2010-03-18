@@ -129,6 +129,7 @@ alias tlog="tail -f log/development.log"
 alias migrate="rake db:migrate db:test:clone"
 alias bootstrap="rake db:reset db:bootstrap"
 alias asp="autospec"
+alias cuke="cucumber"
 
 
 # misc
