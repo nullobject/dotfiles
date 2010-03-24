@@ -124,12 +124,6 @@ alias grh="git reset --hard"
 alias sc="script/console"
 alias ss="script/server"
 alias sr="script/runner"
-alias a="autotest -rails"
-alias tlog="tail -f log/development.log"
-alias migrate="rake db:migrate db:test:clone"
-alias bootstrap="rake db:reset db:bootstrap"
-alias asp="autospec"
-alias cuke="cucumber"
 
 
 # misc
@@ -139,18 +133,13 @@ alias lp-2up-duplex="lp -d DocuCentre_III_C2201 -o number-up=2 -o sides=two-side
 alias lp-2up="lp -d DocuCentre_III_C2201 -o number-up=2"
 alias a="cd ~/src/clear/exchange"
 alias v="mvim"
+alias r="rake"
 alias t="thor"
+alias asp="autospec"
+alias cuke="cucumber"
 
 
 # gems
 vimgem() {
   vim $GEMDIR/gems/`$(which ls) $GEMDIR/gems | grep -x $1.* | sort | tail -1`/
-}
-
-emacsgem() {
-  emacs $GEMDIR/gems/`$(which ls) $GEMDIR/gems | grep -x $1.* | sort | tail -1`/
-}
-
-mategem() {
-  mate $GEMDIR/gems/`$(which ls) $GEMDIR/gems | grep -x $1.* | sort | tail -1`/
 }
