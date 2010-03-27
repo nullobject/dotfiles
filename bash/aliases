@@ -124,6 +124,7 @@ alias grh="git reset --hard"
 alias sc="script/console"
 alias ss="script/server"
 alias sr="script/runner"
+alias sg="script/generate"
 
 
 # misc
