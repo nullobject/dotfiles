@@ -1,5 +1,12 @@
 export PATH="~/bin:/usr/local/sbin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/man:$MANPATH"
 
-# Scala config.
+# Scala config
 export SCALA_HOME="/usr/local/share/scala"
+
+# Oracle
+export DYLD_LIBRARY_PATH="/usr/local/oracle/instantclient_10_2"
+export SQLPATH="/usr/local/oracle/instantclient_10_2"
+export TNS_ADMIN="/usr/local/oracle/network/admin"
+export NLS_LANG="AMERICAN_AMERICA.UTF8"
+export PATH=$PATH:$DYLD_LIBRARY_PATH
