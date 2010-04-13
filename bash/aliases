@@ -139,6 +139,7 @@ alias t="thor"
 alias asp="autospec"
 alias cuke="cucumber"
 alias bun="bundle"
+alias be="bundle exec"
 
 
 # gems
