@@ -18,6 +18,7 @@
 'NERDTreeWinPos'	NERD_tree.txt	/*'NERDTreeWinPos'*
 'NERDTreeWinSize'	NERD_tree.txt	/*'NERDTreeWinSize'*
 'loaded_nerd_tree'	NERD_tree.txt	/*'loaded_nerd_tree'*
+:Abolish	abolish.txt	/*:Abolish*
 :Ack	ack.txt	/*:Ack*
 :AckAdd	ack.txt	/*:AckAdd*
 :LAck	ack.txt	/*:LAck*
@@ -27,6 +28,8 @@
 :NERDTreeFromBookmark	NERD_tree.txt	/*:NERDTreeFromBookmark*
 :NERDTreeMirror	NERD_tree.txt	/*:NERDTreeMirror*
 :NERDTreeToggle	NERD_tree.txt	/*:NERDTreeToggle*
+:S	abolish.txt	/*:S*
+:Subvert	abolish.txt	/*:Subvert*
 NERDTree	NERD_tree.txt	/*NERDTree*
 NERDTree-!	NERD_tree.txt	/*NERDTree-!*
 NERDTree-?	NERD_tree.txt	/*NERDTree-?*
@@ -78,10 +81,20 @@ NERDTreeOptionDetails	NERD_tree.txt	/*NERDTreeOptionDetails*
 NERDTreeOptionSummary	NERD_tree.txt	/*NERDTreeOptionSummary*
 NERDTreeOptions	NERD_tree.txt	/*NERDTreeOptions*
 NERD_tree.txt	NERD_tree.txt	/*NERD_tree.txt*
+abolish	abolish.txt	/*abolish*
+abolish-abbrev	abolish.txt	/*abolish-abbrev*
+abolish-author	abolish.txt	/*abolish-author*
+abolish-coercion	abolish.txt	/*abolish-coercion*
+abolish-grep	abolish.txt	/*abolish-grep*
+abolish-patterns	abolish.txt	/*abolish-patterns*
+abolish-search	abolish.txt	/*abolish-search*
+abolish-substitute	abolish.txt	/*abolish-substitute*
+abolish.txt	abolish.txt	/*abolish.txt*
 ack	ack.txt	/*ack*
 ack-author	ack.txt	/*ack-author*
 ack.txt	ack.txt	/*ack.txt*
 config/rails.vim	rails.txt	/*config\/rails.vim*
+cr	abolish.txt	/*cr*
 cs	surround.txt	/*cs*
 ds	surround.txt	/*ds*
 fugitive	fugitive.txt	/*fugitive*
