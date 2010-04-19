@@ -73,6 +73,7 @@ augroup END
 
 augroup ruby
   autocmd BufRead *.thor,Thorfile set ft=ruby
+  autocmd BufRead Gemfile set ft=ruby
 augroup END
 
 augroup less
