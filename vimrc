@@ -56,17 +56,6 @@ map <Leader>tc :tabc <CR>
 vmap <c-h> !format_hash.rb<CR>
 vmap <c-m> !format_comment_block.rb<CR>
 
-" FuzzyFinderTextMate
-map <Leader>f :FuzzyFinderTextMate<CR>
-map <F5> :ruby finder.rescan!<CR>
-let g:fuzzy_ceiling = 50000
-
-let g:fuzzy_ignore = "*.svn"
-let g:fuzzy_ignore = "*.swp"
-let g:fuzzy_ignore = "*.jpg"
-let g:fuzzy_ignore = "*.gif"
-let g:fuzzy_ignore = "*~"
-
 augroup mkd
   autocmd BufRead *.mkd,*.markdown set ai formatoptions=tcroqn2 comments=n:>
 augroup END
@@ -82,8 +71,6 @@ augroup END
 
 "Auto reload this file when editing it
 au! BufWritePost .vimrc source %
-
-map <F3> :w<CR>:!osascript -e 'tell application "Safari" to do JavaScript "window.location.reload()" in front document'<CR>
 
 vmap o :s/^/# /<CR>
 vmap i :s/^# //<CR>
