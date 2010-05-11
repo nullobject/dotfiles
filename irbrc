@@ -2,6 +2,7 @@
 
 require 'irb/completion'
 require 'rubygems'
+require 'yaml'
 
 ARGV.concat [ "--readline", "--prompt-mode", "simple" ]
 
