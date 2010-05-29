@@ -78,3 +78,9 @@ nmap <tab> :bn<cr>
 nmap <s-tab> :bp<cr>
 
 autocmd BufWritePre * :%s/\s\+$//e
+
+" Edit factories
+command! Rroutes :Redit config/routes.rb
+command! RTroutes :RTedit config/routes.rb
+command! Rblueprints :Redit spec/blueprints.rb
+command! RTblueprints :RTedit spec/blueprints.rb
