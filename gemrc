@@ -8,5 +8,4 @@ gem: --no-ri --no-rdoc -n/usr/local/bin
 :sources: 
 - http://gems.rubyforge.org
 - http://gems.github.com
-- http://gems.cleargrain.com.au:3000/
 rdoc: --inline-source --line-numbers --format=html --template=hanna
