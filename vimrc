@@ -57,7 +57,7 @@ vmap <c-h> !format_hash.rb<CR>
 vmap <c-m> !format_comment_block.rb<CR>
 
 augroup mkd
-  autocmd BufRead *.mkd,*.markdown set ai formatoptions=tcroqn2 comments=n:>
+  autocmd BufRead *.md,*.mkd,*.markdown set ai formatoptions=tcroqn2 comments=n:>
 augroup END
 
 augroup ruby
