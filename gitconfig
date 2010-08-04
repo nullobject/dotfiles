@@ -35,3 +35,9 @@
 [github]
 	user = nullobject
 	token = 482991a483cb58c3ec10bd8630b42038
+[difftool "Kaleidoscope"]
+	cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"
+[difftool]
+	prompt = false
+[diff]
+	tool = Kaleidoscope

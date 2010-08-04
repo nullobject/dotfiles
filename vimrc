@@ -77,6 +77,7 @@ vmap i :s/^# //<CR>
 nmap <tab> :bn<cr>
 nmap <s-tab> :bp<cr>
 
+autocmd BufWritePre * :%s/\t/  /e
 autocmd BufWritePre * :%s/\s\+$//e
 
 " Edit factories

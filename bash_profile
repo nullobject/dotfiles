@@ -10,3 +10,5 @@ fi
 if [[ -s /Users/josh/.rvm/scripts/rvm ]]; then
   source /Users/josh/.rvm/scripts/rvm
 fi
+
+source `brew --prefix`/Library/Contributions/brew_bash_completion.sh

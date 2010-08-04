@@ -132,7 +132,6 @@ alias reload=". ~/.bash_profile"
 alias hs="history -a; history -n"
 alias lp-2up-duplex="lp -d DocuCentre_III_C2201 -o number-up=2 -o sides=two-sided-long-edge"
 alias lp-2up="lp -d DocuCentre_III_C2201 -o number-up=2"
-alias go="cd ~/src/nzx/exchange"
 alias v="mvim"
 alias r="rake"
 alias t="thor"
@@ -145,8 +144,10 @@ alias bj="bananajour"
 alias cf="coffee"
 alias rb="ruby"
 
+go() {
+  cd ~/src/nzx/$1
+}
 
-# gems
 vimgem() {
   vim $GEMDIR/gems/`$(which ls) $GEMDIR/gems | grep -x $1.* | sort | tail -1`/
 }
