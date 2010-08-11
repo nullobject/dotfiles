@@ -1,0 +1,23 @@
+autoload -U colors
+colors
+setopt prompt_subst
+PROMPT='
+%~ %{$fg_bold[black]%}$(vcprompt)
+∫ %{$reset_color%}'
+
+LC_CTYPE=en_AU.UTF-8
+EDITOR="vim"
+
+GEMDIR=`gem env gemdir`
+RUBYOPT=rubygems
+
+HISTFILE=~/.zsh_history
+SAVEHIST=10000
+HISTSIZE=10000
+
+bindkey -v
+
+REPORTTIME=10
+
+autoload compinit
+compinit
