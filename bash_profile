@@ -12,3 +12,6 @@ if [[ -s /Users/josh/.rvm/scripts/rvm ]]; then
 fi
 
 source `brew --prefix`/Library/Contributions/brew_bash_completion.sh
+
+# rvm-install added line:
+if [[ -s $HOME/.profile ]] ; then source $HOME/.profile ; fi

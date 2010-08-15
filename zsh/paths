@@ -1,8 +1,8 @@
-export PATH=~/bin:$PATH
-export MANPATH="/usr/local/man:$MANPATH"
+export PATH=~/bin:/usr/local/bin$PATH
+export MANPATH=/usr/local/man:$MANPATH
 
 # Scala config
-export SCALA_HOME="/usr/local/share/scala"
+export SCALA_HOME=/usr/local/share/scala
 
 # Oracle
 export DYLD_LIBRARY_PATH="/usr/local/oracle/instantclient_10_2"
