@@ -1,4 +1,4 @@
-export PATH=~/bin:/usr/local/bin$PATH
+export PATH=~/bin:/usr/local/bin:$PATH
 export MANPATH=/usr/local/man:$MANPATH
 
 # Scala config
