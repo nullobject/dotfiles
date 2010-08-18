@@ -1,16 +1,13 @@
-LC_CTYPE=en_AU.UTF-8
-EDITOR="vim"
+export LC_CTYPE=en_AU.UTF-8
+export EDITOR="vim"
 
-GEMDIR=`gem env gemdir`
-RUBYOPT=rubygems
-
-HISTFILE=~/.zsh_history
-SAVEHIST=10000
-HISTSIZE=10000
+export HISTFILE=~/.zsh_history
+export SAVEHIST=10000
+export HISTSIZE=10000
 
 bindkey -v
 
-REPORTTIME=10
+export REPORTTIME=10
 
 autoload compinit
 compinit

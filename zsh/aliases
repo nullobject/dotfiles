@@ -96,7 +96,7 @@ alias wc="$brew_prefix/bin/gwc"
 alias who="$brew_prefix/bin/gwho"
 alias whoami="$brew_prefix/bin/gwhoami"
 alias yes="$brew_prefix/bin/gyes"
-alias '['="$brew_prefix/bin/g["
+alias '['="$brew_prefix/bin/g\["
 
 
 # ls
