@@ -21,6 +21,6 @@ plugins=(git osx rails ruby)
 source $ZSH/oh-my-zsh.sh
 
 # Customize to your needs...
+source ~/.zsh/paths
 source ~/.zsh/aliases
 source ~/.zsh/config
-source ~/.zsh/paths
