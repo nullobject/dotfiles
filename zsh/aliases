@@ -143,6 +143,7 @@ alias b="bundle"
 alias be="bundle exec"
 alias cf="coffee"
 alias rb="ruby"
+alias bab="babushka"
 
 function go {
   cd ~/src/nzx/$1
