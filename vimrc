@@ -7,7 +7,7 @@ set expandtab
 set number " show line numbers
 set laststatus=2 " show the status line
 set ruler " show the cursor position
-set hlsearch "highlight search results
+set hlsearch " highlight search results
 set incsearch
 set wildmode=longest,list
 set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
@@ -71,8 +71,8 @@ augroup END
 "Auto reload this file when editing it
 au! BufWritePost .vimrc source %
 
-vmap o :s/^/# /<cr>
-vmap i :s/^# \?//<cr>
+vmap <c-o> :s/^/# /<cr>
+vmap <c-i> :s/^# \?//<cr>
 nmap <tab> :bn<cr>
 nmap <s-tab> :bp<cr>
 
