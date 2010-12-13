@@ -1,41 +1,30 @@
-#!/usr/bin/env ruby
+begin
+  require 'hirb'
 
-require 'hirb'
+  Hirb.enable
 
-Hirb.enable :pager => false
+  class Object
+    def hirbify
+      Hirb::View.formatter.format_output(self) || inspect
+    end
 
-def change_log(stream)
-  ActiveRecord::Base.logger = Logger.new(stream)
-  ActiveRecord::Base.clear_active_connections!
-end
+    def tapp(prefix = nil, &block)
+      block ||= lambda {|x| x }
+      tap do |x|
+        value = block[x].hirbify
 
-def show_log
-  change_log(STDOUT)
-end
-
-def hide_log
-  change_log(nil)
-end
-
-class Object
-  def hirbify
-    Hirb::View.formatter.format_output(self) || inspect
-  end
-
-  def tapp(prefix = nil, &block)
-    block ||= lambda {|x| x }
-    tap do |x|
-      value = block[x].hirbify
-
-      if prefix
-        print prefix
-        if value.lines.count > 1
-          print ":\n"
-        else
-          print ": "
+        if prefix
+          print prefix
+          if value.lines.count > 1
+            print ":\n"
+          else
+            print ": "
+          end
         end
+        puts value
       end
-      puts value
     end
   end
+rescue LoadError => e
+  warn "Couldn't load Hirb: #{e}"
 end

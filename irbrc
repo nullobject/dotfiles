@@ -1,29 +1,20 @@
-#!/usr/bin/ruby
-
 require 'irb/completion'
 require 'rubygems'
 require 'yaml'
 
-ARGV.concat [ "--readline", "--prompt-mode", "simple" ]
+ARGV.concat ["--readline", "--prompt-mode", "simple"]
 
 begin
   require 'wirble'
   Wirble.init
   Wirble.colorize
-rescue LoadError => err
-  warn "Couldn't load Wirble: #{err}"
+rescue LoadError => e
+  warn "Couldn't load Wirble: #{e}"
 end
 
 begin
   require 'hirb'
   Hirb.enable
-rescue LoadError => err
-  warn "Couldn't load Hirb: #{err}"
-end
-
-load File.dirname(__FILE__) + '/.railsrc' if $0 == 'irb' && ENV['RAILS_ENV']
-
-def log_to(stream)
-  ActiveRecord::Base.logger = Logger.new(stream)
-  ActiveRecord::Base.clear_active_connections!
+rescue LoadError => e
+  warn "Couldn't load Hirb: #{e}"
 end
