@@ -11,6 +11,7 @@ set hlsearch " highlight search results
 set incsearch
 set wildmode=longest,list
 set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
+set pastetoggle=<F2>
 
 filetype plugin indent on
 
