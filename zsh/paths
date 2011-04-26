@@ -3,6 +3,7 @@ export MANPATH=/usr/local/man:$MANPATH
 
 # Node
 export PATH=$PATH:/usr/local/share/npm/bin
+export NODE_PATH=/usr/local/lib/node
 
 # Scala config
 export SCALA_HOME=/usr/local/share/scala
