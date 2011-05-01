@@ -1,3 +1,10 @@
+filetype off
+
+call pathogen#helptags()
+call pathogen#runtime_append_all_bundles()
+
+filetype plugin indent on
+
 set nocompatible
 set vb
 set tabstop=2
@@ -10,10 +17,8 @@ set ruler " show the cursor position
 set hlsearch " highlight search results
 set incsearch
 set wildmode=longest,list
-set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
+" set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 set pastetoggle=<F2>
-
-filetype plugin indent on
 
 syntax on
 colorscheme molokai
@@ -66,7 +71,7 @@ augroup ruby
 augroup END
 
 augroup less
-  autocmd BufRead *.less set ft=css
+  autocmd BufRead *.less set ft=less
 augroup END
 
 "Auto reload this file when editing it
