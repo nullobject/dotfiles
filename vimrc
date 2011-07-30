@@ -1,8 +1,5 @@
-filetype off
-
-call pathogen#helptags()
-call pathogen#runtime_append_all_bundles()
-
+call pathogen#infect()
+syntax on
 filetype plugin indent on
 
 set nocompatible
@@ -20,7 +17,6 @@ set wildmode=longest,list
 " set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 set pastetoggle=<F2>
 
-syntax on
 colorscheme molokai
 
 let mapleader = ";" " set leader key
