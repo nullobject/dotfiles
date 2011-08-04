@@ -1,3 +1,5 @@
+set t_Co=256
+
 filetype off
 
 call pathogen#helptags()
