@@ -1,6 +1,10 @@
+set t_Co=256
+
+filetype off
 call pathogen#infect()
-syntax on
 filetype plugin indent on
+
+syntax on
 
 set nocompatible
 set vb
