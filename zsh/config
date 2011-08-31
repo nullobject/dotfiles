@@ -1,5 +1,5 @@
 export LC_CTYPE=en_AU.UTF-8
-export EDITOR=mvim
+export EDITOR=vim
 
 export HISTFILE=~/.zsh_history
 export SAVEHIST=10000
@@ -14,4 +14,4 @@ compinit
 
 unsetopt auto_name_dirs
 
-[[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
+[[ -s "/Users/josh/.rvm/scripts/rvm" ]] && source "/Users/josh/.rvm/scripts/rvm"
