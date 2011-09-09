@@ -90,3 +90,20 @@ command! Rroutes      :Redit config/routes.rb
 command! RTroutes     :RTedit config/routes.rb
 command! Rblueprints  :Redit spec/blueprints.rb
 command! RTblueprints :RTedit spec/blueprints.rb
+
+" Execute open rspec buffer
+function! RunSpec(args)
+ if exists("b:rails_root") && filereadable(b:rails_root . "/script/spec")
+   let spec = b:rails_root . "/script/spec"
+ else
+   let spec = "source ~/.rvm/scripts/rvm && bundle exec rspec --no-color --format=documentation"
+ end
+ let cmd = ":! " . spec . " " . a:args . " %"
+ execute cmd
+endfunction
+
+" Mappings
+" run one rspec example or describe block based on cursor position
+map <leader>s :call RunSpec("--line_number=" . <c-r>=line('.')<cr>)<cr>
+" run full rspec file
+map <leader>S :call RunSpec("")<cr>
