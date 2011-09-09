@@ -58,3 +58,9 @@
 [submodule "vim/bundle/vim-scala"]
 	path = vim/bundle/vim-scala
 	url = git://github.com/ewiplayer/vim-scala.git
+[submodule "vim/bundle/vim-textobj-user"]
+	path = vim/bundle/vim-textobj-user
+	url = git://github.com/kana/vim-textobj-user.git
+[submodule "vim/bundle/vim-textobj-rubyblock"]
+	path = vim/bundle/vim-textobj-rubyblock
+	url = git://github.com/nelstrom/vim-textobj-rubyblock.git
