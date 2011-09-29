@@ -20,6 +20,7 @@ set incsearch
 set wildmode=longest,list
 " set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 set pastetoggle=<F2>
+set mouse=a
 
 colorscheme molokai
 
@@ -59,10 +60,9 @@ map <leader>h :set invhls<cr>
 map <leader>tc :tabc<cr>
 
 vmap <c-h> !format_hash.rb<cr>
-vmap <c-m> !format_comment_block.rb<cr>
 
 augroup mkd
-  autocmd BufRead *.md,*.mkd,*.markdown set ft=mkd ai formatoptions=tcroqn2 comments=n:>
+  autocmd BufRead *.md,*.mkd,*.markdown set ft=markdown
 augroup END
 
 augroup ruby
