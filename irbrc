@@ -96,7 +96,7 @@ extend_console 'rails3', defined?(ActiveSupport::Notifications), false do
   default_url_options[:host] = Rails.application.class.parent_name.downcase
 
   # include ActionView::Helpers           # All Rails helpers
-  include ApplicationController._helpers # Your own helpers
+  # include ApplicationController._helpers # Your own helpers
 
   # unfortunately that breaks some functionality (e.g. the named route helpers above)
   #  so, look at actionpack/lib/action_view/helpers.rb and choose the helpers you need
