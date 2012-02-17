@@ -20,9 +20,7 @@ set incsearch
 set wildmode=longest,list
 " set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 set pastetoggle=<F2>
-set mouse=a
-
-colorscheme molokai
+" set mouse=a
 
 let mapleader = ";" " set leader key
 
@@ -60,6 +58,7 @@ map <leader>h :set invhls<cr>
 map <leader>tc :tabc<cr>
 
 vmap <c-h> !format_hash.rb<cr>
+vmap <c-m> !format_comment_block.rb<cr>
 
 augroup mkd
   autocmd BufRead *.md,*.mkd,*.markdown set ft=markdown
@@ -77,8 +76,6 @@ augroup END
 "Auto reload this file when editing it
 au! BufWritePost .vimrc source %
 
-vmap <c-o> :s/^/# /<cr>
-vmap <c-i> :s/^# \?//<cr>
 nmap <tab> :bn<cr>
 nmap <s-tab> :bp<cr>
 
@@ -96,9 +93,9 @@ function! RunSpec(args)
  if exists("b:rails_root") && filereadable(b:rails_root . "/script/spec")
    let spec = b:rails_root . "/script/spec"
  else
-   let spec = "source ~/.rvm/scripts/rvm && bundle exec rspec --no-color --format=documentation"
+   let spec = "bundle exec rspec --no-color --format=documentation"
  end
- let cmd = ":! " . spec . " " . a:args . " %"
+ let cmd = ":!" . spec . " " . a:args . " %"
  execute cmd
 endfunction
 
@@ -107,3 +104,61 @@ endfunction
 map <leader>s :call RunSpec("--line_number=" . <c-r>=line('.')<cr>)<cr>
 " run full rspec file
 map <leader>S :call RunSpec("")<cr>
+
+" Command-Shift-F for Ack
+map <D-F> :Ack<space>
+
+" Command-/ to toggle comments
+map <D-/> <plug>NERDCommenterToggle<CR>
+imap <D-/> <Esc><plug>NERDCommenterToggle<CR>i
+
+" Command-][ to increase/decrease indentation
+vmap <D-]> >gv
+vmap <D-[> <gv
+
+" Map Command-# to switch tabs
+map  <D-0> 0gt
+imap <D-0> <Esc>0gt
+map  <D-1> 1gt
+imap <D-1> <Esc>1gt
+map  <D-2> 2gt
+imap <D-2> <Esc>2gt
+map  <D-3> 3gt
+imap <D-3> <Esc>3gt
+map  <D-4> 4gt
+imap <D-4> <Esc>4gt
+map  <D-5> 5gt
+imap <D-5> <Esc>5gt
+map  <D-6> 6gt
+imap <D-6> <Esc>6gt
+map  <D-7> 7gt
+imap <D-7> <Esc>7gt
+map  <D-8> 8gt
+imap <D-8> <Esc>8gt
+map  <D-9> 9gt
+imap <D-9> <Esc>9gt
+
+" Command-Option-ArrowKey to switch viewports
+map <D-M-Up> <C-w>k
+imap <D-M-Up> <Esc> <C-w>k
+map <D-M-Down> <C-w>j
+imap <D-M-Down> <Esc> <C-w>j
+map <D-M-Right> <C-w>l
+imap <D-M-Right> <Esc> <C-w>l
+map <D-M-Left> <C-w>h
+imap <D-M-Left> <C-w>h
+
+" Adjust viewports to the same size
+map <Leader>= <C-w>=
+imap <Leader>= <Esc> <C-w>=
+
+" Bubble single lines
+nmap <D-M-Up> [e
+nmap <D-M-Down> ]e
+
+" Bubble multiple lines
+vmap <D-M-Up> [egv
+vmap <D-M-Down> ]egv
+
+" Default gui color scheme
+color molokai

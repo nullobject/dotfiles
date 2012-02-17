@@ -144,10 +144,7 @@ alias cf="coffee"
 alias rb="ruby"
 alias bab="babushka"
 alias t="tmux"
-
-function go {
-  cd ~/src/nzx/$1
-}
+alias knife="nocorrect knife"
 
 function take {
   mkdir $1

@@ -4,7 +4,7 @@ bind -m vi-insert "\C-l":clear-screen
 bind -m vi-insert "\C-p":dynamic-complete-history
 bind -m vi-insert "\C-n":menu-complete
 
-eval "`dircolors -b`"
+eval "`gdircolors -b`"
 
 function parse_git_branch {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'

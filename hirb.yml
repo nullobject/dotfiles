@@ -4,4 +4,11 @@
       :fields:
         - id
         - email
-        - name
+
+  Job:
+    :options:
+      :fields:
+        - id
+        - title
+        - body
+        - status
