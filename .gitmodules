@@ -25,9 +25,6 @@
 [submodule "vim/bundle/vim-repeat"]
   path = vim/bundle/vim-repeat
   url = https://github.com/tpope/vim-repeat.git
-[submodule "vim/bundle/nerdtree"]
-  path = vim/bundle/nerdtree
-  url = https://github.com/scrooloose/nerdtree.git
 [submodule "vim/bundle/vim-align"]
   path = vim/bundle/vim-align
   url = https://github.com/tsaleh/vim-align.git
@@ -70,3 +67,6 @@
 [submodule "vim/bundle/vim-unimpaired"]
   path = vim/bundle/vim-unimpaired
   url = git://github.com/tpope/vim-unimpaired.git
+[submodule "vim/bundle/ctrlp.vim"]
+  path = vim/bundle/ctrlp.vim
+  url = git://github.com/kien/ctrlp.vim.git
