@@ -21,37 +21,60 @@ set pastetoggle=<F2>
 set shell=bash
 set cursorline " highlight current line
 
-let mapleader = ";" " set leader key
-
-" ctrlp
-set wildignore+=*/.git/*,*/node_modules/*,*/tmp/*,.DS_Store,*.so,*.swp
+" Set leader key.
+let mapleader = ";"
 
 " Adding #{} to AutoClose Plugin and activating it for String interpolation.
 let g:AutoClosePairs = {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'", '#{': '}'}
 let g:AutoCloseProtectedRegions = ["Character"]
 
-" Rails plugin tweaks
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" CtrlP
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set wildignore+=*/.git/*,*/node_modules/*,*/tmp/*,.DS_Store,*.so,*.swp
+map <Leader>f :CtrlP<CR>
+map <Leader>fb :CtrlPBuffer<CR>
+map <Leader>fr :CtrlPMRU<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Commentary
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <Leader>c \\\
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Rails
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <Leader>rav :AV<CR><C-w>L
 command! Rroutes :Redit config/routes.rb
 command! RTroutes :RTedit config/routes.rb
 command! Rblueprints :Redit spec/blueprints.rb
 command! RTblueprints :RTedit spec/blueprints.rb
 
-" Clear the search buffer when hitting return
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Misc
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Expand current directory.
+cnoremap %% <C-R>=expand('%:h').'/'<cr>
+
+" Clear the search buffer when hitting return.
 :nnoremap <CR> :nohlsearch<CR>
 
 " Toggle between files
 nnoremap <Leader><Leader> <c-^>
 
-" Hide search highlighting
-map <Leader>h :set invhls<CR>
-
-" Close tab
+" Close tab.
 map <Leader>tc :tabc<CR>
+
+" Cycle through buffers.
+nmap <Tab> :bn<CR>
+nmap <S-Tab> :bp<CR>
 
 vmap <c-h> !~/bin/format_hash.rb<CR>
 vmap <c-m> !~/bin/format_comment_block.rb<CR>
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" File types
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 augroup mkd
   autocmd BufRead *.md,*.mkd,*.markdown set ft=markdown
 augroup END
@@ -65,16 +88,18 @@ augroup less
   autocmd BufRead *.less set ft=less
 augroup END
 
-" Auto reload this file when editing it
-au! BufWritePost .vimrc source %
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Whitespace
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Nuke tabs.
+autocmd BufWritePre * :%s/\t/  /eg
 
-nmap <Tab> :bn<CR>
-nmap <S-Tab> :bp<CR>
+" Nuke lines containing only whitespace.
+autocmd BufWritePre * :%s/\s\+$//eg
 
-autocmd BufWritePre * :%s/\t/  /eg  " nuke tabs
-autocmd BufWritePre * :%s/\s\+$//eg " nuke lines containing only whitespace
-
-" Execute open rspec buffer
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" RSpec
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! RunSpec(args)
  if exists("b:rails_root") && filereadable(b:rails_root . "/script/spec")
    let spec = b:rails_root . "/script/spec"
@@ -85,16 +110,14 @@ function! RunSpec(args)
  execute cmd
 endfunction
 
-" Mappings
-" run one rspec example or describe block based on cursor position
+" Run one rspec example or describe block based on cursor position.
 map <Leader>s :call RunSpec("--line_number=" . <c-r>=line('.')<CR>)<CR>
-" run full rspec file
+
+" Run full rspec file.
 map <Leader>S :call RunSpec("")<CR>
 
-" Toggle comments
-map <Leader>c <plug>NERDCommenterToggle<CR>
-imap <Leader>c <esc><plug>NERDCommenterToggle<CR>i
-
-" Default gui color scheme
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Colors
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set t_Co=256
 color tomorrow-night-bright
