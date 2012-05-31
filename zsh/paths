@@ -1,5 +1,5 @@
-export PATH="~/bin:/usr/local/sbin:/usr/local/bin:$PATH"
-export MANPATH="/usr/local/man:$MANPATH"
+export PATH="$HOME/bin:/usr/local/sbin:/usr/local/bin:$PATH"
+export MANPATH="/usr/local/share/man:$MANPATH"
 
 # Node
 export PATH="/usr/local/share/npm/bin:$PATH"

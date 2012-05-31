@@ -108,25 +108,12 @@ alias lt="tree"
 
 
 # git
-alias g="git status"
-alias gs="git status"
-alias ga="git add"
-alias gl="git pull"
-alias glr="git pull --rebase"
-alias gp="git push"
-alias gd="git diff"
-alias gci="git commit -v"
-alias gco="git checkout"
-alias gb="git branch -v"
-alias gr="git reset"
-alias grh="git reset --hard"
+alias s='git status -sb $argv; return 0'
+alias d='gd $argv'
 
 
 # rails
-alias sc="script/console"
-alias ss="script/server"
-alias sr="script/runner"
-alias sg="script/generate"
+alias sr="script/rails"
 
 
 # misc
@@ -143,8 +130,3 @@ alias cf="coffee"
 alias rb="ruby"
 alias bab="babushka"
 alias knife="nocorrect knife"
-
-function take {
-  mkdir $1
-  cd $1
-}

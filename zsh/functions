@@ -1,0 +1,8 @@
+cd() {
+  builtin cd "$@" && ls
+}
+
+take() {
+  mkdir $1
+  cd $1
+}
