@@ -20,6 +20,7 @@ set wildmode=longest,list
 set pastetoggle=<F2>
 set shell=bash
 set cursorline " highlight current line
+set winwidth=79
 
 " Set leader key.
 let mapleader = ";"
@@ -37,18 +38,48 @@ map <Leader>fb :CtrlPBuffer<CR>
 map <Leader>fr :CtrlPMRU<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Ctags
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Only autocomplete using current buffer and tags.
+set complete=.,t
+
+" Cycle through tags.
+nmap <Tab> :tn<CR>
+nmap <S-Tab> :tp<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <Leader>c \\\
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" NERDTree
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <Leader>n :NERDTreeToggle<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Rails
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>rav :AV<CR><C-w>L
+map <Leader>rav :AV<CR><C-w>l
 command! Rroutes :Redit config/routes.rb
 command! RTroutes :RTedit config/routes.rb
 command! Rblueprints :Redit spec/blueprints.rb
 command! RTblueprints :RTedit spec/blueprints.rb
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Indent if we're at the beginning of a line, otherwise do completion.
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<tab>"
+    else
+        return "\<c-p>"
+    endif
+endfunction
+
+inoremap <Tab> <C-r>=InsertTabWrapper()<CR>
+inoremap <S-Tab> <C-n>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Misc
@@ -65,27 +96,24 @@ nnoremap <Leader><Leader> <c-^>
 " Close tab.
 map <Leader>tc :tabc<CR>
 
-" Cycle through buffers.
-nmap <Tab> :bn<CR>
-nmap <S-Tab> :bp<CR>
-
-vmap <c-h> !~/bin/format_hash.rb<CR>
 vmap <c-m> !~/bin/format_comment_block.rb<CR>
+
+map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclude=vendor *<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+augroup less
+  autocmd BufRead *.less set ft=less
+augroup END
+
 augroup mkd
   autocmd BufRead *.md,*.mkd,*.markdown set ft=markdown
 augroup END
 
 augroup ruby
-  autocmd BufRead *.thor,Thorfile set ft=ruby
   autocmd BufRead Gemfile set ft=ruby
-augroup END
-
-augroup less
-  autocmd BufRead *.less set ft=less
+  autocmd BufRead *.thor,Thorfile set ft=ruby
 augroup END
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -100,21 +128,25 @@ autocmd BufWritePre * :%s/\s\+$//eg
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RSpec
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! RunSpec(args)
- if exists("b:rails_root") && filereadable(b:rails_root . "/script/spec")
-   let spec = b:rails_root . "/script/spec"
- else
-   let spec = "bundle exec rspec --no-color --format=documentation"
- end
- let cmd = ":!" . spec . " " . a:args . " %"
- execute cmd
+function! RunTests(args)
+  if match(expand("%"), '\(_test.coffee\)$') != -1
+    let spec = "mocha --reporter spec"
+  else
+    if exists("b:rails_root") && filereadable(b:rails_root . "/script/spec")
+      let spec = b:rails_root . "/script/spec"
+    else
+      let spec = "bundle exec rspec --color --format=documentation"
+    end
+  end
+  let cmd = ":!" . spec . " " . a:args . " %"
+  execute cmd
 endfunction
 
 " Run one rspec example or describe block based on cursor position.
-map <Leader>s :call RunSpec("--line_number=" . <c-r>=line('.')<CR>)<CR>
+map <Leader>t :call RunTests("--line_number=" . <c-r>=line('.')<CR>)<CR>
 
 " Run full rspec file.
-map <Leader>S :call RunSpec("")<CR>
+map <Leader>a :call RunTests("")<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Colors
