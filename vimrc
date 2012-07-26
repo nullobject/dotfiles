@@ -1,5 +1,6 @@
 filetype off
 call pathogen#infect()
+call pathogen#helptags()
 filetype plugin indent on
 
 syntax on
@@ -32,7 +33,7 @@ let g:AutoCloseProtectedRegions = ["Character"]
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CtrlP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set wildignore+=*/.git/*,*/node_modules/*,*/tmp/*,.DS_Store,*.so,*.swp
+set wildignore+=*/.git/*,*/node_modules/*,*/tmp/*,.DS_Store,*.so,*.swp,tags
 map <Leader>f :CtrlP<CR>
 map <Leader>fb :CtrlPBuffer<CR>
 map <Leader>fr :CtrlPMRU<CR>
@@ -40,9 +41,6 @@ map <Leader>fr :CtrlPMRU<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Ctags
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Only autocomplete using current buffer and tags.
-set complete=.,t
-
 " Cycle through tags.
 nmap <Tab> :tn<CR>
 nmap <S-Tab> :tp<CR>
@@ -63,19 +61,19 @@ map <Leader>n :NERDTreeToggle<CR>
 map <Leader>rav :AV<CR><C-w>l
 command! Rroutes :Redit config/routes.rb
 command! RTroutes :RTedit config/routes.rb
-command! Rblueprints :Redit spec/blueprints.rb
-command! RTblueprints :RTedit spec/blueprints.rb
+command! Rblueprints :Redit spec/support/blueprints.rb
+command! RTblueprints :RTedit spec/support/blueprints.rb
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Indent if we're at the beginning of a line, otherwise do completion.
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! InsertTabWrapper()
-    let col = col('.') - 1
-    if !col || getline('.')[col - 1] !~ '\k'
-        return "\<tab>"
-    else
-        return "\<c-p>"
-    endif
+  let col = col('.') - 1
+  if !col || getline('.')[col - 1] !~ '\k'
+    return "\<tab>"
+  else
+    return "\<c-p>"
+  endif
 endfunction
 
 inoremap <Tab> <C-r>=InsertTabWrapper()<CR>
@@ -88,17 +86,21 @@ inoremap <S-Tab> <C-n>
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 
 " Clear the search buffer when hitting return.
-:nnoremap <CR> :nohlsearch<CR>
+nnoremap <CR> :nohlsearch<CR>
 
-" Toggle between files
+" Toggle between files.
 nnoremap <Leader><Leader> <c-^>
-
-" Close tab.
-map <Leader>tc :tabc<CR>
 
 vmap <c-m> !~/bin/format_comment_block.rb<CR>
 
+" Refresh tags.
 map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclude=vendor *<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Tabs
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nmap <Leader>tn :tabnew<CR>
+nmap <Leader>tc :tabclose<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
@@ -130,7 +132,7 @@ autocmd BufWritePre * :%s/\s\+$//eg
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! RunTests(args)
   if match(expand("%"), '\(_test.coffee\)$') != -1
-    let spec = "mocha --reporter spec"
+    let spec = "NODE_ENV=test mocha --reporter spec"
   else
     if exists("b:rails_root") && filereadable(b:rails_root . "/script/spec")
       let spec = b:rails_root . "/script/spec"
@@ -152,4 +154,5 @@ map <Leader>a :call RunTests("")<CR>
 " Colors
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set t_Co=256
-color tomorrow-night-bright
+set background=dark
+color solarized
