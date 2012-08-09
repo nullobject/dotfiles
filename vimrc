@@ -33,7 +33,7 @@ let g:AutoCloseProtectedRegions = ["Character"]
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CtrlP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set wildignore+=*/.git/*,*/node_modules/*,*/tmp/*,.DS_Store,*.so,*.swp,tags
+set wildignore+=*/.git/*,*/node_modules/*,*/target/*,*/tmp/*,.DS_Store,*.so,*.swp,tags
 map <Leader>f :CtrlP<CR>
 map <Leader>fb :CtrlPBuffer<CR>
 map <Leader>fr :CtrlPMRU<CR>
