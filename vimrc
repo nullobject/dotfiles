@@ -24,7 +24,7 @@ set cursorline " highlight current line
 set winwidth=79
 
 " Set leader key.
-let mapleader = ";"
+let mapleader = ","
 
 " Adding #{} to AutoClose Plugin and activating it for String interpolation.
 let g:AutoClosePairs = {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'", '#{': '}'}
@@ -49,6 +49,25 @@ nmap <S-Tab> :tp<CR>
 " Commentary
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <Leader>c \\\
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Tabularize
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! CustomTabularPatterns()
+  if exists('g:tabular_loaded')
+    AddTabularPattern! equal /^[^=]*\zs=/
+    AddTabularPattern! comma /,\zs/l1r0
+    AddTabularPattern! colon /:\zs/l1r0
+
+    nmap <Leader>a= :Tab equal<CR>
+    vmap <Leader>a= :Tab equal<CR>
+    nmap <Leader>a: :Tab colon<CR>
+    vmap <Leader>a: :Tab colon<CR>
+    nmap <Leader>a, :Tab comma<CR>
+    vmap <Leader>a, :Tab comma<CR>
+  endif
+endfunction
+autocmd VimEnter * call CustomTabularPatterns()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NERDTree
@@ -130,10 +149,10 @@ function! RunTests(args)
 endfunction
 
 " Run one rspec example or describe block based on cursor position.
-map <Leader>t :call RunTests("--line_number=" . <c-r>=line('.')<CR>)<CR>
+map <Leader>ss :call RunTests("--line_number=" . <c-r>=line('.')<CR>)<CR>
 
 " Run full rspec file.
-map <Leader>a :call RunTests("")<CR>
+map <Leader>sa :call RunTests("")<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Colors
