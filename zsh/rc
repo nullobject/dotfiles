@@ -52,3 +52,5 @@ current() {
 }
 
 current
+
+export EDITOR=vi
