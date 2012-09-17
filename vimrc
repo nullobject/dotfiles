@@ -34,7 +34,7 @@ let g:AutoCloseProtectedRegions = ["Character"]
 " CtrlP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set wildignore+=*/.git/*,*/node_modules/*,*/target/*,*/tmp/*,.DS_Store,*.so,*.swp,tags
-map <Leader>f :CtrlP<CR>
+map <Leader>ff :CtrlP<CR>
 map <Leader>fb :CtrlPBuffer<CR>
 map <Leader>fr :CtrlPMRU<CR>
 
@@ -72,7 +72,8 @@ autocmd VimEnter * call CustomTabularPatterns()
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NERDTree
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>n :NERDTreeToggle<CR>
+map <Leader>nn :NERDTreeToggle<CR>
+map <Leader>nf :NERDTreeFind<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Rails
@@ -94,8 +95,6 @@ nnoremap <CR> :nohlsearch<CR>
 
 " Toggle between files.
 nnoremap <Leader><Leader> <c-^>
-
-vmap <c-m> !~/bin/format_comment_block.rb<CR>
 
 " Refresh tags.
 map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclude=vendor *<CR>
@@ -121,6 +120,9 @@ augroup ruby
   autocmd BufRead Gemfile set ft=ruby
   autocmd BufRead *.thor,Thorfile set ft=ruby
 augroup END
+
+au FileType coffee,ruby set tw=80
+au FileType coffee,ruby set fo=croq
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Whitespace
