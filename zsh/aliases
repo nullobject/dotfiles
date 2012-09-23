@@ -112,9 +112,6 @@ alias s='git status -sb $argv; return 0'
 alias d='gd $argv'
 
 
-# rails
-alias sr="script/rails"
-
 
 # misc
 alias reload=". ~/.zshrc"
@@ -131,3 +128,4 @@ alias rb="ruby"
 alias bab="babushka"
 alias knife="nocorrect knife"
 alias v="vim"
+alias fs="foreman start"
