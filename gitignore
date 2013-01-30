@@ -7,3 +7,6 @@
 .*.swp
 *.perspectivev3
 tags
+public/assets
+vim/.netrwhist
+vim/tmp
