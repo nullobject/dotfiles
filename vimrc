@@ -6,10 +6,12 @@ filetype plugin indent on
 syntax on
 
 set nocompatible
-set vb
+set visualbell
+set title
 set tabstop=2
-set backspace=2
+set backspace=indent,eol,start
 set shiftwidth=2
+set scrolloff=3
 set expandtab
 set number " show line numbers
 set laststatus=2 " show the status line
@@ -22,6 +24,9 @@ set pastetoggle=<F2>
 set shell=bash
 set cursorline " highlight current line
 set winwidth=79
+set backupdir=~/.vim/tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set directory=~/.vim/tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set shortmess=atI
 
 " Set leader key.
 let mapleader = ","
@@ -33,7 +38,7 @@ let g:AutoCloseProtectedRegions = ["Character"]
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CtrlP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set wildignore+=*/.git/*,*/node_modules/*,*/target/*,*/tmp/*,.DS_Store,*.so,*.swp,tags
+set wildignore+=*/.git/*,*/dist/*,*/node_modules/*,*/target/*,.DS_Store,*.so,*.swp,tags
 map <Leader>ff :CtrlP<CR>
 map <Leader>fb :CtrlPBuffer<CR>
 map <Leader>fr :CtrlPMRU<CR>
@@ -42,13 +47,18 @@ map <Leader>fr :CtrlPMRU<CR>
 " Ctags
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Cycle through tags.
-nmap <Tab> :tn<CR>
-nmap <S-Tab> :tp<CR>
+" nmap <Tab> :tn<CR>
+" nmap <S-Tab> :tp<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <Leader>c \\\
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ack
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:ackprg = 'ag --nogroup --nocolor --column'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tabularize
@@ -81,8 +91,6 @@ map <Leader>nf :NERDTreeFind<CR>
 map <Leader>rav :AV<CR><C-w>l
 command! Rroutes :Redit config/routes.rb
 command! RTroutes :RTedit config/routes.rb
-command! Rblueprints :Redit spec/support/blueprints.rb
-command! RTblueprints :RTedit spec/support/blueprints.rb
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Misc
@@ -151,7 +159,7 @@ function! RunTests(args)
 endfunction
 
 " Run one rspec example or describe block based on cursor position.
-map <Leader>ss :call RunTests("--line_number=" . <c-r>=line('.')<CR>)<CR>
+map <Leader>ss :call RunTests("--line-number " . <c-r>=line('.')<CR>)<CR>
 
 " Run full rspec file.
 map <Leader>sa :call RunTests("")<CR>
@@ -159,6 +167,5 @@ map <Leader>sa :call RunTests("")<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Colors
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set t_Co=256
 set background=dark
 color solarized
