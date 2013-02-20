@@ -33,6 +33,8 @@ set hidden " prevents losing undo history after save
 " Set leader key.
 let mapleader = ","
 
+let g:ragtag_global_maps = 1
+
 " Adding #{} to AutoClose Plugin and activating it for String interpolation.
 let g:AutoClosePairs = {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'", '#{': '}'}
 let g:AutoCloseProtectedRegions = ["Character"]
