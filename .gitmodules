@@ -47,8 +47,8 @@
   path = vim/bundle/textobj-user
   url = https://github.com/vim-scripts/textobj-user.git
 [submodule "vim/bundle/vim-scala"]
-	path = vim/bundle/vim-scala
-	url = git://github.com/derekwyatt/vim-scala.git
+  path = vim/bundle/vim-scala
+  url = git://github.com/derekwyatt/vim-scala.git
 [submodule "vim/bundle/vim-textobj-user"]
   path = vim/bundle/vim-textobj-user
   url = git://github.com/kana/vim-textobj-user.git
@@ -67,18 +67,15 @@
 [submodule "vim/bundle/nerdtree"]
   path = vim/bundle/nerdtree
   url = git://github.com/scrooloose/nerdtree.git
-[submodule "vim/bundle/vim-jade"]
-  path = vim/bundle/vim-jade
-  url = git://github.com/digitaltoad/vim-jade.git
 [submodule "vim/bundle/vim-colors-solarized"]
-	path = vim/bundle/vim-colors-solarized
-	url = git://github.com/altercation/vim-colors-solarized.git
+  path = vim/bundle/vim-colors-solarized
+  url = git://github.com/altercation/vim-colors-solarized.git
 [submodule "vim/bundle/supertab"]
-	path = vim/bundle/supertab
-	url = git://github.com/ervandew/supertab.git
+  path = vim/bundle/supertab
+  url = git://github.com/ervandew/supertab.git
 [submodule "vim/bundle/tabular"]
-	path = vim/bundle/tabular
-	url = git://github.com/godlygeek/tabular.git
+  path = vim/bundle/tabular
+  url = git://github.com/godlygeek/tabular.git
 [submodule "vim/bundle/syntastic"]
-	path = vim/bundle/syntastic
-	url = https://github.com/scrooloose/syntastic.git
+  path = vim/bundle/syntastic
+  url = https://github.com/scrooloose/syntastic.git
