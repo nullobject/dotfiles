@@ -1,6 +1,8 @@
 setopt prompt_subst
 setopt hist_ignore_dups
 
+[ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
+
 . ~/.zsh/paths
 . ~/.zsh/prompt
 . ~/.zsh/aliases
