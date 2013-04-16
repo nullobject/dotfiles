@@ -80,5 +80,11 @@
   path = vim/bundle/syntastic
   url = https://github.com/scrooloose/syntastic.git
 [submodule "vim/bundle/puppet"]
-	path = vim/bundle/puppet
-	url = git://github.com/rodjek/vim-puppet.git
+  path = vim/bundle/puppet
+  url = git://github.com/rodjek/vim-puppet.git
+[submodule "vim/bundle/actionscript"]
+  path = vim/bundle/actionscript
+  url = git://github.com/jeroenbourgois/vim-actionscript.git
+[submodule "vim/bundle/vim-dispatch"]
+	path = vim/bundle/vim-dispatch
+	url = git://github.com/tpope/vim-dispatch.git
