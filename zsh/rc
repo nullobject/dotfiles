@@ -19,27 +19,14 @@ setopt inc_append_history
 unsetopt autocd
 bindkey -v
 # End of lines configured by zsh-newuser-install
+
 # The following lines were added by compinstall
-zstyle :compinstall filename '/Users/ben/.zshrc'
+zstyle :compinstall filename '/Users/josh/.zshrc'
 
 autoload -Uz compinit
 compinit
 setopt complete_in_word
 # End of lines added by compinstall
-
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-
-export WORDCHARS='*?[]~=&;!#$%^(){}'
-
-# mappings for Ctrl/Option-left-arrow and Ctrl/Option-right-arrow for word moving
-bindkey "\e\e[C"  forward-word
-bindkey "\e\e[D"  backward-word
-
-bindkey '^' self-insert-backslash
-function self-insert-backslash() { LBUFFER+='\'; zle .self-insert }
-zle -N self-insert-backslash
-
-[[ -d "$HOME/.rbenv" ]] && export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
 
 export CURRENT_PROJECT_PATH=$HOME/.current-project
 

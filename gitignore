@@ -6,6 +6,7 @@
 .swp
 .*.swp
 *.perspectivev3
+.ruby-version
 tags
 public/assets
 vim/.netrwhist
