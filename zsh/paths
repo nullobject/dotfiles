@@ -1,4 +1,4 @@
-export PATH="./bin:$HOME/bin:$HOME/.cabal/bin:/usr/local/sbin:/usr/local/bin:$PATH"
+export PATH="./bin:$HOME/bin:$HOME/Library/Haskell/bin:/usr/local/sbin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/share/man:$MANPATH"
 
 # Node
