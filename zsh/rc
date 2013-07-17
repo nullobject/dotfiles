@@ -1,6 +1,3 @@
-setopt prompt_subst
-setopt hist_ignore_dups
-
 [ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
 
 . ~/.zsh/paths
@@ -9,24 +6,19 @@ setopt hist_ignore_dups
 . ~/.zsh/git_aliases
 . ~/.zsh/functions
 
-# Lines configured by zsh-newuser-install
 HISTFILE=~/.zsh_history
 HISTSIZE=1000000
 SAVEHIST=1000000
 setopt extendedglob notify
 setopt append_history
 setopt inc_append_history
+setopt prompt_subst
+setopt hist_ignore_dups
 unsetopt autocd
 bindkey -v
-# End of lines configured by zsh-newuser-install
-
-# The following lines were added by compinstall
-zstyle :compinstall filename '/Users/josh/.zshrc'
 
 autoload -Uz compinit
 compinit
-setopt complete_in_word
-# End of lines added by compinstall
 
 export CURRENT_PROJECT_PATH=$HOME/.current-project
 

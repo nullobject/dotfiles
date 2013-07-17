@@ -25,11 +25,10 @@ set pastetoggle=<F2>
 set shell=bash
 set cursorline " highlight current line
 set winwidth=79
-set backupdir=~/.vim/tmp,~/.tmp,~/tmp,/var/tmp,/tmp
-set directory=~/.vim/tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set hidden " prevents losing undo history after save
+set noswapfile
 set shortmess=atI
 set clipboard+=unnamed " yank goes to clipboard
-set hidden " prevents losing undo history after save
 
 " Set leader key.
 let mapleader = ","
