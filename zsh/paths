@@ -1,4 +1,4 @@
-export PATH="./bin:$HOME/bin:$HOME/Library/Haskell/bin:/usr/local/sbin:/usr/local/bin:$PATH"
+export PATH="./node_modules/.bin:./bin:$HOME/bin:$HOME/Library/Haskell/bin:/usr/local/sbin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/share/man:$MANPATH"
 
 # Node
