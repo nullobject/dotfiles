@@ -10,6 +10,21 @@ Bundle 'tpope/vim-fugitive'
 " Power substitution
 Bundle 'tpope/vim-abolish'
 
+" Power matching with % key
+Bundle 'tsaleh/vim-matchit'
+
+" Ruby block selecting
+Bundle 'kana/vim-textobj-user'
+Bundle 'nelstrom/vim-textobj-rubyblock'
+
+" Power status line
+Bundle 'bling/vim-airline'
+let g:airline_theme = 'solarized'
+let g:airline_powerline_fonts = 1
+
+" Multiple cursors
+Bundle 'terryma/vim-multiple-cursors'
+
 " Rails
 Bundle 'tpope/vim-rails'
 
@@ -64,12 +79,7 @@ Bundle "mileszs/ack.vim"
 " Async tasks
 Bundle "tpope/vim-dispatch"
 
-" Async tasks
-Bundle "tpope/vim-dispatch"
-
 filetype plugin indent on
-
-syntax on
 
 set mouse=a
 set visualbell
@@ -107,7 +117,7 @@ let g:AutoCloseProtectedRegions = ["Character"]
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CtrlP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set wildignore+=*/.git/*,*/dist/*,*/node_modules/*,*/target/*,.DS_Store,*.so,*.swp,tags
+set wildignore+=*/.git/*,public/*,*/dist/*,*/node_modules/*,*/target/*,.DS_Store,*.so,*.swp,tags
 map <Leader>ff :CtrlP<CR>
 map <Leader>fb :CtrlPBuffer<CR>
 map <Leader>fr :CtrlPMRU<CR>
@@ -152,7 +162,7 @@ map <Leader>nf :NERDTreeFind<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Rails
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>rav :AV<CR><C-w>l
+map <Leader>rav :AV<CR><C-w>L
 command! Rroutes :Redit config/routes.rb
 command! RTroutes :RTedit config/routes.rb
 
@@ -208,28 +218,14 @@ autocmd BufWritePre * :%s/\s\+$//eg
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RSpec
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! RunTests(args)
-  if match(expand("%"), '\(_test.coffee\)$') != -1
-    let spec = "NODE_ENV=test mocha --reporter spec"
-  else
-    if exists("b:rails_root") && filereadable(b:rails_root . "/script/spec")
-      let spec = b:rails_root . "/script/spec"
-    else
-      let spec = "bundle exec rspec --color --format=documentation"
-    end
-  end
-  let cmd = ":!" . spec . " " . a:args . " %"
-  execute cmd
-endfunction
-
-" Run one rspec example or describe block based on cursor position.
-map <Leader>ss :call RunTests("--line-number " . <c-r>=line('.')<CR>)<CR>
-
-" Run full rspec file.
-map <Leader>sa :call RunTests("")<CR>
+map <Leader>t :call RunCurrentSpecFile()<CR>
+map <Leader>s :call RunNearestSpec()<CR>
+map <Leader>l :call RunLastSpec()<CR>
+map <Leader>a :call RunAllSpecs()<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Colors
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set background=dark
 color solarized
+syntax on
