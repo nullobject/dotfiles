@@ -1,12 +1,77 @@
+set nocompatible
 filetype off
-call pathogen#infect()
-call pathogen#helptags()
+
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" Git wrapper
+Bundle 'tpope/vim-fugitive'
+
+" Power substitution
+Bundle 'tpope/vim-abolish'
+
+" Rails
+Bundle 'tpope/vim-rails'
+
+" Autocomplete ruby blocks
+Bundle 'tpope/vim-endwise'
+
+" Cuke
+Bundle 'tpope/vim-cucumber'
+
+" Markdown
+Bundle 'tpope/vim-markdown'
+
+" CoffeeScript
+Bundle "kchmck/vim-coffee-script"
+
+" LESS
+Bundle "lunaru/vim-less"
+
+" RSpec
+Bundle "thoughtbot/vim-rspec"
+
+" Power surrounding
+Bundle 'tpope/vim-surround'
+
+" Power HTML tags
+Bundle 'tpope/vim-ragtag'
+
+" Power repeating
+Bundle 'tpope/vim-repeat'
+
+" Power commenting
+Bundle 'tpope/vim-commentary'
+
+" Finder
+Bundle "kien/ctrlp.vim"
+
+" NERDTree
+Bundle "scrooloose/nerdtree"
+
+" Solarized colour scheme
+Bundle "altercation/vim-colors-solarized"
+
+" Power tab key
+Bundle "ervandew/supertab"
+
+" Power text alignment
+Bundle "godlygeek/tabular"
+
+" Ack wrapper
+Bundle "mileszs/ack.vim"
+
+" Async tasks
+Bundle "tpope/vim-dispatch"
+
+" Async tasks
+Bundle "tpope/vim-dispatch"
+
 filetype plugin indent on
 
 syntax on
 
 set mouse=a
-set nocompatible
 set visualbell
 set title
 set tabstop=2
