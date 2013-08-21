@@ -148,9 +148,13 @@ autocmd VimEnter * call CustomTabularPatterns()
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NERDTree
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>tt :NERDTreeToggle<CR>
-map <Leader>tf :NERDTreeFind<CR>
-map <Leader>tn :tabe<Space>%%
+map <Leader>nn :NERDTreeToggle<CR>
+map <Leader>nf :NERDTreeFind<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Tabs
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <Leader>tt :tabe<Space>%%
 map <Leader>tc :tabc<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
