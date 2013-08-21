@@ -51,6 +51,7 @@ Bundle 'tpope/vim-surround'
 
 " Power HTML tags
 Bundle 'tpope/vim-ragtag'
+let g:ragtag_global_maps = 1
 
 " Power repeating
 Bundle 'tpope/vim-repeat'
@@ -60,6 +61,7 @@ Bundle 'tpope/vim-commentary'
 
 " Finder
 Bundle "kien/ctrlp.vim"
+set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*
 
 " NERDTree
 Bundle "scrooloose/nerdtree"
@@ -73,8 +75,8 @@ Bundle "ervandew/supertab"
 " Power text alignment
 Bundle "godlygeek/tabular"
 
-" Ack wrapper
-Bundle "mileszs/ack.vim"
+" The Silver Searcher wrapper
+Bundle "rking/ag.vim"
 
 " Async tasks
 Bundle "tpope/vim-dispatch"
@@ -89,45 +91,35 @@ set backspace=indent,eol,start
 set shiftwidth=2
 set scrolloff=3
 set expandtab
-set number " show line numbers
+set relativenumber " Show relative line numbers.
 set laststatus=2 " show the status line
 set ruler " show the cursor position
-set hlsearch " highlight search results
-set ignorecase smartcase " make searches case-sensitive only if they contain upper-case characters
-set incsearch
+set autoread " Re-read files if they change outside vim.
+set smarttab
+set autoindent
+set showmatch
+
+set incsearch  " Highlight while searching
+set hlsearch   " Highlight search results
+set ignorecase " Search should be case-insensitive by default
+set smartcase  " Search should be case-sensitive only if it contains upper-case characters
+
 set wildmode=longest,list
 set pastetoggle=<F2>
-set shell=bash
 set cursorline " highlight current line
 set winwidth=79
 set hidden " prevents losing undo history after save
+set backupdir=~/tmp
+set directory=~/tmp
 set noswapfile
 set shortmess=atI
-set clipboard+=unnamed " yank goes to clipboard
+set shell=bash
+
+" Don't wait so long for the next keypress (useful for ambiguous leader keys).
+set timeoutlen=500
 
 " Set leader key.
 let mapleader = ","
-
-let g:ragtag_global_maps = 1
-
-" Adding #{} to AutoClose Plugin and activating it for String interpolation.
-let g:AutoClosePairs = {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'", '#{': '}'}
-let g:AutoCloseProtectedRegions = ["Character"]
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" CtrlP
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set wildignore+=*/.git/*,public/*,*/dist/*,*/node_modules/*,*/target/*,.DS_Store,*.so,*.swp,tags
-map <Leader>ff :CtrlP<CR>
-map <Leader>fb :CtrlPBuffer<CR>
-map <Leader>fr :CtrlPMRU<CR>
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Ctags
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Cycle through tags.
-" nmap <Tab> :tn<CR>
-" nmap <S-Tab> :tp<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
@@ -139,16 +131,13 @@ map <Leader>c \\\
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! CustomTabularPatterns()
   if exists('g:tabular_loaded')
-    AddTabularPattern! equal /^[^=]*\zs=/
-    AddTabularPattern! comma /,\zs/l1r0
-    AddTabularPattern! colon /:\zs/l1r0
+    AddTabularPattern! colon  /:\zs/l1r0
+    AddTabularPattern! equal  /^[^=]*\zs=/
+    AddTabularPattern! rocket /^[^=]*\zs=>/
 
-    nmap <Leader>a= :Tab equal<CR>
-    vmap <Leader>a= :Tab equal<CR>
-    nmap <Leader>a: :Tab colon<CR>
     vmap <Leader>a: :Tab colon<CR>
-    nmap <Leader>a, :Tab comma<CR>
-    vmap <Leader>a, :Tab comma<CR>
+    vmap <Leader>a= :Tab equal<CR>
+    vmap <Leader>a> :Tab rocket<CR>
   endif
 endfunction
 autocmd VimEnter * call CustomTabularPatterns()
@@ -156,13 +145,14 @@ autocmd VimEnter * call CustomTabularPatterns()
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NERDTree
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>nn :NERDTreeToggle<CR>
-map <Leader>nf :NERDTreeFind<CR>
+map <Leader>tt :NERDTreeToggle<CR>
+map <Leader>tf :NERDTreeFind<CR>
+map <Leader>tn :tabe<Space>%%
+map <Leader>tc :tabc<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Rails
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>rav :AV<CR><C-w>L
 command! Rroutes :Redit config/routes.rb
 command! RTroutes :RTedit config/routes.rb
 
@@ -170,22 +160,45 @@ command! RTroutes :RTedit config/routes.rb
 " Misc
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Expand current directory.
-cnoremap %% <C-R>=expand('%:h').'/'<cr>
+cnoremap %% <C-R>=expand('%:h').'/'<CR>
 
-" Clear the search buffer when hitting return.
+" Stop highlighting the search.
 nnoremap <CR> :nohlsearch<CR>
 
 " Toggle between files.
-nnoremap <Leader><Leader> <c-^>
+nnoremap <Leader><Leader> <C-^>
 
 " Refresh tags.
 map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclude=vendor *<CR>
 
+" Re-indent the buffer.
+map <Leader>i mmgg=G`m<CR>
+
+" Put the text in the * register in paste mode.
+" map <Leader>p :set paste<CR>o<Esc>"*]p:set nopaste<CR>
+
+" Yank the buffer to the * register.
+map <Leader>co ggVG"*y
+
+nmap <Tab> :cn<CR>
+nmap <S-Tab> :cp<CR>
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Tabs
+" Ag
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nmap <Leader>tn :tabnew<CR>
-nmap <Leader>tc :tabclose<CR>
+
+" Open the command-line with an empty search string.
+nmap <Leader>f :Ag ""<Left>
+
+" Search for the selected text.
+vmap <Leader>f yy:Ag ""<Left><C-R>"<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Git
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <Leader>gc :Gcommit -m ""<Left>
+map <Leader>gac :Gcommit -a -m ""<Left>
+map <Leader>gs :Gstatus<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
@@ -218,10 +231,10 @@ autocmd BufWritePre * :%s/\s\+$//eg
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RSpec
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>t :call RunCurrentSpecFile()<CR>
-map <Leader>s :call RunNearestSpec()<CR>
-map <Leader>l :call RunLastSpec()<CR>
-map <Leader>a :call RunAllSpecs()<CR>
+map <Leader>st :call RunCurrentSpecFile()<CR>
+map <Leader>ss :call RunNearestSpec()<CR>
+map <Leader>sl :call RunLastSpec()<CR>
+map <Leader>sa :call RunAllSpecs()<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Colors
