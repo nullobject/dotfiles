@@ -23,6 +23,7 @@ gdbr() {
 }
 alias gdc='git diff --cached -M'
 alias gdc.='git diff --cached -M --color-words="."'
+alias gdn='git diff --name-only --diff-filter=U'
 alias gf='git fetch'
 git-new() {
   [ -d "$1" ] || mkdir "$1" &&
@@ -38,11 +39,6 @@ git_current_branch() {
 alias glog='git log --date-order --pretty="format:%C(yellow)%h%Cblue%d%Creset %s %C(white) %an, %ar%Creset"'
 alias gl='glog --graph'
 alias gla='gl --all'
-#gls() {
-#  query="$1"
-#  shift
-#  glog --pickaxe-regex "-S$query" "$@"
-#}
 alias gm='git merge --no-ff'
 alias gmf='git merge --ff-only'
 alias gmfthis='gmf origin/$(git_current_branch)'
@@ -62,8 +58,3 @@ alias gs.='git show --color-words="."'
 alias gst='git stash'
 alias gstp='git stash pop'
 alias gup='git smart-pull'
-gupstation() {
-  gup
-  gf production
-  gf staging
-}
