@@ -81,6 +81,9 @@ Bundle "rking/ag.vim"
 " Async tasks
 Bundle "tpope/vim-dispatch"
 
+" Puppet
+Bundle "rodjek/vim-puppet"
+
 filetype plugin indent on
 
 set mouse=a
