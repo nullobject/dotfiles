@@ -185,7 +185,7 @@ map <Leader>i mmgg=G`m<CR>
 " map <Leader>p :set paste<CR>o<Esc>"*]p:set nopaste<CR>
 
 " Yank the buffer to the * register.
-map <Leader>co ggVG"*y
+" map <Leader>co ggVG"*y
 
 nmap <Tab> :cn<CR>
 nmap <S-Tab> :cp<CR>
