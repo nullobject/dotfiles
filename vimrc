@@ -182,23 +182,27 @@ map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclud
 map <Leader>i mmgg=G`m<CR>
 
 " Put the text in the * register in paste mode.
-" map <Leader>p :set paste<CR>o<Esc>"*]p:set nopaste<CR>
+map <Leader>p :set paste<CR>o<Esc>"*]p:set nopaste<CR>
 
 " Yank the buffer to the * register.
-" map <Leader>co ggVG"*y
+" map <Leader>y ggVG"*y
 
-nmap <Tab> :cn<CR>
-nmap <S-Tab> :cp<CR>
+map <Leader>r :!sort<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Ag
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Open the command-line with an empty search string.
-nmap <Leader>f :Ag ""<Left>
+nmap <Leader>ff :Ag ""<Left>
 
 " Search for the selected text.
-vmap <Leader>f yy:Ag ""<Left><C-R>"<CR>
+vmap <Leader>ff yy:Ag ""<Left><C-R>"<CR>
+
+nmap <Leader>fc :cclose<CR>
+nmap <Leader>fo :copen<CR>
+nmap <Tab> :cnext<CR>
+nmap <S-Tab> :cprevious<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Git
