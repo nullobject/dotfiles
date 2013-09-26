@@ -118,6 +118,12 @@ set noswapfile
 set shortmess=atI
 set shell=bash
 
+" Ensure new splits are opened below the current window.
+set splitbelow
+
+" Ensure new vsplits are opened to the right of the current window.
+set splitright
+
 " Don't wait so long for the next keypress (useful for ambiguous leader keys).
 set timeoutlen=500
 
@@ -227,17 +233,20 @@ augroup ruby
   autocmd BufRead *.thor,Thorfile set ft=ruby
 augroup END
 
-au FileType coffee,ruby set tw=80
-au FileType coffee,ruby set fo=croq
+autocmd FileType coffee,ruby setlocal tw=80
+autocmd FileType coffee,ruby setlocal fo=croq
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Whitespace
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Nuke tabs.
-autocmd BufWritePre * :%s/\t/  /eg
+autocmd FileType coffee,ruby autocmd BufWritePre * :%s/\t/  /eg
 
 " Nuke lines containing only whitespace.
 autocmd BufWritePre * :%s/\s\+$//eg
+
+" Ensure makefiles use TAB characters.
+autocmd FileType make setlocal noexpandtab
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RSpec
