@@ -191,7 +191,7 @@ map <Leader>i mmgg=G`m<CR>
 map <Leader>p :set paste<CR>o<Esc>"*]p:set nopaste<CR>
 
 " Yank the buffer to the * register.
-" map <Leader>y ggVG"*y
+map <Leader>y ggVG"*y
 
 map <Leader>r :!sort<CR>
 
