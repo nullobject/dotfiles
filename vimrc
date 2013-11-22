@@ -225,7 +225,11 @@ augroup less
 augroup END
 
 augroup mkd
-  autocmd BufRead *.md,*.mkd,*.markdown set ft=markdown
+  " Set markdown format.
+  autocmd BufRead,BufNewFile *.md set ft=markdown
+
+  " Enable spellchecking for markdown.
+  autocmd BufRead,BufNewFile *.md setlocal spell
 augroup END
 
 augroup ruby
