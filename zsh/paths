@@ -1,5 +1,5 @@
-export PATH="./node_modules/.bin:$HOME/bin:/usr/local/bin:$PATH"
-export MANPATH="/usr/local/share/man:$MANPATH"
+export PATH="./node_modules/.bin:$HOME/.bin:/usr/local/bin:$PATH"
+export MANPATH="/usr/local/man:$MANPATH"
 
 # Haskell
 export PATH="$HOME/Library/Haskell/bin:/Library/Haskell/bin:$PATH"
