@@ -98,7 +98,6 @@ alias whoami="$brew_prefix/bin/gwhoami"
 alias yes="$brew_prefix/bin/gyes"
 alias '['="$brew_prefix/bin/g\["
 
-
 # ls
 alias ls="gls --color=auto"
 alias l="ls -lAh"
@@ -106,21 +105,13 @@ alias ll="ls -lh"
 alias la="ls -A"
 alias lt="tree"
 
-
 # git
 alias s='git status -sb $argv; return 0'
 alias d='gd $argv'
 
-
-
 # misc
 alias reload=". ~/.zshrc"
-alias hs="history -a; history -n"
-alias lp-2up-duplex="lp -d DocuCentre_III_C2201 -o number-up=2 -o sides=two-sided-long-edge"
-alias lp-2up="lp -d DocuCentre_III_C2201 -o number-up=2"
-alias cuke="cucumber"
 alias be="bundle exec"
-alias knife="nocorrect knife"
 alias v="vim"
 alias fs="foreman start"
 alias b="bundle"
