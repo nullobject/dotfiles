@@ -4,85 +4,88 @@ filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
+" Vundle plugin manager
+Plugin 'gmarik/vundle'
+
 " Git wrapper
-Bundle 'tpope/vim-fugitive'
+Plugin 'tpope/vim-fugitive'
 
 " Power substitution
-Bundle 'tpope/vim-abolish'
+Plugin 'tpope/vim-abolish'
 
 " Power matching with % key
-Bundle 'tsaleh/vim-matchit'
+Plugin 'matchit.zip'
 
 " Ruby block selecting
-Bundle 'kana/vim-textobj-user'
-Bundle 'nelstrom/vim-textobj-rubyblock'
+Plugin 'kana/vim-textobj-user'
+Plugin 'nelstrom/vim-textobj-rubyblock'
 
 " Power status line
-Bundle 'bling/vim-airline'
+Plugin 'bling/vim-airline'
 let g:airline_theme = 'solarized'
 let g:airline_powerline_fonts = 1
 
 " Multiple cursors
-Bundle 'terryma/vim-multiple-cursors'
+Plugin 'terryma/vim-multiple-cursors'
 
 " Rails
-Bundle 'tpope/vim-rails'
+Plugin 'tpope/vim-rails'
 
 " Autocomplete ruby blocks
-Bundle 'tpope/vim-endwise'
+Plugin 'tpope/vim-endwise'
 
-" Cuke
-Bundle 'tpope/vim-cucumber'
+" Cucumber
+Plugin 'tpope/vim-cucumber'
 
 " Markdown
-Bundle 'tpope/vim-markdown'
+Plugin 'tpope/vim-markdown'
 
 " CoffeeScript
-Bundle "kchmck/vim-coffee-script"
+Plugin 'kchmck/vim-coffee-script'
 
 " LESS
-Bundle "lunaru/vim-less"
+Plugin 'lunaru/vim-less'
 
 " RSpec
-Bundle "thoughtbot/vim-rspec"
+Plugin 'thoughtbot/vim-rspec'
 
 " Power surrounding
-Bundle 'tpope/vim-surround'
+Plugin 'tpope/vim-surround'
 
 " Power HTML tags
-Bundle 'tpope/vim-ragtag'
+Plugin 'tpope/vim-ragtag'
 let g:ragtag_global_maps = 1
 
 " Power repeating
-Bundle 'tpope/vim-repeat'
+Plugin 'tpope/vim-repeat'
 
 " Power commenting
-Bundle 'tpope/vim-commentary'
+Plugin 'tpope/vim-commentary'
 
 " Finder
-Bundle "kien/ctrlp.vim"
+Plugin 'kien/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*
 
 " NERDTree
-Bundle "scrooloose/nerdtree"
+Plugin 'scrooloose/nerdtree'
 
 " Solarized colour scheme
-Bundle "altercation/vim-colors-solarized"
+Plugin 'altercation/vim-colors-solarized'
 
 " Power tab key
-Bundle "ervandew/supertab"
+Plugin 'ervandew/supertab'
 
 " Power text alignment
-Bundle "godlygeek/tabular"
+Plugin 'godlygeek/tabular'
 
-" The Silver Searcher wrapper
-Bundle "rking/ag.vim"
+" Silver Searcher wrapper
+Plugin 'rking/ag.vim'
 
 " Async tasks
-Bundle "tpope/vim-dispatch"
+Plugin 'tpope/vim-dispatch'
 
 " Puppet
-Bundle "rodjek/vim-puppet"
+Plugin 'rodjek/vim-puppet'
 
 filetype plugin indent on
 
