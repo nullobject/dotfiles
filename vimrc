@@ -42,6 +42,7 @@ Plugin 'tpope/vim-markdown'
 
 " CoffeeScript
 Plugin 'kchmck/vim-coffee-script'
+Plugin 'mintplant/vim-literate-coffeescript'
 
 " LESS
 Plugin 'lunaru/vim-less'
