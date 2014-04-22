@@ -88,6 +88,9 @@ Plugin 'tpope/vim-dispatch'
 " Puppet
 Plugin 'rodjek/vim-puppet'
 
+" Objective-C
+Plugin 'msanders/cocoa.vim'
+
 filetype plugin indent on
 
 set mouse=a
