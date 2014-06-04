@@ -28,6 +28,9 @@ let g:airline_powerline_fonts = 1
 " Multiple cursors
 Plugin 'terryma/vim-multiple-cursors'
 
+" Pair key mappings
+Plugin 'tpope/vim-unimpaired'
+
 " Rails
 Plugin 'tpope/vim-rails'
 
@@ -68,7 +71,7 @@ Plugin 'kien/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*
 
 " NERDTree
-Plugin 'scrooloose/nerdtree'
+" Plugin 'scrooloose/nerdtree'
 
 " Solarized colour scheme
 Plugin 'altercation/vim-colors-solarized'
@@ -90,6 +93,9 @@ Plugin 'rodjek/vim-puppet'
 
 " Objective-C
 Plugin 'msanders/cocoa.vim'
+
+" Action Script
+Plugin 'jeroenbourgois/vim-actionscript'
 
 filetype plugin indent on
 
@@ -136,6 +142,11 @@ set timeoutlen=500
 
 " Set leader key.
 let mapleader = ","
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Explore
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map - :Explore<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
