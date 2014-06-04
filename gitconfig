@@ -50,3 +50,6 @@
   keepBackup = true
 [github]
 	user = josh
+[filter "media"]
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f
