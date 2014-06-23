@@ -97,6 +97,9 @@ Plugin 'msanders/cocoa.vim'
 " Action Script
 Plugin 'jeroenbourgois/vim-actionscript'
 
+" Haskell
+Plugin 'raichoo/haskell-vim'
+
 filetype plugin indent on
 
 set mouse=a
