@@ -258,6 +258,10 @@ augroup ruby
   autocmd BufRead *.thor,Thorfile set ft=ruby
 augroup END
 
+augroup coffee
+  autocmd BufRead *.cjsx set ft=coffee
+augroup END
+
 autocmd FileType coffee,ruby setlocal tw=80
 autocmd FileType coffee,ruby setlocal fo=croq
 
