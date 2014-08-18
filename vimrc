@@ -100,6 +100,12 @@ Plugin 'jeroenbourgois/vim-actionscript'
 " Haskell
 Plugin 'raichoo/haskell-vim'
 
+" Syntax checking
+Plugin 'scrooloose/syntastic'
+
+" PureScript
+Plugin 'raichoo/purescript-vim'
+
 filetype plugin indent on
 
 set mouse=a
@@ -260,6 +266,11 @@ augroup END
 
 augroup coffee
   autocmd BufRead *.cjsx set ft=coffee
+augroup END
+
+augroup purescript
+  " Add comment format for commentary plugin.
+  autocmd FileType purescript set commentstring=--\ %s
 augroup END
 
 autocmd FileType coffee,ruby setlocal tw=80
