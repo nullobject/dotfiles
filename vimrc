@@ -71,7 +71,7 @@ Plugin 'kien/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*
 
 " NERDTree
-" Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/nerdtree'
 
 " Solarized colour scheme
 Plugin 'altercation/vim-colors-solarized'
@@ -105,6 +105,13 @@ Plugin 'scrooloose/syntastic'
 
 " PureScript
 Plugin 'raichoo/purescript-vim'
+
+" Swift
+Plugin 'Keithbsmiley/swift.vim'
+
+" HTML + JS
+Plugin 'othree/yajs.vim'
+Plugin 'othree/html5.vim'
 
 filetype plugin indent on
 
@@ -181,8 +188,8 @@ autocmd VimEnter * call CustomTabularPatterns()
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NERDTree
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" map <Leader>nn :NERDTreeToggle<CR>
-" map <Leader>nf :NERDTreeFind<CR>
+map <Leader>nn :NERDTreeToggle<CR>
+map <Leader>nf :NERDTreeFind<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tabs
@@ -203,7 +210,7 @@ command! RTroutes :RTedit config/routes.rb
 cnoremap %% <C-R>=expand('%:h').'/'<CR>
 
 " Stop highlighting the search.
-nnoremap <CR> :nohlsearch<CR>
+" nnoremap <CR> :nohlsearch<CR>
 
 " Toggle between files.
 nnoremap <Leader><Leader> <C-^>
@@ -265,7 +272,7 @@ augroup ruby
 augroup END
 
 augroup coffee
-  autocmd BufRead *.cjsx set ft=coffee
+  autocmd BufRead,BufNewFile *.cjsx set ft=coffee
 augroup END
 
 augroup purescript
