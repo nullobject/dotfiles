@@ -113,6 +113,9 @@ Plugin 'Keithbsmiley/swift.vim'
 Plugin 'othree/yajs.vim'
 Plugin 'othree/html5.vim'
 
+" Scala
+Plugin 'derekwyatt/vim-scala'
+
 filetype plugin indent on
 
 set mouse=a
