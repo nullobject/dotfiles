@@ -1,0 +1,29 @@
+Host *
+  IdentityFile ~/.ssh/id_rsa
+  ServerAliveInterval 60
+
+Host joellegergis
+  Hostname joellegergis.com
+  User joelle
+
+Host climatehistory
+  Hostname climatehistory.com.au
+  User climateh
+
+Host tellingwords
+  Hostname tellingwords.com.au
+  User julie
+
+Host freeshell
+  Hostname sdf.lonestar.org
+  User jmba096
+
+Host pandora
+  Hostname pandora.earthsci.unimelb.edu.au
+  LocalForward 13283 localhost:3283
+  LocalForward 15900 localhost:5900
+
+Host vcc
+  Hostname vanya.vicclimb.org.au
+  Port 443
+  User tlucas
