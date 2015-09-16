@@ -1,4 +1,5 @@
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+[ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
+. `brew --prefix`/etc/profile.d/z.sh
 
 . ~/.zsh/paths
 . ~/.zsh/prompt
@@ -19,19 +20,5 @@ bindkey -v
 
 autoload -Uz compinit
 compinit
-
-export CURRENT_PROJECT_PATH=$HOME/.current-project
-
-function chpwd {
-  echo $(pwd) >! $CURRENT_PROJECT_PATH
-}
-
-current() {
-  if [[ -f $CURRENT_PROJECT_PATH ]]; then
-    cd "$(cat $CURRENT_PROJECT_PATH)"
-  fi
-}
-
-current
 
 export EDITOR=vi

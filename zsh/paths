@@ -1,4 +1,6 @@
-export PATH="$HOME/.bin:/usr/local/bin:$PATH"
+OCLINT_HOME=/opt/oclint
+
+export PATH="$OCLINT_HOME/bin:$HOME/.bin:/usr/local/bin:$PATH"
 export MANPATH="/usr/local/share/man:$MANPATH"
 export CDPATH=".:$HOME/src/nullobject:$HOME/src/ferocia:$CDPATH"
 

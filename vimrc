@@ -45,7 +45,6 @@ Plugin 'tpope/vim-markdown'
 
 " CoffeeScript
 Plugin 'kchmck/vim-coffee-script'
-Plugin 'mintplant/vim-literate-coffeescript'
 
 " LESS
 Plugin 'lunaru/vim-less'
@@ -101,7 +100,7 @@ Plugin 'jeroenbourgois/vim-actionscript'
 Plugin 'raichoo/haskell-vim'
 
 " Syntax checking
-Plugin 'scrooloose/syntastic'
+" Plugin 'scrooloose/syntastic'
 
 " PureScript
 Plugin 'raichoo/purescript-vim'
@@ -110,8 +109,8 @@ Plugin 'raichoo/purescript-vim'
 Plugin 'Keithbsmiley/swift.vim'
 
 " HTML + JS
-Plugin 'othree/yajs.vim'
-Plugin 'othree/html5.vim'
+" Plugin 'othree/yajs.vim'
+" Plugin 'othree/html5.vim'
 
 " Scala
 Plugin 'derekwyatt/vim-scala'
@@ -126,10 +125,10 @@ set backspace=indent,eol,start
 set shiftwidth=2
 set scrolloff=3
 set expandtab
-set relativenumber " Show relative line numbers.
-set laststatus=2 " show the status line
-set ruler " show the cursor position
-set autoread " Re-read files if they change outside vim.
+set number " Show line numbers
+set laststatus=2 " Show the status line
+set ruler " Show the cursor position
+set autoread " Re-read files if they change outside vim
 set smarttab
 set autoindent
 set showmatch
@@ -141,9 +140,9 @@ set smartcase  " Search should be case-sensitive only if it contains upper-case 
 
 set wildmode=longest,list
 set pastetoggle=<F2>
-set cursorline " highlight current line
+set cursorline " Highlight current line
 set winwidth=79
-set hidden " prevents losing undo history after save
+set hidden " Prevents losing undo history after save
 set backupdir=~/tmp
 set directory=~/tmp
 set noswapfile

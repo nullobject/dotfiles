@@ -1,6 +1,6 @@
 [user]
-  name = Josh Bassett
-  email = josh.bassett@gmail.com
+	name = Josh Bassett
+	email = josh.bassett@gmail.com
 
 [push]
   default = tracking
@@ -38,7 +38,7 @@
 [core]
   editor = vim
   whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
-  excludesfile = ~/.gitignore
+  excludesfile = /opt/boxen/config/git/gitignore
 
 [apply]
   whitespace = nowarn
@@ -47,9 +47,16 @@
   protocol = https
 
 [mergetool]
-  keepBackup = true
+	keepBackup = true
 [github]
 	user = josh
 [filter "media"]
-  clean = git-media-clean %f
-  smudge = git-media-smudge %f
+	clean = git-media-clean %f
+	smudge = git-media-smudge %f
+
+[credential]
+helper = /opt/boxen/bin/boxen-git-credential
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true
