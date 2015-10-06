@@ -226,8 +226,11 @@ map <Leader>i mmgg=G`m<CR>
 " Put the text in the * register in paste mode.
 map <Leader>p :set paste<CR>o<Esc>"*]p:set nopaste<CR>
 
-" Yank the buffer to the * register.
-map <Leader>y ggVG"*y
+" Yank the entire buffer to the * register.
+nmap <Leader>y ggVG"*y
+
+" Yank the selection to the * register.
+vmap <Leader>y "*y
 
 map <Leader>r :!sort<CR>
 
