@@ -26,7 +26,7 @@ let g:airline_theme = 'solarized'
 let g:airline_powerline_fonts = 1
 
 " Multiple cursors
-Plugin 'terryma/vim-multiple-cursors'
+" Plugin 'terryma/vim-multiple-cursors'
 
 " Pair key mappings
 Plugin 'tpope/vim-unimpaired'
@@ -66,7 +66,7 @@ Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-commentary'
 
 " Finder
-Plugin 'kien/ctrlp.vim'
+Plugin 'ctrlpvim/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*
 
 " NERDTree
@@ -91,10 +91,10 @@ Plugin 'tpope/vim-dispatch'
 Plugin 'rodjek/vim-puppet'
 
 " Objective-C
-Plugin 'msanders/cocoa.vim'
+" Plugin 'msanders/cocoa.vim'
 
 " Action Script
-Plugin 'jeroenbourgois/vim-actionscript'
+" Plugin 'jeroenbourgois/vim-actionscript'
 
 " Haskell
 Plugin 'raichoo/haskell-vim'
@@ -106,7 +106,7 @@ Plugin 'raichoo/haskell-vim'
 Plugin 'raichoo/purescript-vim'
 
 " Swift
-Plugin 'Keithbsmiley/swift.vim'
+" Plugin 'Keithbsmiley/swift.vim'
 
 " HTML + JS
 " Plugin 'othree/yajs.vim'
