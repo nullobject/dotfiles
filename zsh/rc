@@ -1,5 +1,5 @@
 [ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
-. `brew --prefix`/etc/profile.d/z.sh
+[ ! -f /opt/boxen/env.sh ] && eval "$(rbenv init -)"
 
 . ~/.zsh/paths
 . ~/.zsh/prompt
