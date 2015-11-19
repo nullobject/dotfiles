@@ -1,3 +1,4 @@
+# Boxen
 [ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
 [ ! -f /opt/boxen/env.sh ] && eval "$(rbenv init -)"
 
@@ -23,3 +24,6 @@ autoload -Uz compinit
 compinit
 
 export EDITOR=vi
+
+# Setup docker environment.
+eval "$(docker-machine env default)"
