@@ -4,6 +4,9 @@ filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
+" Sensible defaults.
+Plugin 'tpope/vim-sensible'
+
 " Vundle plugin manager
 Plugin 'gmarik/vundle'
 
@@ -79,7 +82,8 @@ Plugin 'altercation/vim-colors-solarized'
 Plugin 'ervandew/supertab'
 
 " Power text alignment
-Plugin 'godlygeek/tabular'
+" Plugin 'godlygeek/tabular'
+Plugin 'junegunn/vim-easy-align'
 
 " Silver Searcher wrapper
 Plugin 'rking/ag.vim'
@@ -111,9 +115,13 @@ Plugin 'raichoo/purescript-vim'
 " HTML + JS
 " Plugin 'othree/yajs.vim'
 " Plugin 'othree/html5.vim'
+Plugin 'pangloss/vim-javascript'
 
 " Scala
 Plugin 'derekwyatt/vim-scala'
+
+" Argument shifting
+Plugin 'PeterRincker/vim-argumentative'
 
 filetype plugin indent on
 
@@ -204,6 +212,15 @@ map <Leader>tc :tabc<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 command! Rroutes :Redit config/routes.rb
 command! RTroutes :RTedit config/routes.rb
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Easy Align
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+"
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Misc
