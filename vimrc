@@ -25,6 +25,7 @@ Plugin 'nelstrom/vim-textobj-rubyblock'
 
 " Power status line
 Plugin 'bling/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 let g:airline_theme = 'solarized'
 let g:airline_powerline_fonts = 1
 
@@ -177,7 +178,7 @@ map - :Explore<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>c \\\
+map <Leader>c :Commentary<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tabularize
