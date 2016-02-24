@@ -16,7 +16,6 @@ setopt append_history
 setopt inc_append_history
 setopt prompt_subst
 setopt hist_ignore_dups
-setopt ignoreeof
 unsetopt autocd
 bindkey -v
 
@@ -26,4 +25,6 @@ compinit
 export EDITOR=vi
 
 # Setup docker environment.
-eval "$(docker-machine env default)"
+[[ "$(docker-machine status default)" != "Stopped" ]] && eval "$(docker-machine env default)"
+
+export BRAND=ferocia
