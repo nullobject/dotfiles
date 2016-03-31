@@ -1,0 +1,23 @@
+"*":
+  core:
+    projectHome: "/Users/josh/src"
+    themes: [
+      "one-dark-ui"
+      "solarized-dark-syntax"
+    ]
+  editor:
+    fontSize: 12
+    invisibles: {}
+  "exception-reporting":
+    userId: "9430f7e2-77e0-0672-11f7-43e8a2a1f9dc"
+  "fuzzy-finder": {}
+  "ide-haskell": {}
+  "ide-purescript": {}
+  "language-babel": {}
+  "tree-view":
+    hideIgnoredNames: true
+  "vim-mode": {}
+  "vim-surround":
+    surroundCommand: "S"
+  welcome:
+    showOnStartup: false
