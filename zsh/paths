@@ -1,4 +1,4 @@
-export PATH="$HOME/.local/bin:$HOME/.bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bin:$PATH"
 export MANPATH="/usr/local/share/man:$MANPATH"
 export CDPATH=".:$HOME/src/nullobject:$HOME/src/ferocia:$CDPATH"
 
