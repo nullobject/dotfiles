@@ -1,4 +1,5 @@
 "*":
+  "aligner-css": {}
   core:
     projectHome: "/Users/josh/src"
     themes: [

@@ -61,13 +61,12 @@ purescriptGrammar =
       list('classConstraint',/{className}|{functionName}/,/\s+/)
     functionTypeDeclaration:
       concat list('functionTypeDeclaration',/{functionName}|{operatorFun}/,/,/),
-        /\s*(::|∷)/
+        /\s*(::|∷ )/
     ctorArgs: ///
-      (?!deriving)
       (?:
       {className}     #proper type
       |{functionName} #type variable
-      |(?:(?!deriving)(?:[\w()'→⇒\[\],]|->|=>)+\s*)+ #anything goes!
+      |(?:(?:[\w()'→⇒\[\],]|->|=>)+\s*)+ #anything goes!
       )
       ///
     ctor: concat /\b({className})\s+/,
@@ -142,15 +141,21 @@ purescriptGrammar =
       ]
     ,
       name: 'meta.foreign'
-      begin: /{maybeBirdTrack}(\s*)(foreign)\s+(import)\b/
+      # functionTypeDeclaration so it can be wrapped to the next line without losing most highlighting
+      begin: /{maybeBirdTrack}(\s*)(foreign)\s+(import)\s+{functionTypeDeclaration}?/
       end: /{indentBlockEnd}/
+      contentName: 'meta.type-signature'
       beginCaptures:
         2: name: 'keyword.other'
         3: name: 'keyword.other'
+        4:
+          patterns: [
+              name: 'entity.name.function'
+              match: /{functionName}/
+          ]
+        5: name: 'keyword.other.double-colon'
       patterns:[
           include: '#type_signature'
-        ,
-          include: '$self'
       ]
     ,
       name: 'meta.import'
@@ -178,8 +183,6 @@ purescriptGrammar =
           patterns: [include: '#type_signature']
       patterns: [
           include: '#comments'
-        ,
-          include: '#deriving'
         ,
           match: /=/
           captures:
@@ -231,7 +234,7 @@ purescriptGrammar =
       ]
     ,
       name: 'keyword.other'
-      match: /\b(deriving|where|data|type|newtype)\b/
+      match: /\b(derive|where|data|type|newtype)\b/
     ,
       name: 'storage.type'
       match: /\b(data|type|newtype)\b/
@@ -240,7 +243,7 @@ purescriptGrammar =
       match: /\binfix[lr]?\b/
     ,
       name: 'keyword.control'
-      match: /\b(do|if|then|else|case|of|let|in|default)\b/
+      match: /\b(do|if|then|else|case|of|let|in)\b/
     ,
       name: 'constant.numeric.float'
       match: /\b([0-9]+\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+)\b/
@@ -294,6 +297,18 @@ purescriptGrammar =
         7: name: 'punctuation.definition.string.end'
     ,
       include: '#function_type_declaration'
+    ,
+      # Note recursive regex matching nested parens
+      match: '\\((?<paren>(?:[^()]|\\(\\g<paren>\\))*)(::|∷)(?<paren2>(?:[^()]|\\(\\g<paren2>\\))*)\\)'
+      captures:
+        1: patterns: [include: '$self']
+        2: name: 'keyword.other.double-colon'
+        3: {name: 'meta.type-signature', patterns: [include: '#type_signature']}
+    ,
+      match: '(::|∷)((?:{className}|{functionName}|\\->|=>|[→⇒()\\[\\]]|\\s)*)'
+      captures:
+        1: name: 'keyword.other.double-colon'
+        2: {name: 'meta.type-signature', patterns: [include: '#type_signature']}
     ,
       include: '#data_ctor'
     ,
@@ -404,7 +419,7 @@ purescriptGrammar =
       match: /(?:{className}\.)*{className}\.?/
     function_type_declaration:
       name: 'meta.function.type-declaration'
-      begin: concat /{maybeBirdTrack}(\s*)/,/{functionTypeDeclaration}/
+      begin: concat /{maybeBirdTrack}(\s*)/,/{functionTypeDeclaration}/,/(?!.*<-)/
       end: /{indentBlockEnd}/
       contentName: 'meta.type-signature'
       beginCaptures:
@@ -494,35 +509,5 @@ purescriptGrammar =
           ,
             include: '#generic_type'
         ]
-    deriving:
-      patterns: [
-          include: '#deriving_list'
-        ,
-          include: '#deriving_simple'
-        ,
-          include: '#deriving_keyword'
-      ]
-    deriving_keyword:
-      name: 'meta.deriving'
-      match: /(deriving)/
-      captures:
-        1: name: 'keyword.other'
-    deriving_list:
-      name: 'meta.deriving'
-      begin: /(deriving)\s*\(/
-      end: /\)/
-      beginCaptures:
-        1: name: 'keyword.other'
-      patterns: [
-          match: /\b({className})\b/
-          captures:
-            1: name: 'entity.name.type'
-      ]
-    deriving_simple:
-      name: 'meta.deriving'
-      match: /(deriving)\s*({className})/
-      captures:
-        1: name: 'keyword.other'
-        2: name: 'entity.name.type'
 
 makeGrammar purescriptGrammar, "grammars/purescript.cson"
