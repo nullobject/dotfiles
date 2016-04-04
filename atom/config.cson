@@ -14,6 +14,8 @@
   "ide-haskell": {}
   "ide-purescript": {}
   "language-babel": {}
+  linter:
+    errorPanelHeight: 26
   react: {}
   "tree-view":
     hideIgnoredNames: true
