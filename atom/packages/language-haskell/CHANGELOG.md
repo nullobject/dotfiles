@@ -1,3 +1,9 @@
+## 1.7.9
+* Add 'type instance' keyword
+
+## 1.7.8
+* Initial support for type families
+
 ## 1.7.7
 * Regression tests for #65
 * Tweak ctor regex
