@@ -1,7 +1,7 @@
 {
   "name": "ide-haskell",
   "main": "./lib/ide-haskell",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Haskell IDE",
   "keywords": [
     "ide-haskell",
@@ -37,16 +37,16 @@
     "url": "https://github.com/atom-haskell/ide-haskell/issues"
   },
   "homepage": "https://github.com/atom-haskell/ide-haskell#readme",
-  "_id": "ide-haskell@1.5.4",
-  "_shasum": "31d642ca3ac2358d6636fc6726b45491efc76c7f",
-  "_resolved": "file:../d-116215-10000-1bwf9dn/package.tgz",
-  "_from": "../d-116215-10000-1bwf9dn/package.tgz",
+  "_id": "ide-haskell@1.6.0",
+  "_shasum": "90e05314396f8956b1a946a7e3b0788be00a7a39",
+  "_resolved": "file:../d-11638-40704-habdmp/package.tgz",
+  "_from": "../d-11638-40704-habdmp/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
       {
         "name": "jquery",
-        "version": "2.2.1",
+        "version": "2.2.3",
         "path": "node_modules/sub-atom/node_modules/jquery/dist/jquery.js"
       },
       {
@@ -102,6 +102,8 @@
         "node_modules/sub-atom/node_modules/jquery/dist/jquery.min.js",
         "node_modules/sub-atom/node_modules/jquery/dist/jquery.slim.js",
         "node_modules/sub-atom/node_modules/jquery/dist/jquery.slim.min.js",
+        "node_modules/sub-atom/node_modules/jquery/sizzle/dist/sizzle.js",
+        "node_modules/sub-atom/node_modules/jquery/sizzle/dist/sizzle.min.js",
         "node_modules/sub-atom/node_modules/jquery/src/ajax/jsonp.js",
         "node_modules/sub-atom/node_modules/jquery/src/ajax/load.js",
         "node_modules/sub-atom/node_modules/jquery/src/ajax/parseJSON.js",
