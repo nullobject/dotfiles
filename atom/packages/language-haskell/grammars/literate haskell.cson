@@ -63,6 +63,17 @@
     'name': 'meta.embedded.haskell'
     'patterns': [
       {
+        'name': 'block.liquidhaskell.haskell'
+        'contentName': 'block.liquidhaskell.annotation.haskell'
+        'begin': '\\{-@(?!#)'
+        'end': '@-\\}'
+        'patterns': [
+          {
+            'include': '$self'
+          }
+        ]
+      }
+      {
         'name': 'comment.line.shebang.haskell'
         'match': '^\\#\\!.*\\brunhaskell\\b.*$'
       }

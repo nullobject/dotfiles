@@ -1,7 +1,7 @@
 {
   "name": "language-babel",
   "main": "./lib/main",
-  "version": "2.17.0",
+  "version": "2.17.1",
   "description": "Babel JavaScript ES201x, React JSX & Flow Grammar & Transpiler",
   "keywords": [
     "es6",
@@ -51,21 +51,21 @@
     "url": "https://github.com/gandm/language-babel/issues"
   },
   "homepage": "https://github.com/gandm/language-babel#readme",
-  "_id": "language-babel@2.17.0",
-  "_shasum": "96a3c9654d73212e2b9eb75ba5e50cad32496294",
-  "_resolved": "file:../d-11634-21888-1gtq3pe/package.tgz",
-  "_from": "../d-11634-21888-1gtq3pe/package.tgz",
+  "_id": "language-babel@2.17.1",
+  "_shasum": "6f8aae8e84c802d6a2ff9a6989d7880fbeefe9f7",
+  "_resolved": "file:../d-116310-985-4x8v94/package.tgz",
+  "_from": "../d-116310-985-4x8v94/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
       {
         "name": "babel-core",
-        "version": "6.7.4",
+        "version": "6.7.6",
         "path": "node_modules/babel-core/index.js"
       },
       {
         "name": "babel-code-frame",
-        "version": "6.7.4",
+        "version": "6.7.5",
         "path": "node_modules/babel-core/node_modules/babel-code-frame/lib/index.js"
       },
       {
@@ -135,7 +135,7 @@
       },
       {
         "name": "babel-generator",
-        "version": "6.7.2",
+        "version": "6.7.5",
         "path": "node_modules/babel-core/node_modules/babel-generator/lib/index.js"
       },
       {
@@ -205,7 +205,7 @@
       },
       {
         "name": "core-js",
-        "version": "2.2.1",
+        "version": "2.2.2",
         "path": "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/index.js"
       },
       {
@@ -260,7 +260,7 @@
       },
       {
         "name": "babel-traverse",
-        "version": "6.7.4",
+        "version": "6.7.6",
         "path": "node_modules/babel-core/node_modules/babel-traverse/lib/index.js"
       },
       {
@@ -1330,6 +1330,7 @@
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/library/modules/_collection-weak.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/library/modules/_collection.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/library/modules/_core.js",
+        "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/library/modules/_create-property.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/library/modules/_ctx.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/library/modules/_date-to-primitive.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/library/modules/_defined.js",
@@ -1641,6 +1642,7 @@
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/modules/_collection-weak.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/modules/_collection.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/modules/_core.js",
+        "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/modules/_create-property.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/modules/_ctx.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/modules/_date-to-primitive.js",
         "node_modules/babel-core/node_modules/babel-register/node_modules/core-js/modules/_defined.js",
@@ -3702,6 +3704,7 @@
           "spec/fixtures/dira/dira.1/dira.2",
           "spec/fixtures/dirb",
           "spec/fixtures/grammar/babel-sublime",
+          "spec/fixtures/grammar",
           "spec/fixtures/grammar/everythingJs",
           "spec/fixtures/grammar/flow",
           "spec/fixtures/grammar/large files",
@@ -3731,14 +3734,14 @@
           "node_modules/babel-core/lib/transformation"
         ],
         "dependencies": {
-          "babel-code-frame": "^6.7.4",
-          "babel-generator": "^6.7.2",
+          "babel-code-frame": "^6.7.5",
+          "babel-generator": "^6.7.5",
           "babel-helpers": "^6.6.0",
           "babel-messages": "^6.7.2",
           "babel-template": "^6.7.0",
           "babel-runtime": "^5.0.0",
           "babel-register": "^6.7.2",
-          "babel-traverse": "^6.7.4",
+          "babel-traverse": "^6.7.6",
           "babel-types": "^6.7.2",
           "babylon": "^6.7.0",
           "convert-source-map": "^1.1.0",
@@ -3999,7 +4002,7 @@
           "node_modules/babel-core/node_modules/babel-traverse"
         ],
         "dependencies": {
-          "babel-code-frame": "^6.7.4",
+          "babel-code-frame": "^6.7.5",
           "babel-messages": "^6.7.2",
           "babel-runtime": "^5.0.0",
           "babel-types": "^6.7.2",

@@ -1,7 +1,7 @@
 {
   "name": "aligner",
   "main": "./lib/main",
-  "version": "0.19.1",
+  "version": "0.20.0",
   "private": true,
   "description": "Easily align multiple lines and blocks with support for different operators and custom configurations",
   "keywords": [
@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "engines": {
-    "atom": ">=0.195.0"
+    "atom": ">=1.6.0"
   },
   "dependencies": {
     "extend": "^2.0.0"
@@ -36,10 +36,10 @@
     "url": "https://github.com/adrianlee44/atom-aligner/issues"
   },
   "homepage": "https://github.com/adrianlee44/atom-aligner#readme",
-  "_id": "aligner@0.19.1",
-  "_shasum": "c6be7b6e6cbbcd0557de099e8ba242ee24f7fb25",
-  "_resolved": "file:../d-11634-16923-1x7s2ls/package.tgz",
-  "_from": "../d-11634-16923-1x7s2ls/package.tgz",
+  "_id": "aligner@0.20.0",
+  "_shasum": "d561848bbf86c4dcac6ab34a082ee2252ae834ce",
+  "_resolved": "file:../d-116311-6883-1duhvee/package.tgz",
+  "_from": "../d-116311-6883-1duhvee/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -59,15 +59,13 @@
       ],
       ".js": [
         "lib/formatter.js",
+        "lib/helper.js",
+        "lib/main.js",
+        "lib/operator-config.js",
+        "lib/provider-manager.js",
         "lib/section.js",
         "lib/sectionized-line.js",
         "node_modules/extend/index.js"
-      ],
-      ".coffee": [
-        "lib/helper.coffee",
-        "lib/main.coffee",
-        "lib/operator-config.coffee",
-        "lib/provider-manager.coffee"
       ]
     },
     "folders": [
