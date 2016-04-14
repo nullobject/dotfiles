@@ -1,15 +1,16 @@
 module IdePurescript.Atom.Completion where
 
-import Prelude (return, map, ($), bind, (==), (/=), (||), (++))
 import Control.Monad.Aff (Aff)
 import Data.Array (filter)
 import Data.Maybe (Maybe(Nothing, Just), fromMaybe)
 import Data.String (indexOf, contains)
-import Data.String.Regex (match, regex)
 import Data.String.Regex (Regex, noFlags, regex, test, match)
+import Data.String.Regex (match, regex)
 import IdePurescript.PscIde (getCompletion, eitherToErr)
+import Prelude (return, map, ($), bind, (==), (/=), (||), (++))
 import PscIde as P
 import PscIde.Command as C
+import PscIde
 
 type ModuleInfo =
   { modules :: Array String
@@ -21,12 +22,21 @@ moduleRegex = regex """(?:^|[^A-Za-z_.])(?:((?:[A-Z][A-Za-z0-9]*\.)*(?:[A-Z][A-Z
 
 type AtomSuggestion =
   { text :: String
+  , snippet :: String
   , displayText :: String
   , "type" :: String
   , description :: String
   , replacementPrefix :: String
   , rightLabel :: String
   , className :: String
+
+  , addImport :: Maybe AddImport -- Not Atom suggestion property
+  }
+
+type AddImport =
+  { mod :: String
+  , identifier :: String
+  , qualifier :: Maybe String
   }
 
 data SuggestionType = Module | Type | Function | Value
@@ -52,7 +62,7 @@ getSuggestions { line, moduleInfo: { modules, getQualifiedModule } } =
         return $ map (modResult prefix) completions
       else do
         completions <- getCompletion token mod moduleCompletion modules getQualifiedModule
-        return $ map (result token) completions
+        return $ map (result mod token) completions
     Nothing -> return []
   where
     getModuleName "" token  = token
@@ -72,16 +82,22 @@ getSuggestions { line, moduleInfo: { modules, getQualifiedModule } } =
 
     modResult prefix moduleName =
       { text: moduleName
+      , snippet: moduleName
       , displayText: moduleName
       , type: suggestionTypeAtomValue Module
       , description: ""
       , replacementPrefix: prefix
       , rightLabel: ""
       , className: "purescript-suggestion"
+      , addImport: Nothing
       }
 
-    result prefix {type: ty, identifier, module: mod} =
-      { text: identifier
+    result qualifier prefix {"type": ty, identifier, "module": mod} =
+      -- include both text and snippet as suggestions must be unique by text+snippet
+      -- we want duplicates to disambiguate modules, but only insert the ident while
+      -- triggering an import for the module
+      { text: mod ++ "." ++ identifier
+      , snippet: identifier
       , displayText: case suggestType of
           Type -> identifier
           _ -> identifier
@@ -90,6 +106,7 @@ getSuggestions { line, moduleInfo: { modules, getQualifiedModule } } =
       , replacementPrefix: prefix
       , rightLabel: mod
       , className: "purescript-suggestion"
+      , addImport: Just { mod, identifier, qualifier: if qualifier == "" then Nothing else Just qualifier }
       }
       where
         suggestType =
