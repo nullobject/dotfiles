@@ -1,7 +1,7 @@
 {
   "name": "ide-purescript",
   "main": "./lib/main",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "description": "PureScript support for completion, build and maybe more",
   "keywords": [],
   "activationHooks": [
@@ -80,10 +80,10 @@
     "url": "https://github.com/nwolverson/atom-ide-purescript/issues"
   },
   "homepage": "https://github.com/nwolverson/atom-ide-purescript#readme",
-  "_id": "ide-purescript@0.11.2",
-  "_shasum": "92eb97c08070f5e00b90eaf6e59c88fd47f4675d",
-  "_resolved": "file:../d-116314-51958-utmqqk/package.tgz",
-  "_from": "../d-116314-51958-utmqqk/package.tgz",
+  "_id": "ide-purescript@0.11.3",
+  "_shasum": "a5953f8b1e058c4fa1e00462034c6241b5ba2992",
+  "_resolved": "file:../d-116315-71492-b08hu3/package.tgz",
+  "_from": "../d-116315-71492-b08hu3/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
