@@ -1,7 +1,7 @@
 {
   "name": "ide-purescript",
   "main": "./lib/main",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "description": "PureScript support for completion, build and maybe more",
   "keywords": [],
   "activationHooks": [
@@ -80,10 +80,10 @@
     "url": "https://github.com/nwolverson/atom-ide-purescript/issues"
   },
   "homepage": "https://github.com/nwolverson/atom-ide-purescript#readme",
-  "_id": "ide-purescript@0.11.3",
-  "_shasum": "a5953f8b1e058c4fa1e00462034c6241b5ba2992",
-  "_resolved": "file:../d-116315-71492-b08hu3/package.tgz",
-  "_from": "../d-116315-71492-b08hu3/package.tgz",
+  "_id": "ide-purescript@0.11.4",
+  "_shasum": "3109ef3d18d5f86d3a9895865c991514941fa8de",
+  "_resolved": "file:../d-116318-5327-yuppan/package.tgz",
+  "_from": "../d-116318-5327-yuppan/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -1405,15 +1405,8 @@
         "src/IdePurescript/Atom/Hooks/StatusBar.js",
         "src/IdePurescript/Atom/PromptPanel.js",
         "src/IdePurescript/Atom/Psci.js",
-        "src/IdePurescript/Atom/QuickFixes.js",
         "src/IdePurescript/Atom/SelectView.js",
         "src/IdePurescript/Atom/Tooltips.js"
-      ],
-      ".coffee": [
-        "lib/psci.coffee",
-        "lib/quick-fixes.coffee",
-        "lib/utils.coffee",
-        "lib/views/select-views.coffee"
       ]
     },
     "folders": [
@@ -1421,7 +1414,6 @@
         "paths": [
           "",
           "lib",
-          "lib/views",
           "src/IdePurescript/Atom/Hooks",
           "src/IdePurescript/Atom"
         ],

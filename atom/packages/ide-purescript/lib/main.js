@@ -1570,6 +1570,12 @@ var PS = { };
       p.destroy();
     };
   };
+
+  exports.openImpl = function (w) {
+    return function (name, opt, cb, err) {
+      return w.open(name,opt).then(cb, err);
+    };
+  };
  
 })(PS["Atom.Workspace"] = PS["Atom.Workspace"] || {});
 (function(exports) {
@@ -1580,13 +1586,20 @@ var PS = { };
   exports.getTextInRangeImpl = function(e) {
     return e.getTextInBufferRange.bind(e);
   };
+  exports.getSelectedText = function (e) { return function () { return e.getSelectedText(); }; };
 
   exports.setTextInBufferRangeImpl = function(e) { return e.setTextInBufferRange.bind(e); }
   exports.setTextImpl = function(e) { return e.setText.bind(e); }
+  exports.insertTextImpl = function(e) { return e.insertText.bind(e); }
+
 
   exports.onDidSaveImpl = function(e) { return e.onDidSave.bind(e); };
 
   exports.getCursorBufferPosition = function (e) { return function () { return e.getCursorBufferPosition(); }; };
+  exports.moveToBottom = function (e) { return function () { return e.moveToBottom(); }; };
+  exports.moveDownImpl = function (e) { return e.moveDown.bind(e); };
+
+  exports.moveToBeginningOfLine = function(e) { return function () { return e.moveToBeginningOfLine(); }; };
 
   exports.isTextEditor = function (item) {
     var TextEditor = require('atom').TextEditor;
@@ -1596,6 +1609,14 @@ var PS = { };
   exports.getBuffer = function (editor) {
     return function() {
       return editor.getBuffer();
+    };
+  };
+
+  exports.setGrammar = function (editor) {
+    return function (grammar) {
+      return function() {
+        editor.setGrammar(grammar);
+      };
     };
   };
  
@@ -1635,6 +1656,11 @@ var PS = { };
     var Range = require('atom').Range;
     return new Range(p1,p2);
   };
+  exports.containsPoint = function (r) {
+    return function(p) {
+      return r.containsPoint(p);
+    };
+  };
  
 })(PS["Atom.Range"] = PS["Atom.Range"] || {});
 (function(exports) {
@@ -1645,6 +1671,7 @@ var PS = { };
   var Atom_Point = PS["Atom.Point"];        
   var mkRange = Data_Function.runFn2($foreign.mkRangeImpl);
   exports["mkRange"] = mkRange;
+  exports["containsPoint"] = $foreign.containsPoint;
   exports["getEnd"] = $foreign.getEnd;
   exports["getStart"] = $foreign.getStart;;
  
@@ -1675,6 +1702,7 @@ var PS = { };
   "use strict";
   var $foreign = PS["Atom.Editor"];
   var Prelude = PS["Prelude"];
+  var Atom_Grammar = PS["Atom.Grammar"];
   var Atom_Point = PS["Atom.Point"];
   var Atom_Range = PS["Atom.Range"];
   var Atom_TextBuffer = PS["Atom.TextBuffer"];
@@ -1693,7 +1721,7 @@ var PS = { };
       if (!$2) {
           return Data_Maybe.Nothing.value;
       };
-      throw new Error("Failed pattern match at Atom.Editor line 68, column 3 - line 73, column 1: " + [ $2.constructor.name ]);
+      throw new Error("Failed pattern match at Atom.Editor line 98, column 3 - line 103, column 1: " + [ $2.constructor.name ]);
   };
   var setTextInBufferRange$prime = function (editor) {
       return function (range) {
@@ -1706,7 +1734,7 @@ var PS = { };
                       if (!v.skipUndo) {
                           return "";
                       };
-                      throw new Error("Failed pattern match at Atom.Editor line 47, column 14 - line 48, column 3: " + [ v.skipUndo.constructor.name ]);
+                      throw new Error("Failed pattern match at Atom.Editor line 53, column 14 - line 54, column 3: " + [ v.skipUndo.constructor.name ]);
                   })();
                   return Data_Function_Eff.runEffFn3($foreign.setTextInBufferRangeImpl(editor))(range)(text)({
                       normalizeLineEndings: v.normalizeLineEndings, 
@@ -1734,8 +1762,14 @@ var PS = { };
           return Data_Function_Eff.runEffFn1($foreign.onDidSaveImpl(e))(Data_Function_Eff.mkEffFn1(f));
       };
   };
-  var getTextInRange = function ($12) {
-      return Data_Function_Eff.runEffFn1($foreign.getTextInRangeImpl($12));
+  var moveDown = function ($13) {
+      return Data_Function_Eff.runEffFn1($foreign.moveDownImpl($13));
+  };
+  var insertText = function ($14) {
+      return Data_Function_Eff.runEffFn1($foreign.insertTextImpl($14));
+  };
+  var getTextInRange = function ($15) {
+      return Data_Function_Eff.runEffFn1($foreign.getTextInRangeImpl($15));
   };
   var getPath = function (editor) {
       return function __do() {
@@ -1743,14 +1777,20 @@ var PS = { };
           return Data_Either.either(Prelude["const"](Data_Maybe.Nothing.value))(Data_Maybe.Just.create)(v);
       };
   };
+  exports["moveDown"] = moveDown;
   exports["onDidSave"] = onDidSave;
   exports["toEditor"] = toEditor;
+  exports["insertText"] = insertText;
   exports["setText"] = setText;
   exports["setTextInBufferRange"] = setTextInBufferRange;
   exports["getTextInRange"] = getTextInRange;
   exports["getPath"] = getPath;
+  exports["setGrammar"] = $foreign.setGrammar;
+  exports["moveToBeginningOfLine"] = $foreign.moveToBeginningOfLine;
+  exports["moveToBottom"] = $foreign.moveToBottom;
   exports["getCursorBufferPosition"] = $foreign.getCursorBufferPosition;
   exports["getBuffer"] = $foreign.getBuffer;
+  exports["getSelectedText"] = $foreign.getSelectedText;
   exports["getText"] = $foreign.getText;;
  
 })(PS["Atom.Editor"] = PS["Atom.Editor"] || {});
@@ -1759,12 +1799,23 @@ var PS = { };
   "use strict";
   var $foreign = PS["Atom.Workspace"];
   var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
   var Atom_Editor = PS["Atom.Editor"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var Data_Foreign = PS["Data.Foreign"];
   var Data_Function_Eff = PS["Data.Function.Eff"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var DOM_Node_Types = PS["DOM.Node.Types"];        
+  var Data_Maybe = PS["Data.Maybe"];        
+  var open = function (w) {
+      return function (s) {
+          return function (o) {
+              return function (cb) {
+                  return function (err) {
+                      return Data_Function_Eff.runEffFn4($foreign.openImpl(w))(s)(o)(Data_Function_Eff.mkEffFn1(cb))(err);
+                  };
+              };
+          };
+      };
+  };
   var onDidChangeActivePaneItem = function (w) {
       return function (f) {
           return Data_Function_Eff.runEffFn1($foreign.onDidChangeActivePaneItemImpl(w))(Data_Function_Eff.mkEffFn1(f));
@@ -1777,6 +1828,15 @@ var PS = { };
   };
   var getActiveTextEditor = function (w) {
       return Prelude["<$>"](Control_Monad_Eff.functorEff)(Atom_Editor.toEditor)($foreign.getActiveTextEditorImpl(w));
+  };
+  var defaultOpenOptions = {
+      initialLine: 0, 
+      initialColumn: 0, 
+      split: "left", 
+      activatePane: true, 
+      activateItem: true, 
+      pending: false, 
+      searchAllPanes: false
   };
   var addModalPanel = function (w) {
       return function (item) {
@@ -1791,6 +1851,8 @@ var PS = { };
           };
       };
   };
+  exports["defaultOpenOptions"] = defaultOpenOptions;
+  exports["open"] = open;
   exports["addModalPanel"] = addModalPanel;
   exports["getActiveTextEditor"] = getActiveTextEditor;
   exports["onDidChangeActivePaneItem"] = onDidChangeActivePaneItem;
@@ -1798,6 +1860,27 @@ var PS = { };
   exports["destroyPanel"] = $foreign.destroyPanel;;
  
 })(PS["Atom.Workspace"] = PS["Atom.Workspace"] || {});
+(function(exports) {
+    
+
+  exports.grammarForScopeName = function(gr) {
+    return function (s) {
+      return function() {
+        return gr.grammarForScopeName(s);
+      };
+    };
+  };
+ 
+})(PS["Atom.GrammarRegistry"] = PS["Atom.GrammarRegistry"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Atom.GrammarRegistry"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Atom_Grammar = PS["Atom.Grammar"];
+  exports["grammarForScopeName"] = $foreign.grammarForScopeName;;
+ 
+})(PS["Atom.GrammarRegistry"] = PS["Atom.GrammarRegistry"] || {});
 (function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
@@ -1809,6 +1892,7 @@ var PS = { };
   var Atom_NotificationManager = PS["Atom.NotificationManager"];
   var Atom_Project = PS["Atom.Project"];
   var Atom_Workspace = PS["Atom.Workspace"];
+  var Atom_GrammarRegistry = PS["Atom.GrammarRegistry"];
   exports["getAtom"] = $foreign.getAtom;;
  
 })(PS["Atom.Atom"] = PS["Atom.Atom"] || {});
@@ -4620,777 +4704,6 @@ var PS = { };
  
 })(PS["Data.String.Regex"] = PS["Data.String.Regex"] || {});
 (function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Argonaut_Core = PS["Data.Argonaut.Core"];
-  var Data_Argonaut_Combinators = PS["Data.Argonaut.Combinators"];
-  var Data_Argonaut_Parser = PS["Data.Argonaut.Parser"];
-  var Data_Traversable = PS["Data.Traversable"];
-  var Control_Bind = PS["Control.Bind"];
-  var Data_Argonaut_Decode = PS["Data.Argonaut.Decode"];        
-  var parseSuggestion = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
-      return Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("replacement");
-  });
-  var parsePosition = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
-      return Prelude.map(Data_Either.functorEither)(Data_Maybe.Just.create)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
-          return function (v1) {
-              return function (v2) {
-                  return function (v3) {
-                      return {
-                          startLine: v, 
-                          startColumn: v1, 
-                          endLine: v2, 
-                          endColumn: v3
-                      };
-                  };
-              };
-          };
-      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startColumn")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endColumn")));
-  });
-  var parsePscError = function (obj) {
-      return Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
-          return function (v1) {
-              return function (v2) {
-                  return function (v3) {
-                      return function (v4) {
-                          return function (v5) {
-                              return function (v6) {
-                                  return {
-                                      moduleName: v, 
-                                      errorCode: v1, 
-                                      message: v2, 
-                                      filename: v3, 
-                                      position: v4, 
-                                      errorLink: v5, 
-                                      suggestion: v6
-                                  };
-                              };
-                          };
-                      };
-                  };
-              };
-          };
-      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("moduleName")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorCode")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("message")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("filename")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("position"))(parsePosition)))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorLink")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("suggestion"))(parseSuggestion));
-  };
-  var parsePscResult = function (obj) {
-      return Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
-          return function (v1) {
-              return {
-                  warnings: v, 
-                  errors: v1
-              };
-          };
-      })(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("warnings"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError))))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("errors"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError)));
-  };
-  var parsePscOutput = Control_Bind["<=<"](Data_Either.bindEither)(function ($13) {
-      return Data_Maybe.maybe(new Data_Either.Left("not object"))(parsePscResult)(Data_Argonaut_Core.toObject($13));
-  })(Data_Argonaut_Parser.jsonParser);
-  exports["parseSuggestion"] = parseSuggestion;
-  exports["parsePosition"] = parsePosition;
-  exports["parsePscError"] = parsePscError;
-  exports["parsePscResult"] = parsePscResult;
-  exports["parsePscOutput"] = parsePscOutput;;
- 
-})(PS["IdePurescript.PscErrors"] = PS["IdePurescript.PscErrors"] || {});
-(function(exports) {
-  "use strict";
-
-  // module Node.ChildProcess
-  /* eslint-env node*/
-
-  exports.unsafeFromNullable = function unsafeFromNullable(msg){
-    return function(x) {
-      if (x === null) {
-        throw new Error(msg);
-      } else {
-        return x;
-      };
-    };
-  };
-  exports.spawnImpl = function spawnImpl(command) {
-    return function(args) {
-      return function(opts) {
-        return function() {
-          return require("child_process").spawn(command, args, opts);
-        };
-      };
-    };
-  };
-  exports.mkOnClose = function mkOnClose(mkChildExit){
-    return function onClose(cp){
-      return function(cb){
-        return function(){
-          cp.on("exit", function(code, signal){
-            cb(mkChildExit(code)(signal))();
-          });
-        };
-      };
-    };
-  };
-  exports.onError = function onError(cp){
-    return function(cb){
-      return function(){
-        cp.on("error", function(err) {
-          cb(err)()
-        });
-      };
-    };
-  };
-
-  exports["undefined"] = undefined;
- 
-})(PS["Node.ChildProcess"] = PS["Node.ChildProcess"] || {});
-(function(exports) {
-  /* global exports */
-  /* global Buffer */
-  /* global require */
-  "use strict";
-
-  exports.toStringImpl = function (enc) {
-    return function (buff) {
-      return function() {
-        return buff.toString(enc);
-      };
-    };
-  };
- 
-})(PS["Node.Buffer"] = PS["Node.Buffer"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Node.Encoding"];
-  var Prelude = PS["Prelude"];        
-  var ASCII = (function () {
-      function ASCII() {
-
-      };
-      ASCII.value = new ASCII();
-      return ASCII;
-  })();
-  var UTF8 = (function () {
-      function UTF8() {
-
-      };
-      UTF8.value = new UTF8();
-      return UTF8;
-  })();
-  var UTF16LE = (function () {
-      function UTF16LE() {
-
-      };
-      UTF16LE.value = new UTF16LE();
-      return UTF16LE;
-  })();
-  var UCS2 = (function () {
-      function UCS2() {
-
-      };
-      UCS2.value = new UCS2();
-      return UCS2;
-  })();
-  var Base64 = (function () {
-      function Base64() {
-
-      };
-      Base64.value = new Base64();
-      return Base64;
-  })();
-  var Binary = (function () {
-      function Binary() {
-
-      };
-      Binary.value = new Binary();
-      return Binary;
-  })();
-  var Hex = (function () {
-      function Hex() {
-
-      };
-      Hex.value = new Hex();
-      return Hex;
-  })();
-  var showEncoding = new Prelude.Show(function (v) {
-      if (v instanceof ASCII) {
-          return "ascii";
-      };
-      if (v instanceof UTF8) {
-          return "utf8";
-      };
-      if (v instanceof UTF16LE) {
-          return "utf16le";
-      };
-      if (v instanceof UCS2) {
-          return "ucs2";
-      };
-      if (v instanceof Base64) {
-          return "base64";
-      };
-      if (v instanceof Binary) {
-          return "binary";
-      };
-      if (v instanceof Hex) {
-          return "hex";
-      };
-      throw new Error("Failed pattern match at Node.Encoding line 18, column 3 - line 19, column 3: " + [ v.constructor.name ]);
-  });
-  exports["ASCII"] = ASCII;
-  exports["UTF8"] = UTF8;
-  exports["UTF16LE"] = UTF16LE;
-  exports["UCS2"] = UCS2;
-  exports["Base64"] = Base64;
-  exports["Binary"] = Binary;
-  exports["Hex"] = Hex;
-  exports["showEncoding"] = showEncoding;;
- 
-})(PS["Node.Encoding"] = PS["Node.Encoding"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Node.Buffer"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Node_Encoding = PS["Node.Encoding"];
-  var toString = function ($3) {
-      return $foreign.toStringImpl(Prelude.show(Node_Encoding.showEncoding)($3));
-  };
-  exports["toString"] = toString;;
- 
-})(PS["Node.Buffer"] = PS["Node.Buffer"] || {});
-(function(exports) {
-  /* global exports */
-  /* global Buffer */
-  "use strict";
-
-  exports.onDataEitherImpl = function(left){
-      return function(right){
-          return function(s) {
-              return function(f) {
-                  return function() {
-                      s.on('data', function(chunk) {
-                          if (chunk instanceof Buffer) {
-                              f(right(chunk))();
-                          }
-                          else if (typeof chunk === "string") {
-                              f(left(chunk))();
-                          }
-                          else {
-                              throw new Error(
-                                  "Node.Stream.onDataEitherImpl: Unrecognised" +
-                                  "chunk type; expected String or Buffer, got:" +
-                                  chunk);
-                          }
-                      });
-                  };
-              };
-          };
-      };
-  };
- 
-})(PS["Node.Stream"] = PS["Node.Stream"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Node.Stream"];
-  var Prelude = PS["Prelude"];
-  var Control_Bind = PS["Control.Bind"];
-  var Data_Either = PS["Data.Either"];
-  var Node_Encoding = PS["Node.Encoding"];
-  var Node_Buffer_1 = PS["Node.Buffer"];
-  var Node_Buffer_1 = PS["Node.Buffer"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Control_Monad_Eff_Unsafe = PS["Control.Monad.Eff.Unsafe"];
-  var onDataEither = $foreign.onDataEitherImpl(Data_Either.Left.create)(Data_Either.Right.create);
-  var onData = function (r) {
-      return function (cb) {
-          var fromEither = function (x) {
-              if (x instanceof Data_Either.Left) {
-                  return Control_Monad_Eff_Exception["throw"]("Node.Stream.onData: Stream encoding should not be set");
-              };
-              if (x instanceof Data_Either.Right) {
-                  return Prelude.pure(Control_Monad_Eff.applicativeEff)(x.value0);
-              };
-              throw new Error("Failed pattern match at Node.Stream line 71, column 5 - line 80, column 1: " + [ x.constructor.name ]);
-          };
-          return onDataEither(r)(Control_Bind["<=<"](Control_Monad_Eff.bindEff)(cb)(fromEither));
-      };
-  };
-  var onDataString = function (r) {
-      return function (enc) {
-          return function (cb) {
-              return onData(r)(Control_Bind["<=<"](Control_Monad_Eff.bindEff)(cb)(function ($3) {
-                  return Control_Monad_Eff_Unsafe.unsafeInterleaveEff(Node_Buffer_1.toString(enc)($3));
-              }));
-          };
-      };
-  };
-  exports["onDataEither"] = onDataEither;
-  exports["onDataString"] = onDataString;
-  exports["onData"] = onData;;
- 
-})(PS["Node.Stream"] = PS["Node.Stream"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Node.ChildProcess"];
-  var Prelude = PS["Prelude"];
-  var Control_Alt = PS["Control.Alt"];
-  var Control_Bind = PS["Control.Bind"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Control_Monad_Eff_Exception_Unsafe = PS["Control.Monad.Eff.Exception.Unsafe"];
-  var Data_StrMap = PS["Data.StrMap"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Nullable = PS["Data.Nullable"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Foreign = PS["Data.Foreign"];
-  var Data_Posix = PS["Data.Posix"];
-  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
-  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
-  var Unsafe_Coerce = PS["Unsafe.Coerce"];
-  var Node_Buffer = PS["Node.Buffer"];
-  var Node_FS = PS["Node.FS"];
-  var Node_Stream = PS["Node.Stream"];        
-  var Pipe = (function () {
-      function Pipe() {
-
-      };
-      Pipe.value = new Pipe();
-      return Pipe;
-  })();
-  var Ignore = (function () {
-      function Ignore() {
-
-      };
-      Ignore.value = new Ignore();
-      return Ignore;
-  })();
-  var ShareStream = (function () {
-      function ShareStream(value0) {
-          this.value0 = value0;
-      };
-      ShareStream.create = function (value0) {
-          return new ShareStream(value0);
-      };
-      return ShareStream;
-  })();
-  var ShareFD = (function () {
-      function ShareFD(value0) {
-          this.value0 = value0;
-      };
-      ShareFD.create = function (value0) {
-          return new ShareFD(value0);
-      };
-      return ShareFD;
-  })();
-  var Normally = (function () {
-      function Normally(value0) {
-          this.value0 = value0;
-      };
-      Normally.create = function (value0) {
-          return new Normally(value0);
-      };
-      return Normally;
-  })();
-  var BySignal = (function () {
-      function BySignal(value0) {
-          this.value0 = value0;
-      };
-      BySignal.create = function (value0) {
-          return new BySignal(value0);
-      };
-      return BySignal;
-  })();
-  var toStandardError = Unsafe_Coerce.unsafeCoerce;
-  var toActualStdIOBehaviour = function (b) {
-      if (b instanceof Pipe) {
-          return Unsafe_Coerce.unsafeCoerce("pipe");
-      };
-      if (b instanceof Ignore) {
-          return Unsafe_Coerce.unsafeCoerce("ignore");
-      };
-      if (b instanceof ShareFD) {
-          return Unsafe_Coerce.unsafeCoerce(b.value0);
-      };
-      if (b instanceof ShareStream) {
-          return Unsafe_Coerce.unsafeCoerce(b.value0);
-      };
-      throw new Error("Failed pattern match at Node.ChildProcess line 367, column 28 - line 372, column 3: " + [ b.constructor.name ]);
-  };
-  var toActualStdIOOptions = Prelude.map(Prelude.functorArray)(function ($31) {
-      return Data_Nullable.toNullable(Prelude.map(Data_Maybe.functorMaybe)(toActualStdIOBehaviour)($31));
-  });
-  var spawn = function (cmd) {
-      return function (args) {
-          return function (opts) {
-              var convertOpts = function (opts1) {
-                  return {
-                      cwd: Data_Maybe.fromMaybe($foreign["undefined"])(opts1.cwd), 
-                      stdio: toActualStdIOOptions(opts1.stdio), 
-                      env: Data_Nullable.toNullable(opts1.env), 
-                      detached: opts1.detached, 
-                      uid: Data_Maybe.fromMaybe($foreign["undefined"])(opts1.uid), 
-                      gid: Data_Maybe.fromMaybe($foreign["undefined"])(opts1.gid)
-                  };
-              };
-              return $foreign.spawnImpl(cmd)(args)(convertOpts(opts));
-          };
-      };
-  }; 
-  var runChildProcess = function (v) {
-      return v;
-  };
-  var pipe = Prelude.map(Prelude.functorArray)(Data_Maybe.Just.create)([ Pipe.value, Pipe.value, Pipe.value ]);
-  var mkExit = function (code) {
-      return function (signal) {
-          var fromSignal = Control_Bind[">=>"](Data_Maybe.bindMaybe)(Data_Nullable.toMaybe)(function ($33) {
-              return Prelude.map(Data_Maybe.functorMaybe)(BySignal.create)(Data_Posix_Signal_1.fromString($33));
-          });
-          var fromCode = function ($34) {
-              return Prelude.map(Data_Maybe.functorMaybe)(Normally.create)(Data_Nullable.toMaybe($34));
-          };
-          var $20 = Control_Alt["<|>"](Data_Maybe.altMaybe)(fromCode(code))(fromSignal(signal));
-          if ($20 instanceof Data_Maybe.Just) {
-              return $20.value0;
-          };
-          if ($20 instanceof Data_Maybe.Nothing) {
-              return Control_Monad_Eff_Exception_Unsafe.unsafeThrow("Node.ChildProcess.mkExit: Invalid arguments");
-          };
-          throw new Error("Failed pattern match at Node.ChildProcess line 153, column 3 - line 156, column 3: " + [ $20.constructor.name ]);
-      };
-  };
-  var onClose = $foreign.mkOnClose(mkExit);
-  var missingStream = function (str) {
-      return "Node.ChildProcess: stream not available: " + (str + ("\nThis is probably " + ("because you passed something other than Pipe to the stdio option when " + "you spawned it.")));
-  };
-  var stderr = function ($35) {
-      return $foreign.unsafeFromNullable(missingStream("stderr"))((function (v) {
-          return v.stderr;
-      })(runChildProcess($35)));
-  };
-  var defaultSpawnOptions = {
-      cwd: Data_Maybe.Nothing.value, 
-      stdio: pipe, 
-      env: Data_Maybe.Nothing.value, 
-      detached: false, 
-      uid: Data_Maybe.Nothing.value, 
-      gid: Data_Maybe.Nothing.value
-  };
-  exports["Pipe"] = Pipe;
-  exports["Ignore"] = Ignore;
-  exports["ShareStream"] = ShareStream;
-  exports["ShareFD"] = ShareFD;
-  exports["Normally"] = Normally;
-  exports["BySignal"] = BySignal;
-  exports["pipe"] = pipe;
-  exports["defaultSpawnOptions"] = defaultSpawnOptions;
-  exports["spawn"] = spawn;
-  exports["onClose"] = onClose;
-  exports["toStandardError"] = toStandardError;
-  exports["stderr"] = stderr;
-  exports["onError"] = $foreign.onError;;
- 
-})(PS["Node.ChildProcess"] = PS["Node.ChildProcess"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Control_Monad_Aff = PS["Control.Monad.Aff"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Foldable = PS["Data.Foldable"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_String = PS["Data.String"];
-  var IdePurescript_PscErrors = PS["IdePurescript.PscErrors"];
-  var Node_ChildProcess = PS["Node.ChildProcess"];
-  var Node_Encoding = PS["Node.Encoding"];
-  var Node_Stream = PS["Node.Stream"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff_Unsafe = PS["Control.Monad.Eff.Unsafe"];        
-  var Command = (function () {
-      function Command(value0, value1) {
-          this.value0 = value0;
-          this.value1 = value1;
-      };
-      Command.create = function (value0) {
-          return function (value1) {
-              return new Command(value0, value1);
-          };
-      };
-      return Command;
-  })();
-  var build = function (v) {
-      return Control_Monad_Aff.makeAff(function (err) {
-          return function (succ) {
-              return function __do() {
-                  var v1 = Node_ChildProcess.spawn(v.command.value0)(v.command.value1)((function () {
-                      var $5 = {};
-                      for (var $6 in Node_ChildProcess.defaultSpawnOptions) {
-                          if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($6)) {
-                              $5[$6] = Node_ChildProcess.defaultSpawnOptions[$6];
-                          };
-                      };
-                      $5.cwd = new Data_Maybe.Just(v.directory);
-                      return $5;
-                  })())();
-                  Node_ChildProcess.onError(v1)(function ($21) {
-                      return err(Node_ChildProcess.toStandardError($21));
-                  })();
-                  var stderr = Node_ChildProcess.stderr(v1);
-                  var v2 = Control_Monad_Eff_Ref.newRef("")();
-                  var res = function (s) {
-                      return Control_Monad_Eff_Ref.modifyRef(v2)(function (acc) {
-                          return acc + s;
-                      });
-                  };
-                  Control_Monad_Eff_Exception.catchException(err)(Node_Stream.onDataString(stderr)(Node_Encoding.UTF8.value)(res))();
-                  return Node_ChildProcess.onClose(v1)(function (exit) {
-                      if (exit instanceof Node_ChildProcess.Normally && (exit.value0 === 0 || exit.value0 === 1)) {
-                          return function __do() {
-                              var v3 = Control_Monad_Eff_Ref.readRef(v2)();
-                              var lines = Data_String.split("\n")(v3);
-                              var json = Data_Foldable.find(Data_Foldable.foldableArray)(function (s) {
-                                  return Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqInt))(Data_String.indexOf("{\"")(s))(new Data_Maybe.Just(0));
-                              })(lines);
-                              var $11 = Prelude["<$>"](Data_Maybe.functorMaybe)(IdePurescript_PscErrors.parsePscOutput)(json);
-                              if ($11 instanceof Data_Maybe.Just && $11.value0 instanceof Data_Either.Left) {
-                                  return err(Control_Monad_Eff_Exception.error($11.value0.value0))();
-                              };
-                              if ($11 instanceof Data_Maybe.Just && $11.value0 instanceof Data_Either.Right) {
-                                  return succ({
-                                      errors: $11.value0.value0, 
-                                      success: exit.value0 === 0
-                                  })();
-                              };
-                              if ($11 instanceof Data_Maybe.Nothing) {
-                                  return err(Control_Monad_Eff_Exception.error("Didn't find JSON output"))();
-                              };
-                              throw new Error("Failed pattern match at IdePurescript.Build line 50, column 7 - line 54, column 5: " + [ $11.constructor.name ]);
-                          };
-                      };
-                      return err(Control_Monad_Eff_Exception.error("Process exited abnormally"));
-                  })();
-              };
-          };
-      });
-  };
-  exports["Command"] = Command;
-  exports["build"] = build;;
- 
-})(PS["IdePurescript.Build"] = PS["IdePurescript.Build"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Control_Monad_Aff = PS["Control.Monad.Aff"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var IdePurescript_Build = PS["IdePurescript.Build"];
-  var IdePurescript_PscErrors = PS["IdePurescript.PscErrors"];
-  var Prelude = PS["Prelude"];        
-  var Errors = (function () {
-      function Errors() {
-
-      };
-      Errors.value = new Errors();
-      return Errors;
-  })();
-  var Success = (function () {
-      function Success() {
-
-      };
-      Success.value = new Success();
-      return Success;
-  })();
-  var resultToString = function (v) {
-      if (v instanceof Errors) {
-          return "errors";
-      };
-      if (v instanceof Success) {
-          return "success";
-      };
-      throw new Error("Failed pattern match at IdePurescript.Atom.Build line 30, column 1 - line 31, column 1: " + [ v.constructor.name ]);
-  };
-  var linterBuild = function (v) {
-      var range = function (v1) {
-          if (v1 instanceof Data_Maybe.Nothing) {
-              return [  ];
-          };
-          if (v1 instanceof Data_Maybe.Just) {
-              return [ [ v1.value0.startLine - 1, v1.value0.startColumn - 1 ], [ v1.value0.endLine - 1, v1.value0.endColumn - 1 ] ];
-          };
-          throw new Error("Failed pattern match at IdePurescript.Atom.Build line 49, column 3 - line 50, column 3: " + [ v1.constructor.name ]);
-      };
-      var result = function (errorType) {
-          return function (v1) {
-              return {
-                  type: errorType, 
-                  text: v1.message, 
-                  suggestion: Data_Maybe.maybe({
-                      replacement: "", 
-                      hasSuggestion: false
-                  })(function (v2) {
-                      return {
-                          replacement: v2, 
-                          hasSuggestion: true
-                      };
-                  })(v1.suggestion), 
-                  filePath: Data_Maybe.fromMaybe("")(v1.filename), 
-                  range: range(v1.position), 
-                  multiline: true, 
-                  errorCode: v1.errorCode, 
-                  trace: [ {
-                      type: "Link", 
-                      html: "<a href=\"" + (v1.errorLink + "\">More info (wiki)</a>")
-                  } ]
-              };
-          };
-      };
-      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Build.build({
-          command: new IdePurescript_Build.Command(v.command, v.args), 
-          directory: v.directory
-      }))(function (v1) {
-          var warnings = Prelude["<$>"](Prelude.functorArray)(result("Warning"))(v1.errors.warnings);
-          var errors = Prelude["<$>"](Prelude.functorArray)(result("Error"))(v1.errors.errors);
-          return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-              messages: Prelude["++"](Prelude.semigroupArray)(errors)(warnings), 
-              result: resultToString((function () {
-                  if (v1.success) {
-                      return Success.value;
-                  };
-                  if (!v1.success) {
-                      return Errors.value;
-                  };
-                  throw new Error("Failed pattern match at IdePurescript.Atom.Build line 45, column 13 - line 46, column 3: " + [ v1.success.constructor.name ]);
-              })())
-          });
-      });
-  };
-  exports["Errors"] = Errors;
-  exports["Success"] = Success;
-  exports["linterBuild"] = linterBuild;
-  exports["resultToString"] = resultToString;;
- 
-})(PS["IdePurescript.Atom.Build"] = PS["IdePurescript.Atom.Build"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var DOM = PS["DOM"];
-  var DOM_Node_Document = PS["DOM.Node.Document"];
-  var DOM_Node_Element = PS["DOM.Node.Element"];
-  var DOM_Node_Node = PS["DOM.Node.Node"];
-  var DOM_Node_Types = PS["DOM.Node.Types"];
-  var DOM_HTML_Window = PS["DOM.HTML.Window"];
-  var DOM_HTML = PS["DOM.HTML"];
-  var DOM_HTML_Types = PS["DOM.HTML.Types"];        
-  var Building = (function () {
-      function Building() {
-
-      };
-      Building.value = new Building();
-      return Building;
-  })();
-  var Success = (function () {
-      function Success() {
-
-      };
-      Success.value = new Success();
-      return Success;
-  })();
-  var Errors = (function () {
-      function Errors() {
-
-      };
-      Errors.value = new Errors();
-      return Errors;
-  })();
-  var Failure = (function () {
-      function Failure() {
-
-      };
-      Failure.value = new Failure();
-      return Failure;
-  })();
-  var statusIcon = function (status) {
-      return "purescript-build-status icon icon-" + (function () {
-          if (status instanceof Success) {
-              return "check";
-          };
-          if (status instanceof Errors) {
-              return "alert";
-          };
-          if (status instanceof Failure) {
-              return "bug";
-          };
-          if (status instanceof Building) {
-              return "hourglass";
-          };
-          throw new Error("Failed pattern match at IdePurescript.Atom.BuildStatus line 36, column 21 - line 42, column 1: " + [ status.constructor.name ]);
-      })();
-  };
-  var updateBuildStatus = function (elt) {
-      return function (status) {
-          return DOM_Node_Element.setClassName(statusIcon(status))(elt);
-      };
-  };
-  var showBuildStatus = new Prelude.Show(function (v) {
-      if (v instanceof Building) {
-          return "Building";
-      };
-      if (v instanceof Success) {
-          return "Success";
-      };
-      if (v instanceof Errors) {
-          return "Errors";
-      };
-      if (v instanceof Failure) {
-          return "Failure";
-      };
-      throw new Error("Failed pattern match at IdePurescript.Atom.BuildStatus line 17, column 3 - line 18, column 3: " + [ v.constructor.name ]);
-  });
-  var getBuildStatus = function __do() {
-      var v = Prelude["<$>"](Control_Monad_Eff.functorEff)(DOM_HTML_Types.htmlDocumentToDocument)(Prelude[">>="](Control_Monad_Eff.bindEff)(DOM_HTML.window)(DOM_HTML_Window.document))();
-      var v1 = DOM_Node_Document.createElement("span")(v)();
-      DOM_Node_Element.setClassName(statusIcon(Success.value))(v1)();
-      var v2 = DOM_Node_Document.createTextNode("PureScript")(v)();
-      DOM_Node_Node.appendChild(DOM_Node_Types.textToNode(v2))(DOM_Node_Types.elementToNode(v1))();
-      return v1;
-  };
-  var eqBuildStatus = new Prelude.Eq(function (x) {
-      return function (y) {
-          if (x instanceof Building && y instanceof Building) {
-              return true;
-          };
-          if (x instanceof Success && y instanceof Success) {
-              return true;
-          };
-          if (x instanceof Errors && y instanceof Errors) {
-              return true;
-          };
-          if (x instanceof Failure && y instanceof Failure) {
-              return true;
-          };
-          return false;
-      };
-  });
-  exports["Building"] = Building;
-  exports["Success"] = Success;
-  exports["Errors"] = Errors;
-  exports["Failure"] = Failure;
-  exports["updateBuildStatus"] = updateBuildStatus;
-  exports["statusIcon"] = statusIcon;
-  exports["getBuildStatus"] = getBuildStatus;
-  exports["showBuildStatus"] = showBuildStatus;
-  exports["eqBuildStatus"] = eqBuildStatus;;
- 
-})(PS["IdePurescript.Atom.BuildStatus"] = PS["IdePurescript.Atom.BuildStatus"] || {});
-(function(exports) {
  
   var net = require("net");
 
@@ -6097,6 +5410,31 @@ var PS = { };
   // Generated by psc version 0.8.3.0
   "use strict";
   var Prelude = PS["Prelude"];
+  var Atom_Editor = PS["Atom.Editor"];
+  var Atom_Point = PS["Atom.Point"];
+  var Atom_Range = PS["Atom.Range"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];        
+  var getLinePosition = function (ed) {
+      return function __do() {
+          var v = Atom_Editor.getCursorBufferPosition(ed)();
+          var range = Atom_Range.mkRange(Atom_Point.mkPoint(Atom_Point.getRow(v))(0))(Atom_Point.mkPoint(Atom_Point.getRow(v))(1000));
+          var col = Atom_Point.getColumn(v);
+          var v1 = Atom_Editor.getTextInRange(ed)(range)();
+          return {
+              line: v1, 
+              pos: v, 
+              col: col, 
+              range: range
+          };
+      };
+  };
+  exports["getLinePosition"] = getLinePosition;;
+ 
+})(PS["IdePurescript.Atom.Editor"] = PS["IdePurescript.Atom.Editor"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
   var Data_Either = PS["Data.Either"];
   var Data_Maybe = PS["Data.Maybe"];
   var Data_Array = PS["Data.Array"];
@@ -6478,518 +5816,6 @@ var PS = { };
  
 })(PS["IdePurescript.Atom.Completion"] = PS["IdePurescript.Atom.Completion"] || {});
 (function(exports) {
-  "use strict";
-  // module Node.Process
-
-  /* global exports */
-  /* global process */
-
-  exports.process = process;
- 
-})(PS["Node.Process"] = PS["Node.Process"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Maybe = PS["Data.Maybe"];        
-  var Darwin = (function () {
-      function Darwin() {
-
-      };
-      Darwin.value = new Darwin();
-      return Darwin;
-  })();
-  var FreeBSD = (function () {
-      function FreeBSD() {
-
-      };
-      FreeBSD.value = new FreeBSD();
-      return FreeBSD;
-  })();
-  var Linux = (function () {
-      function Linux() {
-
-      };
-      Linux.value = new Linux();
-      return Linux;
-  })();
-  var SunOS = (function () {
-      function SunOS() {
-
-      };
-      SunOS.value = new SunOS();
-      return SunOS;
-  })();
-  var Win32 = (function () {
-      function Win32() {
-
-      };
-      Win32.value = new Win32();
-      return Win32;
-  })();
-  var toString = function (v) {
-      if (v instanceof Darwin) {
-          return "darwin";
-      };
-      if (v instanceof FreeBSD) {
-          return "freebsd";
-      };
-      if (v instanceof Linux) {
-          return "linux";
-      };
-      if (v instanceof SunOS) {
-          return "sunos";
-      };
-      if (v instanceof Win32) {
-          return "win32";
-      };
-      throw new Error("Failed pattern match at Node.Platform line 18, column 1 - line 19, column 1: " + [ v.constructor.name ]);
-  }; 
-  var fromString = function (v) {
-      if (v === "darwin") {
-          return new Data_Maybe.Just(Darwin.value);
-      };
-      if (v === "freebsd") {
-          return new Data_Maybe.Just(FreeBSD.value);
-      };
-      if (v === "linux") {
-          return new Data_Maybe.Just(Linux.value);
-      };
-      if (v === "sunos") {
-          return new Data_Maybe.Just(SunOS.value);
-      };
-      if (v === "win32") {
-          return new Data_Maybe.Just(Win32.value);
-      };
-      return Data_Maybe.Nothing.value;
-  };
-  var eqPlatform = new Prelude.Eq(Data_Function.on(Prelude.eq(Prelude.eqString))(toString));
-  exports["Darwin"] = Darwin;
-  exports["FreeBSD"] = FreeBSD;
-  exports["Linux"] = Linux;
-  exports["SunOS"] = SunOS;
-  exports["Win32"] = Win32;
-  exports["fromString"] = fromString;
-  exports["toString"] = toString;
-  exports["eqPlatform"] = eqPlatform;;
- 
-})(PS["Node.Platform"] = PS["Node.Platform"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Node.Process"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];
-  var Data_StrMap_1 = PS["Data.StrMap"];
-  var Data_StrMap_1 = PS["Data.StrMap"];
-  var Data_Posix = PS["Data.Posix"];
-  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
-  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
-  var Node_Stream = PS["Node.Stream"];
-  var Unsafe_Coerce = PS["Unsafe.Coerce"];
-  var Node_Platform_1 = PS["Node.Platform"];
-  var Node_Platform_1 = PS["Node.Platform"];
-  var platform = Data_Maybe_Unsafe.fromJust(Node_Platform_1.fromString($foreign.process.platform));
-  exports["platform"] = platform;;
- 
-})(PS["Node.Process"] = PS["Node.Process"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Node_Process = PS["Node.Process"];
-  var Node_Platform = PS["Node.Platform"];        
-  var pulpCmd = (function () {
-      var $0 = Prelude["=="](Node_Platform.eqPlatform)(Node_Process.platform)(Node_Platform.Win32.value);
-      if ($0) {
-          return "pulp.cmd";
-      };
-      if (!$0) {
-          return "pulp";
-      };
-      throw new Error("Failed pattern match at IdePurescript.Atom.Config line 8, column 11 - line 10, column 1: " + [ $0.constructor.name ]);
-  })();
-  var config = {
-      pscIdePort: {
-          title: "psc-ide port number", 
-          description: "The port to use to communicate with `psc-ide-server`, also to launch the server with if required. " + "The default port is 4242 and this only need be changed if you've explicitly chosen to use another port.", 
-          type: "integer", 
-          "default": 4242
-      }, 
-      pscIdeServerExe: {
-          title: "psc-ide-server executable location", 
-          description: "The location of the `psc-ide-server` executable. Note this is *not* `psc-ide-client`. May be on the PATH.", 
-          type: "string", 
-          "default": "psc-ide-server"
-      }, 
-      buildCommand: {
-          title: "build command", 
-          description: "Command line to build the project. " + ("Could be pulp (default), psc or a gulpfile, so long as it passes through errors from psc. " + ("Should output json errors (`--json-errors` flag). " + ("This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path." + "See [examples on the README](https://github.com/nwolverson/atom-ide-purescript/#build-configuration-hints)"))), 
-          type: "string", 
-          "default": pulpCmd + " build --no-psa --json-errors"
-      }, 
-      buildOnSave: {
-          title: "build on save", 
-          description: "Build automatically on save. Enables in-line and collected errors. Otherwise a build command is available to be invoked manually.", 
-          type: "boolean", 
-          "default": true
-      }, 
-      psciCommand: {
-          title: "psci command (eg 'psci' or 'pulp psci' or full path)", 
-          description: "Command line to use to launch PSCI for the repl buffer. " + "This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path.", 
-          type: "string", 
-          "default": pulpCmd + " psci"
-      }, 
-      autocomplete: {
-          type: "object", 
-          properties: {
-              addImport: {
-                  title: "Add import on autocomplete", 
-                  description: "Whether to automatically add imported identifiers when accepting autocomplete result.", 
-                  type: "boolean", 
-                  "default": true
-              }, 
-              allModules: {
-                  title: "Suggest from all modules", 
-                  description: "Whether to always autocomplete from all built modules, or just those imported in the file. Suggestions from all modules always available by explicitly triggering autocomplete.", 
-                  type: "boolean", 
-                  "default": true
-              }
-          }
-      }
-  };
-  exports["config"] = config;;
- 
-})(PS["IdePurescript.Atom.Config"] = PS["IdePurescript.Atom.Config"] || {});
-(function(exports) {
-  // module IdePurescript.Atom.Hooks.Dependencies
-
-  exports.installDependencies = function() {
-    return require('atom-package-deps')
-      .install('ide-purescript');
-  }
- 
-})(PS["IdePurescript.Atom.Hooks.Dependencies"] = PS["IdePurescript.Atom.Hooks.Dependencies"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["IdePurescript.Atom.Hooks.Dependencies"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  exports["installDependencies"] = $foreign.installDependencies;;
- 
-})(PS["IdePurescript.Atom.Hooks.Dependencies"] = PS["IdePurescript.Atom.Hooks.Dependencies"] || {});
-(function(exports) {
-  // module IdePurescript.Atom.Hooks.Linter
-
-  exports.register = function(registry) {
-    return function(options) {
-      return function() {
-        return registry.register(options);
-      };
-    };
-  };
-
-  exports.deleteMessages = function (linter) {
-    return function () {
-      linter.deleteMessages();
-      return {};
-    };
-  };
-
-  exports.setMessages = function (linter) {
-    return function (messages) {
-      return function () {
-        linter.setMessages(messages);
-        return {};
-      }
-    }
-  }
- 
-})(PS["IdePurescript.Atom.Hooks.Linter"] = PS["IdePurescript.Atom.Hooks.Linter"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["IdePurescript.Atom.Hooks.Linter"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
-  exports["setMessages"] = $foreign.setMessages;
-  exports["deleteMessages"] = $foreign.deleteMessages;
-  exports["register"] = $foreign.register;;
- 
-})(PS["IdePurescript.Atom.Hooks.Linter"] = PS["IdePurescript.Atom.Hooks.Linter"] || {});
-(function(exports) {
-  // module IdePurescript.Atom.Hooks.StatusBar
-
-  exports.addLeftTileImpl = function(statusBar, arg) { statusBar.addLeftTile(arg); };  
- 
-})(PS["IdePurescript.Atom.Hooks.StatusBar"] = PS["IdePurescript.Atom.Hooks.StatusBar"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["IdePurescript.Atom.Hooks.StatusBar"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Data_Function_Eff = PS["Data.Function.Eff"];
-  var DOM_Node_Types = PS["DOM.Node.Types"];                                
-  var addLeftTile = Data_Function_Eff.runEffFn2($foreign.addLeftTileImpl);
-  exports["addLeftTile"] = addLeftTile;;
- 
-})(PS["IdePurescript.Atom.Hooks.StatusBar"] = PS["IdePurescript.Atom.Hooks.StatusBar"] || {});
-(function(exports) {
-  "use strict";
-  var path = require("path");        
-
-  exports.concat = function (segments) {
-    return path.join.apply(this, segments);
-  };                             
-
-  exports.sep = path.sep;    
- 
-})(PS["Node.Path"] = PS["Node.Path"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Node.Path"];
-  exports["sep"] = $foreign.sep;
-  exports["concat"] = $foreign.concat;;
- 
-})(PS["Node.Path"] = PS["Node.Path"] || {});
-(function(exports) {
-  "use strict";
-  // module Node.FS.Internal
-
-  exports.unsafeRequireFS = require("fs");
- 
-})(PS["Node.FS.Internal"] = PS["Node.FS.Internal"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Node.FS.Internal"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Unsafe_Coerce = PS["Unsafe.Coerce"];        
-  var mkEff = Unsafe_Coerce.unsafeCoerce;
-  exports["mkEff"] = mkEff;
-  exports["unsafeRequireFS"] = $foreign.unsafeRequireFS;;
- 
-})(PS["Node.FS.Internal"] = PS["Node.FS.Internal"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Data_Date = PS["Data.Date"];
-  var Data_Time = PS["Data.Time"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Nullable = PS["Data.Nullable"];
-  var Data_Int = PS["Data.Int"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Node_Buffer = PS["Node.Buffer"];
-  var Node_Encoding = PS["Node.Encoding"];
-  var Node_FS = PS["Node.FS"];
-  var Node_FS_Stats = PS["Node.FS.Stats"];
-  var Node_Path = PS["Node.Path"];
-  var Node_FS_Perms = PS["Node.FS.Perms"];
-  var Node_FS_Internal = PS["Node.FS.Internal"];        
-  var fs = Node_FS_Internal.unsafeRequireFS;
-  var exists = function (file) {
-      return Node_FS_Internal.mkEff(function (v) {
-          return fs.existsSync(file);
-      });
-  };
-  exports["exists"] = exists;;
- 
-})(PS["Node.FS.Sync"] = PS["Node.FS.Sync"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Node_Path = PS["Node.Path"];
-  var Atom_Atom = PS["Atom.Atom"];
-  var Atom_Config = PS["Atom.Config"];
-  var Atom_NotificationManager = PS["Atom.NotificationManager"];
-  var Atom_Project = PS["Atom.Project"];
-  var Control_Monad = PS["Control.Monad"];
-  var Control_Monad_Aff = PS["Control.Monad.Aff"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
-  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
-  var Control_Monad_Error_Class = PS["Control.Monad.Error.Class"];
-  var DOM = PS["DOM"];
-  var DOM_Node_Types = PS["DOM.Node.Types"];
-  var Data_Array = PS["Data.Array"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Foreign = PS["Data.Foreign"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_String = PS["Data.String"];
-  var Data_String_Regex = PS["Data.String.Regex"];
-  var Data_Traversable = PS["Data.Traversable"];
-  var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
-  var IdePurescript_Atom_BuildStatus = PS["IdePurescript.Atom.BuildStatus"];
-  var IdePurescript_Atom_Hooks_Linter = PS["IdePurescript.Atom.Hooks.Linter"];
-  var Node_ChildProcess = PS["Node.ChildProcess"];
-  var Node_FS = PS["Node.FS"];
-  var Node_FS_Sync = PS["Node.FS.Sync"];        
-  var lint = function (config) {
-      return function (projdir) {
-          return function (linter) {
-              return function (statusElt) {
-                  var status = function (s) {
-                      return function (msg) {
-                          return function __do() {
-                              IdePurescript_Atom_BuildStatus.updateBuildStatus(statusElt)(s)();
-                              return (function () {
-                                  var $12 = Prelude["=="](IdePurescript_Atom_BuildStatus.eqBuildStatus)(s)(IdePurescript_Atom_BuildStatus.Failure.value);
-                                  if ($12) {
-                                      return Control_Monad_Eff_Console.error;
-                                  };
-                                  if (!$12) {
-                                      return Control_Monad_Eff_Console.log;
-                                  };
-                                  throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 110, column 6 - line 110, column 41: " + [ $12.constructor.name ]);
-                              })()("PureScript build status: " + (Prelude.show(IdePurescript_Atom_BuildStatus.showBuildStatus)(s) + Data_Maybe.maybe("")(function (v) {
-                                  return ": " + v;
-                              })(msg)))();
-                          };
-                      };
-                  };
-                  var liftEffA = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
-                  var failure = function (s) {
-                      return function __do() {
-                          var v = Atom_Atom.getAtom();
-                          status(IdePurescript_Atom_BuildStatus.Failure.value)(new Data_Maybe.Just(s))();
-                          return Atom_NotificationManager.addError(v.notifications)(s)();
-                      };
-                  };
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Atom.getAtom))(function (v) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Config.getConfig(config)("ide-purescript.buildCommand")))(function (v1) {
-                          var buildCommand = Data_Either.either(Prelude["const"]([  ]))(function ($38) {
-                              return Data_String_Regex.split(Data_String_Regex.regex("\\s+")(Data_String_Regex.noFlags))(Data_String.trim($38));
-                          })(Data_Foreign.readString(v1));
-                          var $16 = Data_Array.uncons(buildCommand);
-                          if ($16 instanceof Data_Maybe.Just) {
-                              return Control_Monad_Error_Class.catchError(Control_Monad_Aff.monadErrorAff)(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(status(IdePurescript_Atom_BuildStatus.Building.value)(Data_Maybe.Nothing.value)))(function () {
-                                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_Build.linterBuild({
-                                      command: $16.value0.head, 
-                                      args: $16.value0.tail, 
-                                      directory: projdir
-                                  }))(function (v2) {
-                                      return liftEffA(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.Just.create)(function __do() {
-                                          IdePurescript_Atom_Hooks_Linter.deleteMessages(linter)();
-                                          IdePurescript_Atom_Hooks_Linter.setMessages(linter)(v2.messages)();
-                                          status((function () {
-                                              var $19 = v2.result === "success";
-                                              if ($19) {
-                                                  return IdePurescript_Atom_BuildStatus.Success.value;
-                                              };
-                                              if (!$19) {
-                                                  return IdePurescript_Atom_BuildStatus.Errors.value;
-                                              };
-                                              throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 91, column 21 - line 91, column 68: " + [ $19.constructor.name ]);
-                                          })())(Data_Maybe.Nothing.value)();
-                                          return v2.messages;
-                                      }));
-                                  });
-                              }))(function (v2) {
-                                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error running PureScript build command: " + Prelude.show(Control_Monad_Eff_Exception.showError)(v2))))(function () {
-                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
-                                  });
-                              });
-                          };
-                          if ($16 instanceof Data_Maybe.Nothing) {
-                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error parsing PureScript build command")))(function () {
-                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
-                              });
-                          };
-                          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 82, column 3 - line 99, column 3: " + [ $16.constructor.name ]);
-                      });
-                  });
-              };
-          };
-      };
-  };
-  var getProjectRoot = (function () {
-      var validDir = Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(true));
-      var getParent = function (p) {
-          return Node_Path.concat([ p, ".." ]);
-      };
-      var getRoot = function (path) {
-          var src = Node_Path.concat([ path, "src" ]);
-          var parent = getParent(path);
-          var $26 = path === "" || path === parent;
-          if ($26) {
-              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Data_Maybe.Nothing.value);
-          };
-          if (!$26) {
-              return function __do() {
-                  var v = Node_FS_Sync.exists(src)();
-                  if (v) {
-                      return new Data_Maybe.Just(path);
-                  };
-                  if (!v) {
-                      return getRoot(parent)();
-                  };
-                  throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 69, column 7 - line 71, column 3: " + [ v.constructor.name ]);
-              };
-          };
-          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 65, column 5 - line 71, column 3: " + [ $26.constructor.name ]);
-      };
-      return function __do() {
-          var v = Atom_Atom.getAtom();
-          var v1 = Atom_Project.getPaths(v.project)();
-          var v2 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Array.catMaybes)(Data_Traversable.traverse(Data_Traversable.traversableArray)(Control_Monad_Eff.applicativeEff)(getRoot)(v1))();
-          var v3 = Data_Array.filterM(Control_Monad_Eff.monadEff)(validDir)(v2)();
-          var $33 = Data_Array.uncons(v3);
-          if ($33 instanceof Data_Maybe.Nothing) {
-              Atom_NotificationManager.addWarning(v.notifications)("Doesn't look like a purescript project - didn't find any src dir")();
-              return Data_Maybe.Nothing.value;
-          };
-          if ($33 instanceof Data_Maybe.Just) {
-              Control_Monad.when(Control_Monad_Eff.monadEff)(!Data_Array["null"]($33.value0.tail))(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots, using first: " + $33.value0.head))();
-              Control_Monad.when(Control_Monad_Eff.monadEff)(Data_Array["null"]($33.value0.tail) && Data_Array.length(v2) > 1)(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots but only 1 looks valid: " + $33.value0.head))();
-              var output = Node_Path.concat([ $33.value0.head, "output" ]);
-              var v4 = Node_FS_Sync.exists(output)();
-              Control_Monad.when(Control_Monad_Eff.monadEff)(!v4)(Atom_NotificationManager.addWarning(v.notifications)("Doesn't look like a project has been built - didn't find: " + output))();
-              return new Data_Maybe.Just($33.value0.head);
-          };
-          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 39, column 3 - line 50, column 3: " + [ $33.constructor.name ]);
-      };
-  })();
-  exports["lint"] = lint;
-  exports["getProjectRoot"] = getProjectRoot;;
- 
-})(PS["IdePurescript.Atom.LinterBuild"] = PS["IdePurescript.Atom.LinterBuild"] || {});
-(function(exports) {
-  // module IdePurescript.Atom.Psci
-
-  exports.init = function() {
-    var Psci = require('./psci');
-    new Psci().activate();
-    return {};
-  }
- 
-})(PS["IdePurescript.Atom.Psci"] = PS["IdePurescript.Atom.Psci"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["IdePurescript.Atom.Psci"];
-  var Prelude = PS["Prelude"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  exports["init"] = $foreign.init;;
- 
-})(PS["IdePurescript.Atom.Psci"] = PS["IdePurescript.Atom.Psci"] || {});
-(function(exports) {
   // module IdePurescript.Atom.PromptPanel
 
   exports.getEditorModel = function (editor) {
@@ -7079,239 +5905,46 @@ var PS = { };
  
 })(PS["IdePurescript.Atom.PromptPanel"] = PS["IdePurescript.Atom.PromptPanel"] || {});
 (function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Either = PS["Data.Either"];
-  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
-  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
-  var Control_Monad_Aff = PS["Control.Monad.Aff"];
-  var Control_Monad_Aff_AVar = PS["Control.Monad.Aff.AVar"];
-  var Control_Monad_Aff_Par = PS["Control.Monad.Aff.Par"];
-  var Control_Alt = PS["Control.Alt"];
-  var Node_ChildProcess = PS["Node.ChildProcess"];
-  var IdePurescript_PscIde = PS["IdePurescript.PscIde"];
-  var PscIde = PS["PscIde"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];        
-  var CorrectPath = (function () {
-      function CorrectPath() {
-
-      };
-      CorrectPath.value = new CorrectPath();
-      return CorrectPath;
-  })();
-  var WrongPath = (function () {
-      function WrongPath(value0) {
-          this.value0 = value0;
-      };
-      WrongPath.create = function (value0) {
-          return new WrongPath(value0);
-      };
-      return WrongPath;
-  })();
-  var Started = (function () {
-      function Started(value0) {
-          this.value0 = value0;
-      };
-      Started.create = function (value0) {
-          return new Started(value0);
-      };
-      return Started;
-  })();
-  var Closed = (function () {
-      function Closed() {
-
-      };
-      Closed.value = new Closed();
-      return Closed;
-  })();
-  var StartError = (function () {
-      function StartError(value0) {
-          this.value0 = value0;
-      };
-      StartError.create = function (value0) {
-          return new StartError(value0);
-      };
-      return StartError;
-  })();
-  var stopServer = function (port) {
-      return function (cp) {
-          return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde.quit)(function (v) {
-              return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
-          });
-      };
-  };
-  var startServer = function (exe) {
-      return function (port) {
-          return function (rootPath) {
-              var launchServer = Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Console.log("Starting psc-ide-server")))(function () {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Node_ChildProcess.spawn(exe)([ "-p", Prelude.show(Prelude.showInt)(port) ])((function () {
-                      var $6 = {};
-                      for (var $7 in Node_ChildProcess.defaultSpawnOptions) {
-                          if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($7)) {
-                              $6[$7] = Node_ChildProcess.defaultSpawnOptions[$7];
-                          };
-                      };
-                      $6.cwd = new Data_Maybe.Just(rootPath);
-                      return $6;
-                  })())))(function (v) {
-                      var handleErr = Control_Monad_Aff.makeAff(function (v1) {
-                          return function (succ) {
-                              return function __do() {
-                                  Node_ChildProcess.onError(v)(function (v2) {
-                                      return succ(new StartError("psc-ide-server error"));
-                                  })();
-                                  return Node_ChildProcess.onClose(v)(function (exit) {
-                                      if (exit instanceof Node_ChildProcess.Normally && exit.value0 === 0) {
-                                          return succ(Closed.value);
-                                      };
-                                      if (exit instanceof Node_ChildProcess.Normally) {
-                                          return succ(StartError.create("Error code returned: " + Prelude.show(Prelude.showInt)(exit.value0)));
-                                      };
-                                      return succ(new StartError("Other close error"));
-                                  })();
-                              };
-                          };
-                      });
-                      return Control_Monad_Aff_Par.runPar(Control_Alt["<|>"](Control_Monad_Aff_Par.altPar)(handleErr)(Control_Monad_Aff["later'"](100)(Prelude.pure(Control_Monad_Aff.applicativeAff)(new Started(v)))));
-                  });
-              });
-              var gotPath = function (workingDir) {
-                  return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)((function () {
-                      var $14 = workingDir === rootPath;
-                      if ($14) {
-                          return function __do() {
-                              Control_Monad_Eff_Console.log("Found psc-ide-server with correct path: " + workingDir)();
-                              return CorrectPath.value;
-                          };
-                      };
-                      if (!$14) {
-                          return function __do() {
-                              Control_Monad_Eff_Console.log("Found psc-ide-server with wrong path: " + (workingDir + (" instead of " + rootPath)))();
-                              return new WrongPath(workingDir);
-                          };
-                      };
-                      throw new Error("Failed pattern match at IdePurescript.PscIdeServer line 44, column 5 - line 54, column 1: " + [ $14.constructor.name ]);
-                  })());
-              };
-              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Aff.attempt(IdePurescript_PscIde.cwd))(function (v) {
-                  return Data_Either.either(Prelude["const"](launchServer))(gotPath)(v);
-              });
-          };
-      };
-  };
-  exports["CorrectPath"] = CorrectPath;
-  exports["WrongPath"] = WrongPath;
-  exports["Started"] = Started;
-  exports["Closed"] = Closed;
-  exports["StartError"] = StartError;
-  exports["stopServer"] = stopServer;
-  exports["startServer"] = startServer;;
- 
-})(PS["IdePurescript.PscIdeServer"] = PS["IdePurescript.PscIdeServer"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Data_Functor = PS["Data.Functor"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
-  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
-  var Control_Monad_Aff = PS["Control.Monad.Aff"];
-  var Control_Monad_Aff_AVar = PS["Control.Monad.Aff.AVar"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Foreign = PS["Data.Foreign"];
-  var Node_ChildProcess = PS["Node.ChildProcess"];
-  var Node_FS = PS["Node.FS"];
-  var Atom_Atom = PS["Atom.Atom"];
-  var Atom_Config = PS["Atom.Config"];
-  var Atom_Project = PS["Atom.Project"];
-  var Atom_NotificationManager = PS["Atom.NotificationManager"];
-  var IdePurescript_PscIdeServer = PS["IdePurescript.PscIdeServer"];
-  var IdePurescript_Atom_LinterBuild = PS["IdePurescript.Atom.LinterBuild"];
-  var PscIde = PS["PscIde"];        
-  var startServer = (function () {
-      var liftEffS = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
-      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(Atom_Atom.getAtom))(function (v) {
-          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(IdePurescript_Atom_LinterBuild.getProjectRoot))(function (v1) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readInt)(Atom_Config.getConfig(v.config)("ide-purescript.pscIdePort"))))(function (v2) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readString)(Atom_Config.getConfig(v.config)("ide-purescript.pscIdeServerExe"))))(function (v3) {
-                      var $10 = {
-                          portRaw: v2, 
-                          serverRaw: v3, 
-                          path: v1
-                      };
-                      if ($10.portRaw instanceof Data_Either.Right && ($10.serverRaw instanceof Data_Either.Right && $10.path instanceof Data_Maybe.Just)) {
-                          return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIdeServer.startServer($10.serverRaw.value0)($10.portRaw.value0)($10.path.value0))(function (v4) {
-                              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)((function () {
-                                  if (v4 instanceof IdePurescript_PscIdeServer.CorrectPath) {
-                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addInfo(v.notifications)("Found existing psc-ide-server with correct path"));
-                                  };
-                                  if (v4 instanceof IdePurescript_PscIdeServer.WrongPath) {
-                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addError(v.notifications)("Found existing psc-ide-server with wrong path: '" + (v4.value0 + "'. Correct, kill or configure a different port, and restart.")));
-                                  };
-                                  if (v4 instanceof IdePurescript_PscIdeServer.Started) {
-                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(new Data_Maybe.Just(v4.value0))(Atom_NotificationManager.addSuccess(v.notifications)("Started psc-ide-server"));
-                                  };
-                                  if (v4 instanceof IdePurescript_PscIdeServer.Closed) {
-                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addInfo(v.notifications)("psc-ide-server exited with success code"));
-                                  };
-                                  if (v4 instanceof IdePurescript_PscIdeServer.StartError) {
-                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addError(v.notifications)("Could not start psc-ide-server process. Check the configured port number is valid.\n" + v4.value0));
-                                  };
-                                  throw new Error("Failed pattern match at IdePurescript.Atom.PscIdeServer line 44, column 22 - line 50, column 9: " + [ v4.constructor.name ]);
-                              })()))(function (v5) {
-                                  if (v5 instanceof Data_Maybe.Nothing) {
-                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit));
-                                  };
-                                  if (v5 instanceof Data_Maybe.Just) {
-                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Control_Monad_Aff.launchAff(IdePurescript_PscIdeServer.stopServer($10.portRaw.value0)(v5.value0)));
-                                  };
-                                  throw new Error("Failed pattern match at IdePurescript.Atom.PscIdeServer line 50, column 9 - line 53, column 5: " + [ v5.constructor.name ]);
-                              });
-                          });
-                      };
-                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit));
-                  });
-              });
-          });
-      });
-  })();
-  exports["startServer"] = startServer;;
- 
-})(PS["IdePurescript.Atom.PscIdeServer"] = PS["IdePurescript.Atom.PscIdeServer"] || {});
-(function(exports) {
-  // module IdePurescript.Atom.QuickFixes
-
-  exports.showQuickFixesImpl = function(e,l,m) {
-    var qf = require('./quick-fixes');
-    qf.showQuickFixes(e,l,m);
-    return {};
-  }
- 
-})(PS["IdePurescript.Atom.QuickFixes"] = PS["IdePurescript.Atom.QuickFixes"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["IdePurescript.Atom.QuickFixes"];
-  var Atom_Editor = PS["Atom.Editor"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Data_Function_Eff = PS["Data.Function.Eff"];
-  var Data_List = PS["Data.List"];
-  var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
-  var IdePurescript_Atom_Hooks_Linter = PS["IdePurescript.Atom.Hooks.Linter"];
-  var Prelude = PS["Prelude"];        
-  var showQuickFixes = Data_Function_Eff.runEffFn3($foreign.showQuickFixesImpl);
-  exports["showQuickFixes"] = showQuickFixes;;
- 
-})(PS["IdePurescript.Atom.QuickFixes"] = PS["IdePurescript.Atom.QuickFixes"] || {});
-(function(exports) {
   // module IdePurescript.Atom.SelectView
 
   var SelectListView = require('atom-space-pen-views').SelectListView;
+
+  exports.selectListViewStaticInlineImpl = function(viewForItem, confirmed, filterKey, items) {
+    function PurescriptSelectListView() {
+      SelectListView.call(this);
+      this.addClass('overlay');
+      this.addClass('ps-inline-overlay');
+    }
+
+    PurescriptSelectListView.prototype = Object.create(SelectListView.prototype);
+    PurescriptSelectListView.prototype.viewForItem = viewForItem;
+    PurescriptSelectListView.prototype.show = function() {
+      list.storeFocusedElement();
+      var editor = atom.workspace.getActiveTextEditor()
+        , marker = editor.getLastCursor().getMarker();
+      this.panel = editor.decorateMarker(marker, { type: "overlay", position: "tail", item: this });
+      setTimeout(function() {
+        list.focusFilterEditor();
+      }, 20);
+    };
+    PurescriptSelectListView.prototype.confirmed = function(item) {
+      confirmed(item);
+      this.panel && this.panel.destroy();
+      this.restoreFocus();
+    };
+    PurescriptSelectListView.prototype.cancelled = function() {
+      this.panel && this.panel.destroy();
+      this.restoreFocus();
+    };
+    PurescriptSelectListView.prototype.getFilterKey = function() {
+      return filterKey;
+    };
+
+    var list = new PurescriptSelectListView();
+    list.setItems(items);
+    list.show();
+    return {};
+  }
 
   exports.selectListViewStaticImpl = function(viewForItem, confirmed, filterKey, items) {
     function PurescriptSelectListView() {
@@ -7401,6 +6034,15 @@ var PS = { };
   var Data_Maybe = PS["Data.Maybe"];
   var Control_Promise_1 = PS["Control.Promise"];
   var Control_Promise_1 = PS["Control.Promise"];        
+  var selectListViewStaticInline = function (viewForItem) {
+      return function (confirmed) {
+          return function (filterKey) {
+              return function (items) {
+                  return Data_Function_Eff.runEffFn4($foreign.selectListViewStaticInlineImpl)(viewForItem)(Data_Function_Eff.mkEffFn1(confirmed))(Data_Nullable.toNullable(filterKey))(items);
+              };
+          };
+      };
+  };
   var selectListViewStatic = function (viewForItem) {
       return function (confirmed) {
           return function (filterKey) {
@@ -7426,6 +6068,7 @@ var PS = { };
       };
   };
   exports["selectListViewDynamic"] = selectListViewDynamic;
+  exports["selectListViewStaticInline"] = selectListViewStaticInline;
   exports["selectListViewStatic"] = selectListViewStatic;;
  
 })(PS["IdePurescript.Atom.SelectView"] = PS["IdePurescript.Atom.SelectView"] || {});
@@ -7456,6 +6099,142 @@ var PS = { };
  
 })(PS["IdePurescript.Modules"] = PS["IdePurescript.Modules"] || {});
 (function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Node.Encoding"];
+  var Prelude = PS["Prelude"];        
+  var ASCII = (function () {
+      function ASCII() {
+
+      };
+      ASCII.value = new ASCII();
+      return ASCII;
+  })();
+  var UTF8 = (function () {
+      function UTF8() {
+
+      };
+      UTF8.value = new UTF8();
+      return UTF8;
+  })();
+  var UTF16LE = (function () {
+      function UTF16LE() {
+
+      };
+      UTF16LE.value = new UTF16LE();
+      return UTF16LE;
+  })();
+  var UCS2 = (function () {
+      function UCS2() {
+
+      };
+      UCS2.value = new UCS2();
+      return UCS2;
+  })();
+  var Base64 = (function () {
+      function Base64() {
+
+      };
+      Base64.value = new Base64();
+      return Base64;
+  })();
+  var Binary = (function () {
+      function Binary() {
+
+      };
+      Binary.value = new Binary();
+      return Binary;
+  })();
+  var Hex = (function () {
+      function Hex() {
+
+      };
+      Hex.value = new Hex();
+      return Hex;
+  })();
+  var showEncoding = new Prelude.Show(function (v) {
+      if (v instanceof ASCII) {
+          return "ascii";
+      };
+      if (v instanceof UTF8) {
+          return "utf8";
+      };
+      if (v instanceof UTF16LE) {
+          return "utf16le";
+      };
+      if (v instanceof UCS2) {
+          return "ucs2";
+      };
+      if (v instanceof Base64) {
+          return "base64";
+      };
+      if (v instanceof Binary) {
+          return "binary";
+      };
+      if (v instanceof Hex) {
+          return "hex";
+      };
+      throw new Error("Failed pattern match at Node.Encoding line 18, column 3 - line 19, column 3: " + [ v.constructor.name ]);
+  });
+  exports["ASCII"] = ASCII;
+  exports["UTF8"] = UTF8;
+  exports["UTF16LE"] = UTF16LE;
+  exports["UCS2"] = UCS2;
+  exports["Base64"] = Base64;
+  exports["Binary"] = Binary;
+  exports["Hex"] = Hex;
+  exports["showEncoding"] = showEncoding;;
+ 
+})(PS["Node.Encoding"] = PS["Node.Encoding"] || {});
+(function(exports) {
+  "use strict";
+  var path = require("path");        
+
+  exports.concat = function (segments) {
+    return path.join.apply(this, segments);
+  };                             
+
+  exports.sep = path.sep;    
+ 
+})(PS["Node.Path"] = PS["Node.Path"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Node.Path"];
+  exports["sep"] = $foreign.sep;
+  exports["concat"] = $foreign.concat;;
+ 
+})(PS["Node.Path"] = PS["Node.Path"] || {});
+(function(exports) {
+  /* global exports */
+  /* global Buffer */
+  /* global require */
+  "use strict";
+
+  exports.toStringImpl = function (enc) {
+    return function (buff) {
+      return function() {
+        return buff.toString(enc);
+      };
+    };
+  };
+ 
+})(PS["Node.Buffer"] = PS["Node.Buffer"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Node.Buffer"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Node_Encoding = PS["Node.Encoding"];
+  var toString = function ($3) {
+      return $foreign.toStringImpl(Prelude.show(Node_Encoding.showEncoding)($3));
+  };
+  exports["toString"] = toString;;
+ 
+})(PS["Node.Buffer"] = PS["Node.Buffer"] || {});
+(function(exports) {
   /* global require */
   /* global exports */
   "use strict";
@@ -7473,6 +6252,25 @@ var PS = { };
   };
  
 })(PS["Node.FS.Async"] = PS["Node.FS.Async"] || {});
+(function(exports) {
+  "use strict";
+  // module Node.FS.Internal
+
+  exports.unsafeRequireFS = require("fs");
+ 
+})(PS["Node.FS.Internal"] = PS["Node.FS.Internal"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Node.FS.Internal"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Unsafe_Coerce = PS["Unsafe.Coerce"];        
+  var mkEff = Unsafe_Coerce.unsafeCoerce;
+  exports["mkEff"] = mkEff;
+  exports["unsafeRequireFS"] = $foreign.unsafeRequireFS;;
+ 
+})(PS["Node.FS.Internal"] = PS["Node.FS.Internal"] || {});
 (function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
@@ -8049,6 +6847,2097 @@ var PS = { };
   // Generated by psc version 0.8.3.0
   "use strict";
   var Prelude = PS["Prelude"];
+  var IdePurescript_Atom_Completion = PS["IdePurescript.Atom.Completion"];
+  var Atom_Atom = PS["Atom.Atom"];
+  var Atom_CommandRegistry = PS["Atom.CommandRegistry"];
+  var Atom_Editor = PS["Atom.Editor"];
+  var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_TextBuffer = PS["Atom.TextBuffer"];
+  var Atom_Workspace = PS["Atom.Workspace"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var DOM = PS["DOM"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var IdePurescript_Atom_Editor = PS["IdePurescript.Atom.Editor"];
+  var IdePurescript_Atom_PromptPanel = PS["IdePurescript.Atom.PromptPanel"];
+  var IdePurescript_Atom_SelectView = PS["IdePurescript.Atom.SelectView"];
+  var IdePurescript_Atom_Tooltips = PS["IdePurescript.Atom.Tooltips"];
+  var IdePurescript_Modules = PS["IdePurescript.Modules"];
+  var IdePurescript_PscIde = PS["IdePurescript.PscIde"];
+  var Node_FS = PS["Node.FS"];
+  var PscIde = PS["PscIde"];
+  var PscIde_Command = PS["PscIde.Command"];        
+  var liftEffM = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+  var launchAffAndRaise = (function () {
+      var raiseError = function (e) {
+          return function __do() {
+              var v = Atom_Atom.getAtom();
+              return Atom_NotificationManager.addError(v.notifications)(Prelude.show(Control_Monad_Eff_Exception.showError)(e))();
+          };
+      };
+      return Control_Monad_Aff.runAff(raiseError)(Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)));
+  })();
+  var addImport = function (modulesState) {
+      return function (moduleName) {
+          return function __do() {
+              var v = Atom_Atom.getAtom();
+              var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
+              var v2 = Control_Monad_Eff_Ref.readRef(modulesState)();
+              if (v1 instanceof Data_Maybe.Nothing) {
+                  return Prelude.unit;
+              };
+              if (v1 instanceof Data_Maybe.Just) {
+                  var v3 = Atom_Editor.getText(v1.value0)();
+                  var v4 = Atom_Editor.getPath(v1.value0)();
+                  if (v4 instanceof Data_Maybe.Just) {
+                      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addModuleImport(v2)(v4.value0)(v3)(moduleName))(function (v5) {
+                          return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($80) {
+                              return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_Editor.setText(v1.value0)((function (v6) {
+                                  return v6.result;
+                              })($80)));
+                          })(v5));
+                      }))();
+                  };
+                  if (v4 instanceof Data_Maybe.Nothing) {
+                      return Prelude.unit;
+                  };
+                  throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 105, column 7 - line 112, column 1: " + [ v4.constructor.name ]);
+              };
+              throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 100, column 3 - line 112, column 1: " + [ v1.constructor.name ]);
+          };
+      };
+  };
+  var addModuleImportCmd = function (modulesState) {
+      var view = function (x) {
+          return "<li>" + (x + "</li>");
+      };
+      var liftEffI = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getAvailableModules)(function (v) {
+          return liftEffI(IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImport(modulesState))(Data_Maybe.Nothing.value)(v));
+      }));
+  };
+  var addIdentImport$prime = function (modulesState) {
+      return function (moduleName) {
+          return function (ident) {
+              return function (editor) {
+                  var view = function (v) {
+                      return "<li>" + (v["module'"] + ("." + (v.identifier + "</li>")));
+                  };
+                  var runCompletion = function (v) {
+                      return v;
+                  };
+                  var addImp = function (v) {
+                      return launchAffAndRaise(addIdentImport(modulesState)(new Data_Maybe.Just(v["module'"]))(v.identifier));
+                  };
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Editor.getText(editor)))(function (v) {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Editor.getPath(editor)))(function (v1) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Control_Monad_Eff_Ref.readRef(modulesState)))(function (v2) {
+                              if (v1 instanceof Data_Maybe.Just) {
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addExplicitImport(v2)(v1.value0)(v)(moduleName)(ident))(function (v3) {
+                                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Control_Monad_Eff_Ref.writeRef(modulesState)(v3.state)))(function () {
+                                          return liftEffM((function () {
+                                              if (v3.result instanceof IdePurescript_Modules.UpdatedImports) {
+                                                  return function __do() {
+                                                      var v4 = Atom_Editor.getBuffer(editor)();
+                                                      return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_TextBuffer.setTextViaDiff(v4)(v3.result.value0))();
+                                                  };
+                                              };
+                                              if (v3.result instanceof IdePurescript_Modules.AmbiguousImport) {
+                                                  return IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImp)(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v3.result.value0));
+                                              };
+                                              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
+                                          })());
+                                      });
+                                  });
+                              };
+                              return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+                          });
+                      });
+                  });
+              };
+          };
+      };
+  };
+  var addIdentImport = function (modulesState) {
+      return function (moduleName) {
+          return function (ident) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Atom.getAtom))(function (v) {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v1) {
+                      return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport$prime(modulesState)(moduleName)(ident))(v1);
+                  });
+              });
+          };
+      };
+  };
+  var addSuggestionImport = function (v) {
+      return function (v1) {
+          if (v1.suggestion.addImport instanceof Data_Maybe.Just && v1.suggestion.addImport.value0.qualifier instanceof Data_Maybe.Nothing) {
+              return addIdentImport$prime(v)(new Data_Maybe.Just(v1.suggestion.addImport.value0.mod))(v1.suggestion.addImport.value0.identifier)(v1.editor);
+          };
+          return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+      };
+  };
+  var addExplicitImportCmd = function (modulesState) {
+      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Atom.getAtom))(function (v) {
+          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v1) {
+              if (v1 instanceof Data_Maybe.Just) {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(IdePurescript_Atom_Editor.getLinePosition(v1.value0)))(function (v2) {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.maybe("")(function (v3) {
+                          return v3.word;
+                      }))(IdePurescript_Atom_Tooltips.getToken(v1.value0)(v2.pos))))(function (v3) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_PromptPanel.addPromptPanel("Identifier")(v3))(function (v4) {
+                              return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport(modulesState)(Data_Maybe.Nothing.value))(v4);
+                          });
+                      });
+                  });
+              };
+              if (v1 instanceof Data_Maybe.Nothing) {
+                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+              };
+              throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 53, column 3 - line 61, column 1: " + [ v1.constructor.name ]);
+          });
+      }));
+  };
+  exports["liftEffM"] = liftEffM;
+  exports["addImport"] = addImport;
+  exports["addSuggestionImport"] = addSuggestionImport;
+  exports["addIdentImport"] = addIdentImport;
+  exports["addExplicitImportCmd"] = addExplicitImportCmd;
+  exports["addModuleImportCmd"] = addModuleImportCmd;
+  exports["launchAffAndRaise"] = launchAffAndRaise;;
+ 
+})(PS["IdePurescript.Atom.Imports"] = PS["IdePurescript.Atom.Imports"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var PscIde_1 = PS["PscIde"];
+  var Atom_Atom = PS["Atom.Atom"];
+  var Atom_CommandRegistry = PS["Atom.CommandRegistry"];
+  var Atom_Editor = PS["Atom.Editor"];
+  var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_Point = PS["Atom.Point"];
+  var Atom_Range = PS["Atom.Range"];
+  var Atom_Workspace = PS["Atom.Workspace"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var Control_Monad_Maybe_Trans = PS["Control.Monad.Maybe.Trans"];
+  var DOM = PS["DOM"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var IdePurescript_Atom_Editor = PS["IdePurescript.Atom.Editor"];
+  var IdePurescript_Atom_Imports = PS["IdePurescript.Atom.Imports"];
+  var IdePurescript_Atom_PromptPanel = PS["IdePurescript.Atom.PromptPanel"];
+  var IdePurescript_Atom_SelectView = PS["IdePurescript.Atom.SelectView"];
+  var IdePurescript_Atom_Tooltips = PS["IdePurescript.Atom.Tooltips"];
+  var IdePurescript_Modules = PS["IdePurescript.Modules"];
+  var IdePurescript_PscIde = PS["IdePurescript.PscIde"];
+  var Node_FS = PS["Node.FS"];
+  var PscIde_1 = PS["PscIde"];
+  var PscIde_Command = PS["PscIde.Command"];
+  var Control_Monad_Trans = PS["Control.Monad.Trans"];
+  var Data_Monoid = PS["Data.Monoid"];        
+  var liftEff$prime$prime = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+  var launchAffAndRaise = (function () {
+      var raiseError = function (e) {
+          return function __do() {
+              var v = Atom_Atom.getAtom();
+              return Atom_NotificationManager.addError(v.notifications)(Prelude.show(Control_Monad_Eff_Exception.showError)(e))();
+          };
+      };
+      return Control_Monad_Aff.runAff(raiseError)(Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)));
+  })();
+  var fixTypo = function (modulesState) {
+      var body = (function () {
+          var view = function (v) {
+              return "<li>" + (v["module'"] + ("." + (v.identifier + "</li>")));
+          };
+          var runCompletion = function (v) {
+              return v;
+          };
+          var replaceTypo = function (ed) {
+              return function (wordRange) {
+                  return function (v) {
+                      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(ed)(wordRange)(v.identifier)))(function () {
+                          return IdePurescript_Atom_Imports.addIdentImport(modulesState)(new Data_Maybe.Just(v["module'"]))(v.identifier);
+                      }));
+                  };
+              };
+          };
+          var getIdentFromCompletion = function (v) {
+              return v.identifier;
+          };
+          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(Atom_Atom.getAtom)))(function (v) {
+              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v1) {
+                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(IdePurescript_Atom_Editor.getLinePosition(v1))))(function (v2) {
+                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(IdePurescript_Atom_Tooltips.getToken(v1)(v2.pos))))(function (v3) {
+                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.suggestTypos(v3.word)(2))))(function (v4) {
+                              return Control_Monad_Eff_Class.liftEff(Control_Monad_Maybe_Trans.monadEffMaybe(Control_Monad_Aff.monadEffAff))(IdePurescript_Atom_SelectView.selectListViewStatic(view)(replaceTypo(v1)(v3.range))(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v4)));
+                          });
+                      });
+                  });
+              });
+          });
+      })();
+      return launchAffAndRaise(Control_Monad_Maybe_Trans.runMaybeT(body));
+  };
+  var caseSplit = (function () {
+      var body = Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(Atom_Atom.getAtom)))(function (v) {
+          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v1) {
+              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(IdePurescript_Atom_Editor.getLinePosition(v1))))(function (v2) {
+                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(IdePurescript_Atom_Tooltips.getToken(v1)(v2.pos))))(function (v3) {
+                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(IdePurescript_Atom_PromptPanel.addPromptPanel("Parameter type")("")))(function (v4) {
+                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.caseSplit(v2.line)(Atom_Point.getColumn(Atom_Range.getStart(v3.range)))(Atom_Point.getColumn(Atom_Range.getEnd(v3.range)))(true)(v4))))(function (v5) {
+                              return Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(Prelude["void"](Control_Monad_Aff.functorAff)(liftEff$prime$prime(Atom_Editor.setTextInBufferRange(v1)(v2.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v5)))));
+                          });
+                      });
+                  });
+              });
+          });
+      });
+      return launchAffAndRaise(Control_Monad_Maybe_Trans.runMaybeT(body));
+  })();
+  var addClause = function __do() {
+      var v = Atom_Atom.getAtom();
+      var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
+      if (v1 instanceof Data_Maybe.Just) {
+          return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(IdePurescript_Atom_Editor.getLinePosition(v1.value0)))(function (v2) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.addClause(v2.line)(true)))(function (v3) {
+                  return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(v1.value0)(v2.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v3)));
+              });
+          }))();
+      };
+      if (v1 instanceof Data_Maybe.Nothing) {
+          return Prelude.unit;
+      };
+      throw new Error("Failed pattern match at IdePurescript.Atom.Assist line 69, column 3 - line 77, column 1: " + [ v1.constructor.name ]);
+  };
+  exports["fixTypo"] = fixTypo;
+  exports["addClause"] = addClause;
+  exports["caseSplit"] = caseSplit;;
+ 
+})(PS["IdePurescript.Atom.Assist"] = PS["IdePurescript.Atom.Assist"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Argonaut_Core = PS["Data.Argonaut.Core"];
+  var Data_Argonaut_Combinators = PS["Data.Argonaut.Combinators"];
+  var Data_Argonaut_Parser = PS["Data.Argonaut.Parser"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var Control_Bind = PS["Control.Bind"];
+  var Data_Argonaut_Decode = PS["Data.Argonaut.Decode"];        
+  var parseSuggestion = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
+      return Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("replacement");
+  });
+  var parsePosition = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
+      return Prelude.map(Data_Either.functorEither)(Data_Maybe.Just.create)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
+          return function (v1) {
+              return function (v2) {
+                  return function (v3) {
+                      return {
+                          startLine: v, 
+                          startColumn: v1, 
+                          endLine: v2, 
+                          endColumn: v3
+                      };
+                  };
+              };
+          };
+      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startColumn")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endColumn")));
+  });
+  var parsePscError = function (obj) {
+      return Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
+          return function (v1) {
+              return function (v2) {
+                  return function (v3) {
+                      return function (v4) {
+                          return function (v5) {
+                              return function (v6) {
+                                  return {
+                                      moduleName: v, 
+                                      errorCode: v1, 
+                                      message: v2, 
+                                      filename: v3, 
+                                      position: v4, 
+                                      errorLink: v5, 
+                                      suggestion: v6
+                                  };
+                              };
+                          };
+                      };
+                  };
+              };
+          };
+      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("moduleName")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorCode")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("message")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("filename")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("position"))(parsePosition)))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorLink")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("suggestion"))(parseSuggestion));
+  };
+  var parsePscResult = function (obj) {
+      return Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
+          return function (v1) {
+              return {
+                  warnings: v, 
+                  errors: v1
+              };
+          };
+      })(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("warnings"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError))))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("errors"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError)));
+  };
+  var parsePscOutput = Control_Bind["<=<"](Data_Either.bindEither)(function ($13) {
+      return Data_Maybe.maybe(new Data_Either.Left("not object"))(parsePscResult)(Data_Argonaut_Core.toObject($13));
+  })(Data_Argonaut_Parser.jsonParser);
+  exports["parseSuggestion"] = parseSuggestion;
+  exports["parsePosition"] = parsePosition;
+  exports["parsePscError"] = parsePscError;
+  exports["parsePscResult"] = parsePscResult;
+  exports["parsePscOutput"] = parsePscOutput;;
+ 
+})(PS["IdePurescript.PscErrors"] = PS["IdePurescript.PscErrors"] || {});
+(function(exports) {
+  "use strict";
+
+  // module Node.ChildProcess
+  /* eslint-env node*/
+
+  exports.unsafeFromNullable = function unsafeFromNullable(msg){
+    return function(x) {
+      if (x === null) {
+        throw new Error(msg);
+      } else {
+        return x;
+      };
+    };
+  };
+  exports.spawnImpl = function spawnImpl(command) {
+    return function(args) {
+      return function(opts) {
+        return function() {
+          return require("child_process").spawn(command, args, opts);
+        };
+      };
+    };
+  };
+  exports.mkOnClose = function mkOnClose(mkChildExit){
+    return function onClose(cp){
+      return function(cb){
+        return function(){
+          cp.on("exit", function(code, signal){
+            cb(mkChildExit(code)(signal))();
+          });
+        };
+      };
+    };
+  };
+  exports.onError = function onError(cp){
+    return function(cb){
+      return function(){
+        cp.on("error", function(err) {
+          cb(err)()
+        });
+      };
+    };
+  };
+
+  exports["undefined"] = undefined;
+ 
+})(PS["Node.ChildProcess"] = PS["Node.ChildProcess"] || {});
+(function(exports) {
+  /* global exports */
+  /* global Buffer */
+  "use strict";
+
+  exports.onDataEitherImpl = function(left){
+      return function(right){
+          return function(s) {
+              return function(f) {
+                  return function() {
+                      s.on('data', function(chunk) {
+                          if (chunk instanceof Buffer) {
+                              f(right(chunk))();
+                          }
+                          else if (typeof chunk === "string") {
+                              f(left(chunk))();
+                          }
+                          else {
+                              throw new Error(
+                                  "Node.Stream.onDataEitherImpl: Unrecognised" +
+                                  "chunk type; expected String or Buffer, got:" +
+                                  chunk);
+                          }
+                      });
+                  };
+              };
+          };
+      };
+  };
+
+  exports.write = function(w) {
+      return function(chunk) {
+          return function(done) {
+              return function() {
+                  return w.write(chunk, null, done);
+              };
+          };
+      };
+  };
+
+  exports.writeStringImpl = function(w) {
+      return function(enc) {
+          return function(s) {
+              return function(done) {
+                  return function() {
+                      return w.write(s, enc, done);
+                  };
+              };
+          };
+      };
+  };
+
+  exports.end = function(w) {
+      return function(done) {
+          return function() {
+              w.end(null, null, function() {
+                  done();
+              });
+          };
+      };
+  };
+ 
+})(PS["Node.Stream"] = PS["Node.Stream"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Node.Stream"];
+  var Prelude = PS["Prelude"];
+  var Control_Bind = PS["Control.Bind"];
+  var Data_Either = PS["Data.Either"];
+  var Node_Encoding = PS["Node.Encoding"];
+  var Node_Buffer_1 = PS["Node.Buffer"];
+  var Node_Buffer_1 = PS["Node.Buffer"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Eff_Unsafe = PS["Control.Monad.Eff.Unsafe"];        
+  var writeString = function (w) {
+      return function (enc) {
+          return $foreign.writeStringImpl(w)(Prelude.show(Node_Encoding.showEncoding)(enc));
+      };
+  };
+  var onDataEither = $foreign.onDataEitherImpl(Data_Either.Left.create)(Data_Either.Right.create);
+  var onData = function (r) {
+      return function (cb) {
+          var fromEither = function (x) {
+              if (x instanceof Data_Either.Left) {
+                  return Control_Monad_Eff_Exception["throw"]("Node.Stream.onData: Stream encoding should not be set");
+              };
+              if (x instanceof Data_Either.Right) {
+                  return Prelude.pure(Control_Monad_Eff.applicativeEff)(x.value0);
+              };
+              throw new Error("Failed pattern match at Node.Stream line 71, column 5 - line 80, column 1: " + [ x.constructor.name ]);
+          };
+          return onDataEither(r)(Control_Bind["<=<"](Control_Monad_Eff.bindEff)(cb)(fromEither));
+      };
+  };
+  var onDataString = function (r) {
+      return function (enc) {
+          return function (cb) {
+              return onData(r)(Control_Bind["<=<"](Control_Monad_Eff.bindEff)(cb)(function ($3) {
+                  return Control_Monad_Eff_Unsafe.unsafeInterleaveEff(Node_Buffer_1.toString(enc)($3));
+              }));
+          };
+      };
+  };
+  exports["writeString"] = writeString;
+  exports["onDataEither"] = onDataEither;
+  exports["onDataString"] = onDataString;
+  exports["onData"] = onData;
+  exports["end"] = $foreign.end;;
+ 
+})(PS["Node.Stream"] = PS["Node.Stream"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Node.ChildProcess"];
+  var Prelude = PS["Prelude"];
+  var Control_Alt = PS["Control.Alt"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Eff_Exception_Unsafe = PS["Control.Monad.Eff.Exception.Unsafe"];
+  var Data_StrMap = PS["Data.StrMap"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Nullable = PS["Data.Nullable"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Foreign = PS["Data.Foreign"];
+  var Data_Posix = PS["Data.Posix"];
+  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
+  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
+  var Unsafe_Coerce = PS["Unsafe.Coerce"];
+  var Node_Buffer = PS["Node.Buffer"];
+  var Node_FS = PS["Node.FS"];
+  var Node_Stream = PS["Node.Stream"];        
+  var Pipe = (function () {
+      function Pipe() {
+
+      };
+      Pipe.value = new Pipe();
+      return Pipe;
+  })();
+  var Ignore = (function () {
+      function Ignore() {
+
+      };
+      Ignore.value = new Ignore();
+      return Ignore;
+  })();
+  var ShareStream = (function () {
+      function ShareStream(value0) {
+          this.value0 = value0;
+      };
+      ShareStream.create = function (value0) {
+          return new ShareStream(value0);
+      };
+      return ShareStream;
+  })();
+  var ShareFD = (function () {
+      function ShareFD(value0) {
+          this.value0 = value0;
+      };
+      ShareFD.create = function (value0) {
+          return new ShareFD(value0);
+      };
+      return ShareFD;
+  })();
+  var Normally = (function () {
+      function Normally(value0) {
+          this.value0 = value0;
+      };
+      Normally.create = function (value0) {
+          return new Normally(value0);
+      };
+      return Normally;
+  })();
+  var BySignal = (function () {
+      function BySignal(value0) {
+          this.value0 = value0;
+      };
+      BySignal.create = function (value0) {
+          return new BySignal(value0);
+      };
+      return BySignal;
+  })();
+  var toStandardError = Unsafe_Coerce.unsafeCoerce;
+  var toActualStdIOBehaviour = function (b) {
+      if (b instanceof Pipe) {
+          return Unsafe_Coerce.unsafeCoerce("pipe");
+      };
+      if (b instanceof Ignore) {
+          return Unsafe_Coerce.unsafeCoerce("ignore");
+      };
+      if (b instanceof ShareFD) {
+          return Unsafe_Coerce.unsafeCoerce(b.value0);
+      };
+      if (b instanceof ShareStream) {
+          return Unsafe_Coerce.unsafeCoerce(b.value0);
+      };
+      throw new Error("Failed pattern match at Node.ChildProcess line 367, column 28 - line 372, column 3: " + [ b.constructor.name ]);
+  };
+  var toActualStdIOOptions = Prelude.map(Prelude.functorArray)(function ($31) {
+      return Data_Nullable.toNullable(Prelude.map(Data_Maybe.functorMaybe)(toActualStdIOBehaviour)($31));
+  });
+  var spawn = function (cmd) {
+      return function (args) {
+          return function (opts) {
+              var convertOpts = function (opts1) {
+                  return {
+                      cwd: Data_Maybe.fromMaybe($foreign["undefined"])(opts1.cwd), 
+                      stdio: toActualStdIOOptions(opts1.stdio), 
+                      env: Data_Nullable.toNullable(opts1.env), 
+                      detached: opts1.detached, 
+                      uid: Data_Maybe.fromMaybe($foreign["undefined"])(opts1.uid), 
+                      gid: Data_Maybe.fromMaybe($foreign["undefined"])(opts1.gid)
+                  };
+              };
+              return $foreign.spawnImpl(cmd)(args)(convertOpts(opts));
+          };
+      };
+  }; 
+  var runChildProcess = function (v) {
+      return v;
+  };
+  var pipe = Prelude.map(Prelude.functorArray)(Data_Maybe.Just.create)([ Pipe.value, Pipe.value, Pipe.value ]);
+  var mkExit = function (code) {
+      return function (signal) {
+          var fromSignal = Control_Bind[">=>"](Data_Maybe.bindMaybe)(Data_Nullable.toMaybe)(function ($33) {
+              return Prelude.map(Data_Maybe.functorMaybe)(BySignal.create)(Data_Posix_Signal_1.fromString($33));
+          });
+          var fromCode = function ($34) {
+              return Prelude.map(Data_Maybe.functorMaybe)(Normally.create)(Data_Nullable.toMaybe($34));
+          };
+          var $20 = Control_Alt["<|>"](Data_Maybe.altMaybe)(fromCode(code))(fromSignal(signal));
+          if ($20 instanceof Data_Maybe.Just) {
+              return $20.value0;
+          };
+          if ($20 instanceof Data_Maybe.Nothing) {
+              return Control_Monad_Eff_Exception_Unsafe.unsafeThrow("Node.ChildProcess.mkExit: Invalid arguments");
+          };
+          throw new Error("Failed pattern match at Node.ChildProcess line 153, column 3 - line 156, column 3: " + [ $20.constructor.name ]);
+      };
+  };
+  var onClose = $foreign.mkOnClose(mkExit);
+  var missingStream = function (str) {
+      return "Node.ChildProcess: stream not available: " + (str + ("\nThis is probably " + ("because you passed something other than Pipe to the stdio option when " + "you spawned it.")));
+  };
+  var stderr = function ($35) {
+      return $foreign.unsafeFromNullable(missingStream("stderr"))((function (v) {
+          return v.stderr;
+      })(runChildProcess($35)));
+  };
+  var stdin = function ($36) {
+      return $foreign.unsafeFromNullable(missingStream("stdin"))((function (v) {
+          return v.stdin;
+      })(runChildProcess($36)));
+  };
+  var stdout = function ($37) {
+      return $foreign.unsafeFromNullable(missingStream("stdout"))((function (v) {
+          return v.stdout;
+      })(runChildProcess($37)));
+  };
+  var defaultSpawnOptions = {
+      cwd: Data_Maybe.Nothing.value, 
+      stdio: pipe, 
+      env: Data_Maybe.Nothing.value, 
+      detached: false, 
+      uid: Data_Maybe.Nothing.value, 
+      gid: Data_Maybe.Nothing.value
+  };
+  exports["Pipe"] = Pipe;
+  exports["Ignore"] = Ignore;
+  exports["ShareStream"] = ShareStream;
+  exports["ShareFD"] = ShareFD;
+  exports["Normally"] = Normally;
+  exports["BySignal"] = BySignal;
+  exports["pipe"] = pipe;
+  exports["defaultSpawnOptions"] = defaultSpawnOptions;
+  exports["spawn"] = spawn;
+  exports["onClose"] = onClose;
+  exports["toStandardError"] = toStandardError;
+  exports["stdin"] = stdin;
+  exports["stdout"] = stdout;
+  exports["stderr"] = stderr;
+  exports["onError"] = $foreign.onError;;
+ 
+})(PS["Node.ChildProcess"] = PS["Node.ChildProcess"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_String = PS["Data.String"];
+  var IdePurescript_PscErrors = PS["IdePurescript.PscErrors"];
+  var Node_ChildProcess = PS["Node.ChildProcess"];
+  var Node_Encoding = PS["Node.Encoding"];
+  var Node_Stream = PS["Node.Stream"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff_Unsafe = PS["Control.Monad.Eff.Unsafe"];        
+  var Command = (function () {
+      function Command(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      Command.create = function (value0) {
+          return function (value1) {
+              return new Command(value0, value1);
+          };
+      };
+      return Command;
+  })();
+  var build = function (v) {
+      return Control_Monad_Aff.makeAff(function (err) {
+          return function (succ) {
+              return function __do() {
+                  var v1 = Node_ChildProcess.spawn(v.command.value0)(v.command.value1)((function () {
+                      var $5 = {};
+                      for (var $6 in Node_ChildProcess.defaultSpawnOptions) {
+                          if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($6)) {
+                              $5[$6] = Node_ChildProcess.defaultSpawnOptions[$6];
+                          };
+                      };
+                      $5.cwd = new Data_Maybe.Just(v.directory);
+                      return $5;
+                  })())();
+                  Node_ChildProcess.onError(v1)(function ($21) {
+                      return err(Node_ChildProcess.toStandardError($21));
+                  })();
+                  var stderr = Node_ChildProcess.stderr(v1);
+                  var v2 = Control_Monad_Eff_Ref.newRef("")();
+                  var res = function (s) {
+                      return Control_Monad_Eff_Ref.modifyRef(v2)(function (acc) {
+                          return acc + s;
+                      });
+                  };
+                  Control_Monad_Eff_Exception.catchException(err)(Node_Stream.onDataString(stderr)(Node_Encoding.UTF8.value)(res))();
+                  return Node_ChildProcess.onClose(v1)(function (exit) {
+                      if (exit instanceof Node_ChildProcess.Normally && (exit.value0 === 0 || exit.value0 === 1)) {
+                          return function __do() {
+                              var v3 = Control_Monad_Eff_Ref.readRef(v2)();
+                              var lines = Data_String.split("\n")(v3);
+                              var json = Data_Foldable.find(Data_Foldable.foldableArray)(function (s) {
+                                  return Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqInt))(Data_String.indexOf("{\"")(s))(new Data_Maybe.Just(0));
+                              })(lines);
+                              var $11 = Prelude["<$>"](Data_Maybe.functorMaybe)(IdePurescript_PscErrors.parsePscOutput)(json);
+                              if ($11 instanceof Data_Maybe.Just && $11.value0 instanceof Data_Either.Left) {
+                                  return err(Control_Monad_Eff_Exception.error($11.value0.value0))();
+                              };
+                              if ($11 instanceof Data_Maybe.Just && $11.value0 instanceof Data_Either.Right) {
+                                  return succ({
+                                      errors: $11.value0.value0, 
+                                      success: exit.value0 === 0
+                                  })();
+                              };
+                              if ($11 instanceof Data_Maybe.Nothing) {
+                                  return err(Control_Monad_Eff_Exception.error("Didn't find JSON output"))();
+                              };
+                              throw new Error("Failed pattern match at IdePurescript.Build line 50, column 7 - line 54, column 5: " + [ $11.constructor.name ]);
+                          };
+                      };
+                      return err(Control_Monad_Eff_Exception.error("Process exited abnormally"));
+                  })();
+              };
+          };
+      });
+  };
+  exports["Command"] = Command;
+  exports["build"] = build;;
+ 
+})(PS["IdePurescript.Build"] = PS["IdePurescript.Build"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var IdePurescript_Build = PS["IdePurescript.Build"];
+  var IdePurescript_PscErrors = PS["IdePurescript.PscErrors"];
+  var Prelude = PS["Prelude"];        
+  var Errors = (function () {
+      function Errors() {
+
+      };
+      Errors.value = new Errors();
+      return Errors;
+  })();
+  var Success = (function () {
+      function Success() {
+
+      };
+      Success.value = new Success();
+      return Success;
+  })();
+  var resultToString = function (v) {
+      if (v instanceof Errors) {
+          return "errors";
+      };
+      if (v instanceof Success) {
+          return "success";
+      };
+      throw new Error("Failed pattern match at IdePurescript.Atom.Build line 30, column 1 - line 31, column 1: " + [ v.constructor.name ]);
+  };
+  var linterBuild = function (v) {
+      var range = function (v1) {
+          if (v1 instanceof Data_Maybe.Nothing) {
+              return [  ];
+          };
+          if (v1 instanceof Data_Maybe.Just) {
+              return [ [ v1.value0.startLine - 1, v1.value0.startColumn - 1 ], [ v1.value0.endLine - 1, v1.value0.endColumn - 1 ] ];
+          };
+          throw new Error("Failed pattern match at IdePurescript.Atom.Build line 49, column 3 - line 50, column 3: " + [ v1.constructor.name ]);
+      };
+      var result = function (errorType) {
+          return function (v1) {
+              return {
+                  type: errorType, 
+                  text: v1.message, 
+                  suggestion: Data_Maybe.maybe({
+                      replacement: "", 
+                      hasSuggestion: false
+                  })(function (v2) {
+                      return {
+                          replacement: v2, 
+                          hasSuggestion: true
+                      };
+                  })(v1.suggestion), 
+                  filePath: Data_Maybe.fromMaybe("")(v1.filename), 
+                  range: range(v1.position), 
+                  multiline: true, 
+                  errorCode: v1.errorCode, 
+                  trace: [ {
+                      type: "Link", 
+                      html: "<a href=\"" + (v1.errorLink + "\">More info (wiki)</a>")
+                  } ]
+              };
+          };
+      };
+      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Build.build({
+          command: new IdePurescript_Build.Command(v.command, v.args), 
+          directory: v.directory
+      }))(function (v1) {
+          var warnings = Prelude["<$>"](Prelude.functorArray)(result("Warning"))(v1.errors.warnings);
+          var errors = Prelude["<$>"](Prelude.functorArray)(result("Error"))(v1.errors.errors);
+          return Prelude.pure(Control_Monad_Aff.applicativeAff)({
+              messages: Prelude["++"](Prelude.semigroupArray)(errors)(warnings), 
+              result: resultToString((function () {
+                  if (v1.success) {
+                      return Success.value;
+                  };
+                  if (!v1.success) {
+                      return Errors.value;
+                  };
+                  throw new Error("Failed pattern match at IdePurescript.Atom.Build line 45, column 13 - line 46, column 3: " + [ v1.success.constructor.name ]);
+              })())
+          });
+      });
+  };
+  exports["Errors"] = Errors;
+  exports["Success"] = Success;
+  exports["linterBuild"] = linterBuild;
+  exports["resultToString"] = resultToString;;
+ 
+})(PS["IdePurescript.Atom.Build"] = PS["IdePurescript.Atom.Build"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var DOM = PS["DOM"];
+  var DOM_Node_Document = PS["DOM.Node.Document"];
+  var DOM_Node_Element = PS["DOM.Node.Element"];
+  var DOM_Node_Node = PS["DOM.Node.Node"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
+  var DOM_HTML_Window = PS["DOM.HTML.Window"];
+  var DOM_HTML = PS["DOM.HTML"];
+  var DOM_HTML_Types = PS["DOM.HTML.Types"];        
+  var Building = (function () {
+      function Building() {
+
+      };
+      Building.value = new Building();
+      return Building;
+  })();
+  var Success = (function () {
+      function Success() {
+
+      };
+      Success.value = new Success();
+      return Success;
+  })();
+  var Errors = (function () {
+      function Errors() {
+
+      };
+      Errors.value = new Errors();
+      return Errors;
+  })();
+  var Failure = (function () {
+      function Failure() {
+
+      };
+      Failure.value = new Failure();
+      return Failure;
+  })();
+  var statusIcon = function (status) {
+      return "purescript-build-status icon icon-" + (function () {
+          if (status instanceof Success) {
+              return "check";
+          };
+          if (status instanceof Errors) {
+              return "alert";
+          };
+          if (status instanceof Failure) {
+              return "bug";
+          };
+          if (status instanceof Building) {
+              return "hourglass";
+          };
+          throw new Error("Failed pattern match at IdePurescript.Atom.BuildStatus line 36, column 21 - line 42, column 1: " + [ status.constructor.name ]);
+      })();
+  };
+  var updateBuildStatus = function (elt) {
+      return function (status) {
+          return DOM_Node_Element.setClassName(statusIcon(status))(elt);
+      };
+  };
+  var showBuildStatus = new Prelude.Show(function (v) {
+      if (v instanceof Building) {
+          return "Building";
+      };
+      if (v instanceof Success) {
+          return "Success";
+      };
+      if (v instanceof Errors) {
+          return "Errors";
+      };
+      if (v instanceof Failure) {
+          return "Failure";
+      };
+      throw new Error("Failed pattern match at IdePurescript.Atom.BuildStatus line 17, column 3 - line 18, column 3: " + [ v.constructor.name ]);
+  });
+  var getBuildStatus = function __do() {
+      var v = Prelude["<$>"](Control_Monad_Eff.functorEff)(DOM_HTML_Types.htmlDocumentToDocument)(Prelude[">>="](Control_Monad_Eff.bindEff)(DOM_HTML.window)(DOM_HTML_Window.document))();
+      var v1 = DOM_Node_Document.createElement("span")(v)();
+      DOM_Node_Element.setClassName(statusIcon(Success.value))(v1)();
+      var v2 = DOM_Node_Document.createTextNode("PureScript")(v)();
+      DOM_Node_Node.appendChild(DOM_Node_Types.textToNode(v2))(DOM_Node_Types.elementToNode(v1))();
+      return v1;
+  };
+  var eqBuildStatus = new Prelude.Eq(function (x) {
+      return function (y) {
+          if (x instanceof Building && y instanceof Building) {
+              return true;
+          };
+          if (x instanceof Success && y instanceof Success) {
+              return true;
+          };
+          if (x instanceof Errors && y instanceof Errors) {
+              return true;
+          };
+          if (x instanceof Failure && y instanceof Failure) {
+              return true;
+          };
+          return false;
+      };
+  });
+  exports["Building"] = Building;
+  exports["Success"] = Success;
+  exports["Errors"] = Errors;
+  exports["Failure"] = Failure;
+  exports["updateBuildStatus"] = updateBuildStatus;
+  exports["statusIcon"] = statusIcon;
+  exports["getBuildStatus"] = getBuildStatus;
+  exports["showBuildStatus"] = showBuildStatus;
+  exports["eqBuildStatus"] = eqBuildStatus;;
+ 
+})(PS["IdePurescript.Atom.BuildStatus"] = PS["IdePurescript.Atom.BuildStatus"] || {});
+(function(exports) {
+  "use strict";
+  // module Node.Process
+
+  /* global exports */
+  /* global process */
+
+  exports.process = process;
+ 
+})(PS["Node.Process"] = PS["Node.Process"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Maybe = PS["Data.Maybe"];        
+  var Darwin = (function () {
+      function Darwin() {
+
+      };
+      Darwin.value = new Darwin();
+      return Darwin;
+  })();
+  var FreeBSD = (function () {
+      function FreeBSD() {
+
+      };
+      FreeBSD.value = new FreeBSD();
+      return FreeBSD;
+  })();
+  var Linux = (function () {
+      function Linux() {
+
+      };
+      Linux.value = new Linux();
+      return Linux;
+  })();
+  var SunOS = (function () {
+      function SunOS() {
+
+      };
+      SunOS.value = new SunOS();
+      return SunOS;
+  })();
+  var Win32 = (function () {
+      function Win32() {
+
+      };
+      Win32.value = new Win32();
+      return Win32;
+  })();
+  var toString = function (v) {
+      if (v instanceof Darwin) {
+          return "darwin";
+      };
+      if (v instanceof FreeBSD) {
+          return "freebsd";
+      };
+      if (v instanceof Linux) {
+          return "linux";
+      };
+      if (v instanceof SunOS) {
+          return "sunos";
+      };
+      if (v instanceof Win32) {
+          return "win32";
+      };
+      throw new Error("Failed pattern match at Node.Platform line 18, column 1 - line 19, column 1: " + [ v.constructor.name ]);
+  }; 
+  var fromString = function (v) {
+      if (v === "darwin") {
+          return new Data_Maybe.Just(Darwin.value);
+      };
+      if (v === "freebsd") {
+          return new Data_Maybe.Just(FreeBSD.value);
+      };
+      if (v === "linux") {
+          return new Data_Maybe.Just(Linux.value);
+      };
+      if (v === "sunos") {
+          return new Data_Maybe.Just(SunOS.value);
+      };
+      if (v === "win32") {
+          return new Data_Maybe.Just(Win32.value);
+      };
+      return Data_Maybe.Nothing.value;
+  };
+  var eqPlatform = new Prelude.Eq(Data_Function.on(Prelude.eq(Prelude.eqString))(toString));
+  exports["Darwin"] = Darwin;
+  exports["FreeBSD"] = FreeBSD;
+  exports["Linux"] = Linux;
+  exports["SunOS"] = SunOS;
+  exports["Win32"] = Win32;
+  exports["fromString"] = fromString;
+  exports["toString"] = toString;
+  exports["eqPlatform"] = eqPlatform;;
+ 
+})(PS["Node.Platform"] = PS["Node.Platform"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Node.Process"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];
+  var Data_StrMap_1 = PS["Data.StrMap"];
+  var Data_StrMap_1 = PS["Data.StrMap"];
+  var Data_Posix = PS["Data.Posix"];
+  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
+  var Data_Posix_Signal_1 = PS["Data.Posix.Signal"];
+  var Node_Stream = PS["Node.Stream"];
+  var Unsafe_Coerce = PS["Unsafe.Coerce"];
+  var Node_Platform_1 = PS["Node.Platform"];
+  var Node_Platform_1 = PS["Node.Platform"];
+  var platform = Data_Maybe_Unsafe.fromJust(Node_Platform_1.fromString($foreign.process.platform));
+  exports["platform"] = platform;;
+ 
+})(PS["Node.Process"] = PS["Node.Process"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Node_Process = PS["Node.Process"];
+  var Node_Platform = PS["Node.Platform"];        
+  var pulpCmd = (function () {
+      var $0 = Prelude["=="](Node_Platform.eqPlatform)(Node_Process.platform)(Node_Platform.Win32.value);
+      if ($0) {
+          return "pulp.cmd";
+      };
+      if (!$0) {
+          return "pulp";
+      };
+      throw new Error("Failed pattern match at IdePurescript.Atom.Config line 8, column 11 - line 10, column 1: " + [ $0.constructor.name ]);
+  })();
+  var config = {
+      pscIdePort: {
+          title: "psc-ide port number", 
+          description: "The port to use to communicate with `psc-ide-server`, also to launch the server with if required. " + "The default port is 4242 and this only need be changed if you've explicitly chosen to use another port.", 
+          type: "integer", 
+          "default": 4242
+      }, 
+      pscIdeServerExe: {
+          title: "psc-ide-server executable location", 
+          description: "The location of the `psc-ide-server` executable. Note this is *not* `psc-ide-client`. May be on the PATH.", 
+          type: "string", 
+          "default": "psc-ide-server"
+      }, 
+      buildCommand: {
+          title: "build command", 
+          description: "Command line to build the project. " + ("Could be pulp (default), psc or a gulpfile, so long as it passes through errors from psc. " + ("Should output json errors (`--json-errors` flag). " + ("This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path." + "See [examples on the README](https://github.com/nwolverson/atom-ide-purescript/#build-configuration-hints)"))), 
+          type: "string", 
+          "default": pulpCmd + " build --no-psa --json-errors"
+      }, 
+      buildOnSave: {
+          title: "build on save", 
+          description: "Build automatically on save. Enables in-line and collected errors. Otherwise a build command is available to be invoked manually.", 
+          type: "boolean", 
+          "default": true
+      }, 
+      psciCommand: {
+          title: "psci command (eg 'psci' or 'pulp psci' or full path)", 
+          description: "Command line to use to launch PSCI for the repl buffer. " + "This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path.", 
+          type: "string", 
+          "default": pulpCmd + " psci"
+      }, 
+      autocomplete: {
+          type: "object", 
+          properties: {
+              addImport: {
+                  title: "Add import on autocomplete", 
+                  description: "Whether to automatically add imported identifiers when accepting autocomplete result.", 
+                  type: "boolean", 
+                  "default": true
+              }, 
+              allModules: {
+                  title: "Suggest from all modules", 
+                  description: "Whether to always autocomplete from all built modules, or just those imported in the file. Suggestions from all modules always available by explicitly triggering autocomplete.", 
+                  type: "boolean", 
+                  "default": true
+              }
+          }
+      }
+  };
+  exports["config"] = config;;
+ 
+})(PS["IdePurescript.Atom.Config"] = PS["IdePurescript.Atom.Config"] || {});
+(function(exports) {
+  // module IdePurescript.Atom.Hooks.Dependencies
+
+  exports.installDependencies = function() {
+    return require('atom-package-deps')
+      .install('ide-purescript');
+  }
+ 
+})(PS["IdePurescript.Atom.Hooks.Dependencies"] = PS["IdePurescript.Atom.Hooks.Dependencies"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["IdePurescript.Atom.Hooks.Dependencies"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  exports["installDependencies"] = $foreign.installDependencies;;
+ 
+})(PS["IdePurescript.Atom.Hooks.Dependencies"] = PS["IdePurescript.Atom.Hooks.Dependencies"] || {});
+(function(exports) {
+  // module IdePurescript.Atom.Hooks.Linter
+
+  exports.register = function(registry) {
+    return function(options) {
+      return function() {
+        return registry.register(options);
+      };
+    };
+  };
+
+  exports.deleteMessages = function (linter) {
+    return function () {
+      linter.deleteMessages();
+      return {};
+    };
+  };
+
+  exports.setMessages = function (linter) {
+    return function (messages) {
+      return function () {
+        linter.setMessages(messages);
+        return {};
+      };
+    };
+  };
+
+  exports.getMessages = function (linter) {
+    return function () {
+      return Array.from(linter.getMessages());
+    };
+  };
+
+  exports.getEditorLinter = function (linterMain) {
+    return function (editor) {
+      return function () {
+        return linterMain.getEditorLinter(editor);
+      };
+    };
+  };
+
+  exports.getMarkerBufferRange = function (editorLinter) {
+    return function (message) {
+      return function() {
+        var marker = editorLinter.markers.get(message);
+        if (marker && marker.isValid()) {
+          return marker.getBufferRange();
+        } else {
+          return null;
+        }
+      };
+    };
+  };
+ 
+})(PS["IdePurescript.Atom.Hooks.Linter"] = PS["IdePurescript.Atom.Hooks.Linter"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["IdePurescript.Atom.Hooks.Linter"];
+  var Atom_Editor = PS["Atom.Editor"];
+  var Atom_Range = PS["Atom.Range"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Data_Nullable = PS["Data.Nullable"];
+  var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
+  var Prelude = PS["Prelude"];
+  exports["getMarkerBufferRange"] = $foreign.getMarkerBufferRange;
+  exports["getEditorLinter"] = $foreign.getEditorLinter;
+  exports["getMessages"] = $foreign.getMessages;
+  exports["setMessages"] = $foreign.setMessages;
+  exports["deleteMessages"] = $foreign.deleteMessages;
+  exports["register"] = $foreign.register;;
+ 
+})(PS["IdePurescript.Atom.Hooks.Linter"] = PS["IdePurescript.Atom.Hooks.Linter"] || {});
+(function(exports) {
+  // module IdePurescript.Atom.Hooks.StatusBar
+
+  exports.addLeftTileImpl = function(statusBar, arg) { statusBar.addLeftTile(arg); };  
+ 
+})(PS["IdePurescript.Atom.Hooks.StatusBar"] = PS["IdePurescript.Atom.Hooks.StatusBar"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["IdePurescript.Atom.Hooks.StatusBar"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Data_Function_Eff = PS["Data.Function.Eff"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];                                
+  var addLeftTile = Data_Function_Eff.runEffFn2($foreign.addLeftTileImpl);
+  exports["addLeftTile"] = addLeftTile;;
+ 
+})(PS["IdePurescript.Atom.Hooks.StatusBar"] = PS["IdePurescript.Atom.Hooks.StatusBar"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Data_Date = PS["Data.Date"];
+  var Data_Time = PS["Data.Time"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Nullable = PS["Data.Nullable"];
+  var Data_Int = PS["Data.Int"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Node_Buffer = PS["Node.Buffer"];
+  var Node_Encoding = PS["Node.Encoding"];
+  var Node_FS = PS["Node.FS"];
+  var Node_FS_Stats = PS["Node.FS.Stats"];
+  var Node_Path = PS["Node.Path"];
+  var Node_FS_Perms = PS["Node.FS.Perms"];
+  var Node_FS_Internal = PS["Node.FS.Internal"];        
+  var fs = Node_FS_Internal.unsafeRequireFS;
+  var exists = function (file) {
+      return Node_FS_Internal.mkEff(function (v) {
+          return fs.existsSync(file);
+      });
+  };
+  exports["exists"] = exists;;
+ 
+})(PS["Node.FS.Sync"] = PS["Node.FS.Sync"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Node_Path = PS["Node.Path"];
+  var Atom_Atom = PS["Atom.Atom"];
+  var Atom_Config = PS["Atom.Config"];
+  var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_Project = PS["Atom.Project"];
+  var Control_Monad = PS["Control.Monad"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var Control_Monad_Error_Class = PS["Control.Monad.Error.Class"];
+  var DOM = PS["DOM"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
+  var Data_Array = PS["Data.Array"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Foreign = PS["Data.Foreign"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_String = PS["Data.String"];
+  var Data_String_Regex = PS["Data.String.Regex"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
+  var IdePurescript_Atom_BuildStatus = PS["IdePurescript.Atom.BuildStatus"];
+  var IdePurescript_Atom_Hooks_Linter = PS["IdePurescript.Atom.Hooks.Linter"];
+  var Node_ChildProcess = PS["Node.ChildProcess"];
+  var Node_FS = PS["Node.FS"];
+  var Node_FS_Sync = PS["Node.FS.Sync"];        
+  var lint = function (config) {
+      return function (projdir) {
+          return function (linter) {
+              return function (statusElt) {
+                  var status = function (s) {
+                      return function (msg) {
+                          return function __do() {
+                              IdePurescript_Atom_BuildStatus.updateBuildStatus(statusElt)(s)();
+                              return (function () {
+                                  var $12 = Prelude["=="](IdePurescript_Atom_BuildStatus.eqBuildStatus)(s)(IdePurescript_Atom_BuildStatus.Failure.value);
+                                  if ($12) {
+                                      return Control_Monad_Eff_Console.error;
+                                  };
+                                  if (!$12) {
+                                      return Control_Monad_Eff_Console.log;
+                                  };
+                                  throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 110, column 6 - line 110, column 41: " + [ $12.constructor.name ]);
+                              })()("PureScript build status: " + (Prelude.show(IdePurescript_Atom_BuildStatus.showBuildStatus)(s) + Data_Maybe.maybe("")(function (v) {
+                                  return ": " + v;
+                              })(msg)))();
+                          };
+                      };
+                  };
+                  var liftEffA = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+                  var failure = function (s) {
+                      return function __do() {
+                          var v = Atom_Atom.getAtom();
+                          status(IdePurescript_Atom_BuildStatus.Failure.value)(new Data_Maybe.Just(s))();
+                          return Atom_NotificationManager.addError(v.notifications)(s)();
+                      };
+                  };
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Atom.getAtom))(function (v) {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Config.getConfig(config)("ide-purescript.buildCommand")))(function (v1) {
+                          var buildCommand = Data_Either.either(Prelude["const"]([  ]))(function ($38) {
+                              return Data_String_Regex.split(Data_String_Regex.regex("\\s+")(Data_String_Regex.noFlags))(Data_String.trim($38));
+                          })(Data_Foreign.readString(v1));
+                          var $16 = Data_Array.uncons(buildCommand);
+                          if ($16 instanceof Data_Maybe.Just) {
+                              return Control_Monad_Error_Class.catchError(Control_Monad_Aff.monadErrorAff)(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(status(IdePurescript_Atom_BuildStatus.Building.value)(Data_Maybe.Nothing.value)))(function () {
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_Build.linterBuild({
+                                      command: $16.value0.head, 
+                                      args: $16.value0.tail, 
+                                      directory: projdir
+                                  }))(function (v2) {
+                                      return liftEffA(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.Just.create)(function __do() {
+                                          IdePurescript_Atom_Hooks_Linter.deleteMessages(linter)();
+                                          IdePurescript_Atom_Hooks_Linter.setMessages(linter)(v2.messages)();
+                                          status((function () {
+                                              var $19 = v2.result === "success";
+                                              if ($19) {
+                                                  return IdePurescript_Atom_BuildStatus.Success.value;
+                                              };
+                                              if (!$19) {
+                                                  return IdePurescript_Atom_BuildStatus.Errors.value;
+                                              };
+                                              throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 91, column 21 - line 91, column 68: " + [ $19.constructor.name ]);
+                                          })())(Data_Maybe.Nothing.value)();
+                                          return v2.messages;
+                                      }));
+                                  });
+                              }))(function (v2) {
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error running PureScript build command: " + Prelude.show(Control_Monad_Eff_Exception.showError)(v2))))(function () {
+                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
+                                  });
+                              });
+                          };
+                          if ($16 instanceof Data_Maybe.Nothing) {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error parsing PureScript build command")))(function () {
+                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
+                              });
+                          };
+                          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 82, column 3 - line 99, column 3: " + [ $16.constructor.name ]);
+                      });
+                  });
+              };
+          };
+      };
+  };
+  var getProjectRoot = (function () {
+      var validDir = Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(true));
+      var getParent = function (p) {
+          return Node_Path.concat([ p, ".." ]);
+      };
+      var getRoot = function (path) {
+          var src = Node_Path.concat([ path, "src" ]);
+          var parent = getParent(path);
+          var $26 = path === "" || path === parent;
+          if ($26) {
+              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Data_Maybe.Nothing.value);
+          };
+          if (!$26) {
+              return function __do() {
+                  var v = Node_FS_Sync.exists(src)();
+                  if (v) {
+                      return new Data_Maybe.Just(path);
+                  };
+                  if (!v) {
+                      return getRoot(parent)();
+                  };
+                  throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 69, column 7 - line 71, column 3: " + [ v.constructor.name ]);
+              };
+          };
+          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 65, column 5 - line 71, column 3: " + [ $26.constructor.name ]);
+      };
+      return function __do() {
+          var v = Atom_Atom.getAtom();
+          var v1 = Atom_Project.getPaths(v.project)();
+          var v2 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Array.catMaybes)(Data_Traversable.traverse(Data_Traversable.traversableArray)(Control_Monad_Eff.applicativeEff)(getRoot)(v1))();
+          var v3 = Data_Array.filterM(Control_Monad_Eff.monadEff)(validDir)(v2)();
+          var $33 = Data_Array.uncons(v3);
+          if ($33 instanceof Data_Maybe.Nothing) {
+              Atom_NotificationManager.addWarning(v.notifications)("Doesn't look like a purescript project - didn't find any src dir")();
+              return Data_Maybe.Nothing.value;
+          };
+          if ($33 instanceof Data_Maybe.Just) {
+              Control_Monad.when(Control_Monad_Eff.monadEff)(!Data_Array["null"]($33.value0.tail))(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots, using first: " + $33.value0.head))();
+              Control_Monad.when(Control_Monad_Eff.monadEff)(Data_Array["null"]($33.value0.tail) && Data_Array.length(v2) > 1)(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots but only 1 looks valid: " + $33.value0.head))();
+              var output = Node_Path.concat([ $33.value0.head, "output" ]);
+              var v4 = Node_FS_Sync.exists(output)();
+              Control_Monad.when(Control_Monad_Eff.monadEff)(!v4)(Atom_NotificationManager.addWarning(v.notifications)("Doesn't look like a project has been built - didn't find: " + output))();
+              return new Data_Maybe.Just($33.value0.head);
+          };
+          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 39, column 3 - line 50, column 3: " + [ $33.constructor.name ]);
+      };
+  })();
+  exports["lint"] = lint;
+  exports["getProjectRoot"] = getProjectRoot;;
+ 
+})(PS["IdePurescript.Atom.LinterBuild"] = PS["IdePurescript.Atom.LinterBuild"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["IdePurescript.Atom.Psci"];
+  var Prelude = PS["Prelude"];
+  var Atom_Atom = PS["Atom.Atom"];
+  var Atom_CommandRegistry = PS["Atom.CommandRegistry"];
+  var Atom_Config = PS["Atom.Config"];
+  var Atom_Editor = PS["Atom.Editor"];
+  var Atom_Grammar = PS["Atom.Grammar"];
+  var Atom_GrammarRegistry = PS["Atom.GrammarRegistry"];
+  var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_Point = PS["Atom.Point"];
+  var Atom_Project = PS["Atom.Project"];
+  var Atom_Range = PS["Atom.Range"];
+  var Atom_Workspace = PS["Atom.Workspace"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var Data_Array = PS["Data.Array"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Foreign = PS["Data.Foreign"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_String = PS["Data.String"];
+  var Data_String_Regex = PS["Data.String.Regex"];
+  var IdePurescript_Atom_Imports = PS["IdePurescript.Atom.Imports"];
+  var IdePurescript_Atom_LinterBuild = PS["IdePurescript.Atom.LinterBuild"];
+  var Node_ChildProcess = PS["Node.ChildProcess"];
+  var Node_Encoding = PS["Node.Encoding"];
+  var Node_FS = PS["Node.FS"];
+  var Node_Stream = PS["Node.Stream"];        
+  var sendText = function (editor) {
+      return function (proc) {
+          return function (text) {
+              var text$prime = Data_String.trim(text) + "\n";
+              return function __do() {
+                  Atom_Editor.insertText(editor)(text$prime)();
+                  return Prelude["void"](Control_Monad_Eff.functorEff)(Node_Stream.writeString(Node_ChildProcess.stdin(proc))(Node_Encoding.UTF8.value)(text$prime)(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)))();
+              };
+          };
+      };
+  };
+  var sendText$prime = function (getText) {
+      return function (editor) {
+          return function (proc) {
+              return function __do() {
+                  var v = Atom_Atom.getAtom();
+                  var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
+                  return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function (ed) {
+                      return function __do() {
+                          var v2 = getText(ed)();
+                          return sendText(editor)(proc)(v2)();
+                      };
+                  })(v1)();
+              };
+          };
+      };
+  };
+  var sendSelection = sendText$prime(Atom_Editor.getSelectedText);
+  var sendLine = sendText$prime(function (ed) {
+      return function __do() {
+          var v = Atom_Editor.getCursorBufferPosition(ed)();
+          var p = function (c) {
+              return Atom_Point.mkPoint(Atom_Point.getRow(v))(c);
+          };
+          var v1 = Atom_Editor.getTextInRange(ed)(Atom_Range.mkRange(p(0))(p(1000)))();
+          Atom_Editor.moveDown(ed)(1)();
+          Atom_Editor.moveToBeginningOfLine(ed)();
+          return v1;
+      };
+  });
+  var openPsci = Control_Monad_Aff.makeAff(function (err) {
+      return function (cb) {
+          return function __do() {
+              var v = Atom_Atom.getAtom();
+              return Atom_Workspace.open(v.workspace)("PSCI")((function () {
+                  var $26 = {};
+                  for (var $27 in Atom_Workspace.defaultOpenOptions) {
+                      if (Atom_Workspace.defaultOpenOptions.hasOwnProperty($27)) {
+                          $26[$27] = Atom_Workspace.defaultOpenOptions[$27];
+                      };
+                  };
+                  $26.split = "right";
+                  $26.activatePane = false;
+                  return $26;
+              })())(cb)(err(Control_Monad_Eff_Exception.error("Can't Open PSCI")))();
+          };
+      };
+  });
+  var closePsci = function (editor) {
+      return function (proc) {
+          return function __do() {
+              sendText(editor)(proc)(":q")();
+              return Node_Stream.end(Node_ChildProcess.stdin(proc))(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))();
+          };
+      };
+  };
+  var appendText = function (editor) {
+      return function (text) {
+          return function __do() {
+              Atom_Editor.moveToBottom(editor)();
+              return Atom_Editor.insertText(editor)(text)();
+          };
+      };
+  };
+  var startRepl = function (editorRef) {
+      return function (psciRef) {
+          var liftEff$prime$prime = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Atom_Atom.getAtom))(function (v) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(openPsci)(function (v1) {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(function __do() {
+                      Control_Monad_Eff_Ref.writeRef(editorRef)(new Data_Maybe.Just(v1))();
+                      Control_Monad_Eff_Console.log("Started PSCI")();
+                      var v2 = Atom_GrammarRegistry.grammarForScopeName(v.grammars)("source.purescript.psci")();
+                      return Atom_Editor.setGrammar(v1)(v2)();
+                  }))(function () {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readString)(Atom_Config.getConfig(v.config)("ide-purescript.psciCommand"))))(function (v2) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(IdePurescript_Atom_LinterBuild.getProjectRoot))(function (v3) {
+                              var command = Data_Either.either(Prelude["const"]([  ]))(function ($63) {
+                                  return Data_String_Regex.split(Data_String_Regex.regex("\\s+")(Data_String_Regex.noFlags))(Data_String.trim($63));
+                              })(v2);
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime((function () {
+                                  var $34 = Data_Array.uncons(command);
+                                  if (v3 instanceof Data_Maybe.Just && $34 instanceof Data_Maybe.Just) {
+                                      return Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.Just.create)(Node_ChildProcess.spawn($34.value0.head)($34.value0.tail)((function () {
+                                          var $35 = {};
+                                          for (var $36 in Node_ChildProcess.defaultSpawnOptions) {
+                                              if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($36)) {
+                                                  $35[$36] = Node_ChildProcess.defaultSpawnOptions[$36];
+                                              };
+                                          };
+                                          $35.cwd = v3;
+                                          return $35;
+                                      })()));
+                                  };
+                                  return Prelude.pure(Control_Monad_Eff.applicativeEff)(Data_Maybe.Nothing.value);
+                              })()))(function (v4) {
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($64) {
+                                      return Control_Monad_Eff_Ref.writeRef(psciRef)(Data_Maybe.Just.create($64));
+                                  })(v4)))(function () {
+                                      return liftEff$prime$prime(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function (proc) {
+                                          return Control_Monad_Eff_Exception.catchException(Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)))(function __do() {
+                                              Node_Stream.onDataString(Node_ChildProcess.stdout(proc))(Node_Encoding.UTF8.value)(appendText(v1))();
+                                              Node_Stream.onDataString(Node_ChildProcess.stderr(proc))(Node_Encoding.UTF8.value)(appendText(v1))();
+                                              Node_ChildProcess.onError(proc)(function (err) {
+                                                  return Control_Monad_Eff_Console.log("PSCI error");
+                                              })();
+                                              return Node_ChildProcess.onClose(proc)(function (exit) {
+                                                  if (exit instanceof Node_ChildProcess.Normally && exit.value0 === 0) {
+                                                      return Control_Monad_Eff_Console.log("psci exited successfully");
+                                                  };
+                                                  return Atom_NotificationManager.addError(v.notifications)("PSCI exited abnormally");
+                                              })();
+                                          });
+                                      })(v4));
+                                  });
+                              });
+                          });
+                      });
+                  });
+              });
+          });
+      };
+  };
+  var activate = function __do() {
+      var v = Atom_Atom.getAtom();
+      var v1 = Control_Monad_Eff_Ref.newRef(Data_Maybe.Nothing.value)();
+      var v2 = Control_Monad_Eff_Ref.newRef(Data_Maybe.Nothing.value)();
+      var close = function __do() {
+          var v3 = Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Control_Monad_Eff_Ref.readRef(v1))();
+          var v4 = Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Control_Monad_Eff_Ref.readRef(v2))();
+          if (v3 instanceof Data_Maybe.Just && v4 instanceof Data_Maybe.Just) {
+              closePsci(v3.value0)(v4.value0)();
+              Control_Monad_Eff_Ref.writeRef(v2)(Data_Maybe.Nothing.value)();
+              return Control_Monad_Eff_Ref.writeRef(v1)(Data_Maybe.Nothing.value)();
+          };
+          return Prelude.unit;
+      };
+      var runCmd = function (c) {
+          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.readRef(v1)))(function (v3) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.readRef(v2)))(function (v4) {
+                  if (v3 instanceof Data_Maybe.Just && v4 instanceof Data_Maybe.Just) {
+                      return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(c(v3.value0)(v4.value0));
+                  };
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(startRepl(v1)(v2))(function () {
+                      return runCmd(c);
+                  });
+              });
+          });
+      };
+      var open = IdePurescript_Atom_Imports.launchAffAndRaise(startRepl(v1)(v2));
+      var reset = function __do() {
+          var v3 = Control_Monad_Eff_Ref.readRef(v1)();
+          close();
+          (function () {
+              if (v3 instanceof Data_Maybe.Just) {
+                  return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_Editor.setText(v3.value0)(""));
+              };
+              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
+          })()();
+          return open();
+      };
+      var cmd = function (isEditor) {
+          return function (name) {
+              return function (action) {
+                  var scope = (function () {
+                      if (isEditor) {
+                          return "atom-text-editor";
+                      };
+                      if (!isEditor) {
+                          return "atom-workspace";
+                      };
+                      throw new Error("Failed pattern match at IdePurescript.Atom.Psci line 157, column 23 - line 158, column 3: " + [ isEditor.constructor.name ]);
+                  })();
+                  return Atom_CommandRegistry.addCommand(v.commands)("atom-workspace")("psci:" + name)(Prelude["const"](action));
+              };
+          };
+      };
+      cmd(false)("open")(open)();
+      cmd(true)("send-line")(IdePurescript_Atom_Imports.launchAffAndRaise(runCmd(sendLine)))();
+      cmd(true)("send-selection")(IdePurescript_Atom_Imports.launchAffAndRaise(runCmd(sendSelection)))();
+      return cmd(true)("reset")(reset)();
+  };
+  exports["activate"] = activate;
+  exports["startRepl"] = startRepl;
+  exports["sendSelection"] = sendSelection;
+  exports["closePsci"] = closePsci;
+  exports["sendLine"] = sendLine;
+  exports["sendText"] = sendText;
+  exports["appendText"] = appendText;
+  exports["openPsci"] = openPsci;;
+ 
+})(PS["IdePurescript.Atom.Psci"] = PS["IdePurescript.Atom.Psci"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Either = PS["Data.Either"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Aff_AVar = PS["Control.Monad.Aff.AVar"];
+  var Control_Monad_Aff_Par = PS["Control.Monad.Aff.Par"];
+  var Control_Alt = PS["Control.Alt"];
+  var Node_ChildProcess = PS["Node.ChildProcess"];
+  var IdePurescript_PscIde = PS["IdePurescript.PscIde"];
+  var PscIde = PS["PscIde"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];        
+  var CorrectPath = (function () {
+      function CorrectPath() {
+
+      };
+      CorrectPath.value = new CorrectPath();
+      return CorrectPath;
+  })();
+  var WrongPath = (function () {
+      function WrongPath(value0) {
+          this.value0 = value0;
+      };
+      WrongPath.create = function (value0) {
+          return new WrongPath(value0);
+      };
+      return WrongPath;
+  })();
+  var Started = (function () {
+      function Started(value0) {
+          this.value0 = value0;
+      };
+      Started.create = function (value0) {
+          return new Started(value0);
+      };
+      return Started;
+  })();
+  var Closed = (function () {
+      function Closed() {
+
+      };
+      Closed.value = new Closed();
+      return Closed;
+  })();
+  var StartError = (function () {
+      function StartError(value0) {
+          this.value0 = value0;
+      };
+      StartError.create = function (value0) {
+          return new StartError(value0);
+      };
+      return StartError;
+  })();
+  var stopServer = function (port) {
+      return function (cp) {
+          return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde.quit)(function (v) {
+              return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+          });
+      };
+  };
+  var startServer = function (exe) {
+      return function (port) {
+          return function (rootPath) {
+              var launchServer = Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Console.log("Starting psc-ide-server")))(function () {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Node_ChildProcess.spawn(exe)([ "-p", Prelude.show(Prelude.showInt)(port) ])((function () {
+                      var $6 = {};
+                      for (var $7 in Node_ChildProcess.defaultSpawnOptions) {
+                          if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($7)) {
+                              $6[$7] = Node_ChildProcess.defaultSpawnOptions[$7];
+                          };
+                      };
+                      $6.cwd = new Data_Maybe.Just(rootPath);
+                      return $6;
+                  })())))(function (v) {
+                      var handleErr = Control_Monad_Aff.makeAff(function (v1) {
+                          return function (succ) {
+                              return function __do() {
+                                  Node_ChildProcess.onError(v)(function (v2) {
+                                      return succ(new StartError("psc-ide-server error"));
+                                  })();
+                                  return Node_ChildProcess.onClose(v)(function (exit) {
+                                      if (exit instanceof Node_ChildProcess.Normally && exit.value0 === 0) {
+                                          return succ(Closed.value);
+                                      };
+                                      if (exit instanceof Node_ChildProcess.Normally) {
+                                          return succ(StartError.create("Error code returned: " + Prelude.show(Prelude.showInt)(exit.value0)));
+                                      };
+                                      return succ(new StartError("Other close error"));
+                                  })();
+                              };
+                          };
+                      });
+                      return Control_Monad_Aff_Par.runPar(Control_Alt["<|>"](Control_Monad_Aff_Par.altPar)(handleErr)(Control_Monad_Aff["later'"](100)(Prelude.pure(Control_Monad_Aff.applicativeAff)(new Started(v)))));
+                  });
+              });
+              var gotPath = function (workingDir) {
+                  return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)((function () {
+                      var $14 = workingDir === rootPath;
+                      if ($14) {
+                          return function __do() {
+                              Control_Monad_Eff_Console.log("Found psc-ide-server with correct path: " + workingDir)();
+                              return CorrectPath.value;
+                          };
+                      };
+                      if (!$14) {
+                          return function __do() {
+                              Control_Monad_Eff_Console.log("Found psc-ide-server with wrong path: " + (workingDir + (" instead of " + rootPath)))();
+                              return new WrongPath(workingDir);
+                          };
+                      };
+                      throw new Error("Failed pattern match at IdePurescript.PscIdeServer line 44, column 5 - line 54, column 1: " + [ $14.constructor.name ]);
+                  })());
+              };
+              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Aff.attempt(IdePurescript_PscIde.cwd))(function (v) {
+                  return Data_Either.either(Prelude["const"](launchServer))(gotPath)(v);
+              });
+          };
+      };
+  };
+  exports["CorrectPath"] = CorrectPath;
+  exports["WrongPath"] = WrongPath;
+  exports["Started"] = Started;
+  exports["Closed"] = Closed;
+  exports["StartError"] = StartError;
+  exports["stopServer"] = stopServer;
+  exports["startServer"] = startServer;;
+ 
+})(PS["IdePurescript.PscIdeServer"] = PS["IdePurescript.PscIdeServer"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Data_Functor = PS["Data.Functor"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Aff_AVar = PS["Control.Monad.Aff.AVar"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Foreign = PS["Data.Foreign"];
+  var Node_ChildProcess = PS["Node.ChildProcess"];
+  var Node_FS = PS["Node.FS"];
+  var Atom_Atom = PS["Atom.Atom"];
+  var Atom_Config = PS["Atom.Config"];
+  var Atom_Project = PS["Atom.Project"];
+  var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var IdePurescript_PscIdeServer = PS["IdePurescript.PscIdeServer"];
+  var IdePurescript_Atom_LinterBuild = PS["IdePurescript.Atom.LinterBuild"];
+  var PscIde = PS["PscIde"];        
+  var startServer = (function () {
+      var liftEffS = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(Atom_Atom.getAtom))(function (v) {
+          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(IdePurescript_Atom_LinterBuild.getProjectRoot))(function (v1) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readInt)(Atom_Config.getConfig(v.config)("ide-purescript.pscIdePort"))))(function (v2) {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffS(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readString)(Atom_Config.getConfig(v.config)("ide-purescript.pscIdeServerExe"))))(function (v3) {
+                      var $10 = {
+                          portRaw: v2, 
+                          serverRaw: v3, 
+                          path: v1
+                      };
+                      if ($10.portRaw instanceof Data_Either.Right && ($10.serverRaw instanceof Data_Either.Right && $10.path instanceof Data_Maybe.Just)) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIdeServer.startServer($10.serverRaw.value0)($10.portRaw.value0)($10.path.value0))(function (v4) {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)((function () {
+                                  if (v4 instanceof IdePurescript_PscIdeServer.CorrectPath) {
+                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addInfo(v.notifications)("Found existing psc-ide-server with correct path"));
+                                  };
+                                  if (v4 instanceof IdePurescript_PscIdeServer.WrongPath) {
+                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addError(v.notifications)("Found existing psc-ide-server with wrong path: '" + (v4.value0 + "'. Correct, kill or configure a different port, and restart.")));
+                                  };
+                                  if (v4 instanceof IdePurescript_PscIdeServer.Started) {
+                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(new Data_Maybe.Just(v4.value0))(Atom_NotificationManager.addSuccess(v.notifications)("Started psc-ide-server"));
+                                  };
+                                  if (v4 instanceof IdePurescript_PscIdeServer.Closed) {
+                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addInfo(v.notifications)("psc-ide-server exited with success code"));
+                                  };
+                                  if (v4 instanceof IdePurescript_PscIdeServer.StartError) {
+                                      return Data_Functor["<$"](Control_Monad_Eff.functorEff)(Data_Maybe.Nothing.value)(Atom_NotificationManager.addError(v.notifications)("Could not start psc-ide-server process. Check the configured port number is valid.\n" + v4.value0));
+                                  };
+                                  throw new Error("Failed pattern match at IdePurescript.Atom.PscIdeServer line 44, column 22 - line 50, column 9: " + [ v4.constructor.name ]);
+                              })()))(function (v5) {
+                                  if (v5 instanceof Data_Maybe.Nothing) {
+                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit));
+                                  };
+                                  if (v5 instanceof Data_Maybe.Just) {
+                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Control_Monad_Aff.launchAff(IdePurescript_PscIdeServer.stopServer($10.portRaw.value0)(v5.value0)));
+                                  };
+                                  throw new Error("Failed pattern match at IdePurescript.Atom.PscIdeServer line 50, column 9 - line 53, column 5: " + [ v5.constructor.name ]);
+                              });
+                          });
+                      };
+                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit));
+                  });
+              });
+          });
+      });
+  })();
+  exports["startServer"] = startServer;;
+ 
+})(PS["IdePurescript.Atom.PscIdeServer"] = PS["IdePurescript.Atom.PscIdeServer"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Atom_Editor = PS["Atom.Editor"];
+  var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_Range = PS["Atom.Range"];
+  var Atom_Workspace = PS["Atom.Workspace"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var DOM = PS["DOM"];
+  var Data_Array = PS["Data.Array"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Nullable = PS["Data.Nullable"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var IdePurescript_Atom_Assist = PS["IdePurescript.Atom.Assist"];
+  var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
+  var IdePurescript_Atom_Hooks_Linter = PS["IdePurescript.Atom.Hooks.Linter"];
+  var IdePurescript_Atom_SelectView = PS["IdePurescript.Atom.SelectView"];
+  var IdePurescript_Modules = PS["IdePurescript.Modules"];
+  var Node_FS = PS["Node.FS"];
+  var PscIde = PS["PscIde"];        
+  var showQuickFixes = function (modulesState) {
+      return function (editor) {
+          return function (linterMain) {
+              return function (messages) {
+                  var view = function (v) {
+                      return "<li>" + (v.title + "</li>");
+                  };
+                  var inRange = function (editorLinter) {
+                      return function (point) {
+                          return function (message) {
+                              return function __do() {
+                                  var v = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Nullable.toMaybe)(IdePurescript_Atom_Hooks_Linter.getMarkerBufferRange(editorLinter)(message))();
+                                  return Data_Maybe.maybe(false)(function (r) {
+                                      return Atom_Range.containsPoint(r)(point);
+                                  })(v);
+                              };
+                          };
+                      };
+                  };
+                  var getFix = function (v) {
+                      return function (v1) {
+                          if (v1.suggestion.hasSuggestion) {
+                              var getTitle = function (v2) {
+                                  if (v2 === "UnusedImport") {
+                                      return "Remove import";
+                                  };
+                                  if (v2 === "RedundantEmptyHidingImport") {
+                                      return "Remove import";
+                                  };
+                                  if (v2 === "DuplicateImport") {
+                                      return "Remove import";
+                                  };
+                                  if (v2 === "RedundantUnqualifiedImport") {
+                                      return "Remove import";
+                                  };
+                                  if (v2 === "DeprecatedQualifiedSyntax") {
+                                      return "Remove qualified keyword";
+                                  };
+                                  if (v2 === "ImplicitImport") {
+                                      return "Make import explicit";
+                                  };
+                                  if (v2 === "UnusedExplicitImport") {
+                                      return "Remove unused references";
+                                  };
+                                  return "Apply Suggestion";
+                              };
+                              var getFix$prime = function (range) {
+                                  return new Data_Maybe.Just({
+                                      title: getTitle(v1.errorCode), 
+                                      action: function __do() {
+                                          Atom_Editor.setTextInBufferRange(editor)(range)(v1.suggestion.replacement)();
+                                          return Control_Monad_Eff_Console.log("Applied fix: " + v1.errorCode)();
+                                      }
+                                  });
+                              };
+                              return function __do() {
+                                  var v2 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Nullable.toMaybe)(IdePurescript_Atom_Hooks_Linter.getMarkerBufferRange(v)(v1))();
+                                  return Data_Maybe.maybe(Data_Maybe.Nothing.value)(getFix$prime)(v2);
+                              };
+                          };
+                          if (v1.errorCode === "UnknownValue" || (v1.errorCode === "UnknownType" || (v1.errorCode === "UnknownDataConstructor" || v1.errorCode === "UnknownTypeConstructor"))) {
+                              return Prelude.pure(Control_Monad_Eff.applicativeEff)(new Data_Maybe.Just({
+                                  title: "Fix typo", 
+                                  action: IdePurescript_Atom_Assist.fixTypo(modulesState)
+                              }));
+                          };
+                          return Prelude.pure(Control_Monad_Eff.applicativeEff)(Data_Maybe.Nothing.value);
+                      };
+                  };
+                  var applyFix = function (v) {
+                      return v.action;
+                  };
+                  return function __do() {
+                      var v = Atom_Editor.getCursorBufferPosition(editor)();
+                      var v1 = IdePurescript_Atom_Hooks_Linter.getEditorLinter(linterMain)(editor)();
+                      var v2 = IdePurescript_Atom_Hooks_Linter.getMessages(v1)();
+                      var v3 = Data_Array.filterM(Control_Monad_Eff.monadEff)(inRange(v1)(v))(v2)();
+                      var v4 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Array.catMaybes)(Data_Traversable.traverse(Data_Traversable.traversableArray)(Control_Monad_Eff.applicativeEff)(getFix(v1))(v3))();
+                      return IdePurescript_Atom_SelectView.selectListViewStaticInline(view)(applyFix)(Data_Maybe.Nothing.value)(v4)();
+                  };
+              };
+          };
+      };
+  };
+  exports["showQuickFixes"] = showQuickFixes;;
+ 
+})(PS["IdePurescript.Atom.QuickFixes"] = PS["IdePurescript.Atom.QuickFixes"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
+  var Atom_Editor = PS["Atom.Editor"];
+  var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_Workspace = PS["Atom.Workspace"];
+  var Control_Monad = PS["Control.Monad"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var DOM = PS["DOM"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var IdePurescript_Atom_Imports = PS["IdePurescript.Atom.Imports"];
+  var IdePurescript_Atom_SelectView = PS["IdePurescript.Atom.SelectView"];
+  var IdePurescript_Modules = PS["IdePurescript.Modules"];
+  var IdePurescript_PscIde = PS["IdePurescript.PscIde"];
+  var Node_FS = PS["Node.FS"];
+  var PscIde = PS["PscIde"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];        
+  var pursuitSearchModule = function (modulesState) {
+      var view = function (v) {
+          return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.module + ("</span></div>" + ("<div class='secondary-line'>" + (v["package"] + ("</div>" + "</li>"))))));
+      };
+      var importDialog = function (v) {
+          var textView = function (x) {
+              return "<li>" + (x + "</li>");
+          };
+          var doImport = function (mod1) {
+              return function (x) {
+                  return Control_Monad.when(Control_Monad_Eff.monadEff)(x === "Import module")(IdePurescript_Atom_Imports.addImport(modulesState)(mod1));
+              };
+          };
+          return IdePurescript_Atom_SelectView.selectListViewStatic(textView)(doImport(v.module))(Data_Maybe.Nothing.value)([ "Import module", "Cancel" ]);
+      };
+      return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(importDialog)(new Data_Maybe.Just("module"))(Prelude.id(Prelude.categoryFn))(IdePurescript_PscIde.getPursuitModuleCompletion)(1000);
+  };
+  var pursuitSearch = (function () {
+      var view = function (v) {
+          return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.identifier + (": <span class='text-info'>" + (v.type + ("</span></div>" + ("<div class='secondary-line'>" + (v.module + (" (" + (v["package"] + (")</div>" + "</li>"))))))))));
+      };
+      return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(function (x) {
+          return Control_Monad_Eff_Console.log(x.identifier);
+      })(Data_Maybe.Nothing.value)(Prelude["const"](""))(IdePurescript_PscIde.getPursuitCompletion)(1000);
+  })();
+  var localSearch = function (modulesState) {
+      var view = function (v) {
+          return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.identifier + (": <span class='text-info'>" + (v.type + ("</span></div>" + ("<div class='secondary-line'>" + (v.module + ("</div>" + "</li>"))))))));
+      };
+      var search = function (text) {
+          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.readRef(modulesState)))(function (v) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getLoadedModules)(function (v1) {
+                  var getQualifiedModule = Prelude.flip(IdePurescript_Modules.getQualModule)(v);
+                  return IdePurescript_PscIde.getCompletion(text)("")(false)(v1)(getQualifiedModule);
+              });
+          });
+      };
+      return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(function (x) {
+          return Control_Monad_Eff_Console.log(x.identifier);
+      })(Data_Maybe.Nothing.value)(Prelude["const"](""))(search)(50);
+  };
+  exports["localSearch"] = localSearch;
+  exports["pursuitSearchModule"] = pursuitSearchModule;
+  exports["pursuitSearch"] = pursuitSearch;;
+ 
+})(PS["IdePurescript.Atom.Search"] = PS["IdePurescript.Atom.Search"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Prelude = PS["Prelude"];
   var Control_Promise_1 = PS["Control.Promise"];
   var IdePurescript_Atom_Completion = PS["IdePurescript.Atom.Completion"];
   var IdePurescript_Atom_Psci = PS["IdePurescript.Atom.Psci"];
@@ -8057,11 +8946,11 @@ var PS = { };
   var Atom_CommandRegistry = PS["Atom.CommandRegistry"];
   var Atom_Config = PS["Atom.Config"];
   var Atom_Editor = PS["Atom.Editor"];
+  var Atom_Grammar = PS["Atom.Grammar"];
   var Atom_NotificationManager = PS["Atom.NotificationManager"];
   var Atom_Point = PS["Atom.Point"];
   var Atom_Project = PS["Atom.Project"];
   var Atom_Range = PS["Atom.Range"];
-  var Atom_TextBuffer = PS["Atom.TextBuffer"];
   var Atom_Workspace = PS["Atom.Workspace"];
   var Control_Bind = PS["Control.Bind"];
   var Control_Monad = PS["Control.Monad"];
@@ -8073,37 +8962,33 @@ var PS = { };
   var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
   var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
   var Control_Monad_Error_Class = PS["Control.Monad.Error.Class"];
-  var Control_Monad_Maybe_Trans = PS["Control.Monad.Maybe.Trans"];
   var Control_Promise_1 = PS["Control.Promise"];
   var DOM = PS["DOM"];
   var DOM_Node_Types = PS["DOM.Node.Types"];
   var Data_Array = PS["Data.Array"];
   var Data_Either = PS["Data.Either"];
-  var Data_Foldable = PS["Data.Foldable"];
   var Data_Foreign = PS["Data.Foreign"];
   var Data_Function_Eff = PS["Data.Function.Eff"];
   var Data_Maybe = PS["Data.Maybe"];
   var Data_String = PS["Data.String"];
+  var IdePurescript_Atom_Assist = PS["IdePurescript.Atom.Assist"];
   var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
   var IdePurescript_Atom_BuildStatus = PS["IdePurescript.Atom.BuildStatus"];
   var IdePurescript_Atom_Config = PS["IdePurescript.Atom.Config"];
   var IdePurescript_Atom_Hooks_Dependencies = PS["IdePurescript.Atom.Hooks.Dependencies"];
   var IdePurescript_Atom_Hooks_Linter = PS["IdePurescript.Atom.Hooks.Linter"];
   var IdePurescript_Atom_Hooks_StatusBar = PS["IdePurescript.Atom.Hooks.StatusBar"];
+  var IdePurescript_Atom_Imports = PS["IdePurescript.Atom.Imports"];
   var IdePurescript_Atom_LinterBuild = PS["IdePurescript.Atom.LinterBuild"];
-  var IdePurescript_Atom_PromptPanel = PS["IdePurescript.Atom.PromptPanel"];
   var IdePurescript_Atom_PscIdeServer = PS["IdePurescript.Atom.PscIdeServer"];
   var IdePurescript_Atom_QuickFixes = PS["IdePurescript.Atom.QuickFixes"];
-  var IdePurescript_Atom_SelectView = PS["IdePurescript.Atom.SelectView"];
+  var IdePurescript_Atom_Search = PS["IdePurescript.Atom.Search"];
   var IdePurescript_Atom_Tooltips = PS["IdePurescript.Atom.Tooltips"];
   var IdePurescript_Modules = PS["IdePurescript.Modules"];
   var IdePurescript_PscIde = PS["IdePurescript.PscIde"];
   var Node_ChildProcess = PS["Node.ChildProcess"];
   var Node_FS = PS["Node.FS"];
-  var PscIde_1 = PS["PscIde"];
-  var PscIde_Command = PS["PscIde.Command"];
-  var Control_Monad_Trans = PS["Control.Monad.Trans"];
-  var Data_Monoid = PS["Data.Monoid"];        
+  var PscIde_1 = PS["PscIde"];        
   var raiseError = function (e) {
       return function __do() {
           var v = Atom_Atom.getAtom();
@@ -8152,14 +9037,14 @@ var PS = { };
                       return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Atom_Config.getConfig(v2.config)("ide-purescript.autocomplete.allModules")))(function (v3) {
                           var autoCompleteAllModules = Data_Either.either(Prelude["const"](false))(Prelude.id(Prelude.categoryFn))(Data_Foreign.readBoolean(v3));
                           return Prelude.bind(Control_Monad_Aff.bindAff)((function () {
-                              var $97 = v.activatedManually || autoCompleteAllModules;
-                              if ($97) {
+                              var $51 = v.activatedManually || autoCompleteAllModules;
+                              if ($51) {
                                   return IdePurescript_PscIde.getLoadedModules;
                               };
-                              if (!$97) {
+                              if (!$51) {
                                   return Prelude.pure(Control_Monad_Aff.applicativeAff)(IdePurescript_Modules.getUnqualActiveModules(state)(Data_Maybe.Nothing.value));
                               };
-                              throw new Error("Failed pattern match at IdePurescript.Atom.Main line 66, column 14 - line 67, column 3: " + [ $97.constructor.name ]);
+                              throw new Error("Failed pattern match at IdePurescript.Atom.Main line 64, column 14 - line 65, column 3: " + [ $51.constructor.name ]);
                           })())(function (v4) {
                               var getQualifiedModule = Prelude.flip(IdePurescript_Modules.getQualModule)(state);
                               return IdePurescript_Atom_Completion.getSuggestions({
@@ -8188,65 +9073,27 @@ var PS = { };
           var v7 = Control_Monad_Eff_Ref.readRef(v3)();
           var v8 = Atom_Workspace.getActiveTextEditor(v.workspace)();
           var v9 = Control_Monad_Eff_Ref.readRef(v4)();
-          var $112 = {
+          var $66 = {
               editor: v8, 
               linter: v9, 
               n: Data_Array.length(v7)
           };
-          if ($112.editor instanceof Data_Maybe.Just && ($112.linter instanceof Data_Maybe.Just && $112.n > 0)) {
-              return IdePurescript_Atom_QuickFixes.showQuickFixes($112.editor.value0)($112.linter.value0)(v7)();
+          if ($66.editor instanceof Data_Maybe.Just && ($66.linter instanceof Data_Maybe.Just && $66.n > 0)) {
+              return IdePurescript_Atom_QuickFixes.showQuickFixes(v2)($66.editor.value0)($66.linter.value0)(v7)();
           };
           return Prelude.unit;
-      };
-      var pursuitSearch = (function () {
-          var view = function (v7) {
-              return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v7.identifier + (": <span class='text-info'>" + (v7.type + ("</span></div>" + ("<div class='secondary-line'>" + (v7.module + (" (" + (v7["package"] + (")</div>" + "</li>"))))))))));
-          };
-          return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(function (x) {
-              return Control_Monad_Eff_Console.log(x.identifier);
-          })(Data_Maybe.Nothing.value)(Prelude["const"](""))(IdePurescript_PscIde.getPursuitCompletion)(1000);
-      })();
-      var localSearch = (function () {
-          var view = function (v7) {
-              return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v7.identifier + (": <span class='text-info'>" + (v7.type + ("</span></div>" + ("<div class='secondary-line'>" + (v7.module + ("</div>" + "</li>"))))))));
-          };
-          var search = function (text) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.readRef(v2)))(function (v7) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getLoadedModules)(function (v8) {
-                      var getQualifiedModule = Prelude.flip(IdePurescript_Modules.getQualModule)(v7);
-                      return IdePurescript_PscIde.getCompletion(text)("")(false)(v8)(getQualifiedModule);
-                  });
-              });
-          };
-          return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(function (x) {
-              return Control_Monad_Eff_Console.log(x.identifier);
-          })(Data_Maybe.Nothing.value)(Prelude["const"](""))(search)(50);
-      })();
-      var getLinePosition = function (ed) {
-          return function __do() {
-              var v7 = Atom_Editor.getCursorBufferPosition(ed)();
-              var range = Atom_Range.mkRange(Atom_Point.mkPoint(Atom_Point.getRow(v7))(0))(Atom_Point.mkPoint(Atom_Point.getRow(v7))(1000));
-              var col = Atom_Point.getColumn(v7);
-              var v8 = Atom_Editor.getTextInRange(ed)(range)();
-              return {
-                  line: v8, 
-                  pos: v7, 
-                  col: col, 
-                  range: range
-              };
-          };
       };
       var doLint = function __do() {
           var v7 = IdePurescript_Atom_LinterBuild.getProjectRoot();
           var v8 = Control_Monad_Eff_Ref.readRef(v1)();
           var v9 = Control_Monad_Eff_Ref.readRef(v6)();
-          var $134 = {
+          var $75 = {
               root: v7, 
               linterIndie: v8, 
               statusElt: v9
           };
-          if ($134.root instanceof Data_Maybe.Just && ($134.linterIndie instanceof Data_Maybe.Just && $134.statusElt instanceof Data_Maybe.Just)) {
-              return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_LinterBuild.lint(v.config)($134.root.value0)($134.linterIndie.value0)($134.statusElt.value0))(function (v10) {
+          if ($75.root instanceof Data_Maybe.Just && ($75.linterIndie instanceof Data_Maybe.Just && $75.statusElt instanceof Data_Maybe.Just)) {
+              return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_LinterBuild.lint(v.config)($75.root.value0)($75.linterIndie.value0)($75.statusElt.value0))(function (v10) {
                   return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(Control_Monad_Eff_Ref.writeRef(v3))(v10)))(function () {
                       return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde_1.load([  ])([  ]))(function () {
                           return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v11) {
@@ -8261,188 +9108,6 @@ var PS = { };
           return Prelude.unit;
       };
       var deactivate = Control_Bind.join(Control_Monad_Eff.bindEff)(Control_Monad_Eff_Ref.readRef(v5));
-      var caseSplit = (function () {
-          var body = Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v7) {
-              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(getLinePosition(v7))))(function (v8) {
-                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(IdePurescript_Atom_Tooltips.getToken(v7)(v8.pos))))(function (v9) {
-                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(IdePurescript_Atom_PromptPanel.addPromptPanel("Parameter type")("")))(function (v10) {
-                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.caseSplit(v8.line)(Atom_Point.getColumn(Atom_Range.getStart(v9.range)))(Atom_Point.getColumn(Atom_Range.getEnd(v9.range)))(true)(v10))))(function (v11) {
-                              return Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(Prelude["void"](Control_Monad_Aff.functorAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(v7)(v8.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v11)))));
-                          });
-                      });
-                  });
-              });
-          });
-          return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Control_Monad_Maybe_Trans.runMaybeT(body));
-      })();
-      var addImport = function (moduleName) {
-          return function __do() {
-              var v7 = Atom_Workspace.getActiveTextEditor(v.workspace)();
-              var v8 = Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Control_Monad_Eff_Ref.readRef(v2))();
-              if (v7 instanceof Data_Maybe.Nothing) {
-                  return Prelude.unit;
-              };
-              if (v7 instanceof Data_Maybe.Just) {
-                  var v9 = Atom_Editor.getText(v7.value0)();
-                  var v10 = Atom_Editor.getPath(v7.value0)();
-                  if (v10 instanceof Data_Maybe.Just) {
-                      return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addModuleImport(v8)(v10.value0)(v9)(moduleName))(function (v11) {
-                          return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($249) {
-                              return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_Editor.setText(v7.value0)((function (v12) {
-                                  return v12.result;
-                              })($249)));
-                          })(v11));
-                      }))();
-                  };
-                  if (v10 instanceof Data_Maybe.Nothing) {
-                      return Prelude.unit;
-                  };
-                  throw new Error("Failed pattern match at IdePurescript.Atom.Main line 228, column 11 - line 235, column 5: " + [ v10.constructor.name ]);
-              };
-              throw new Error("Failed pattern match at IdePurescript.Atom.Main line 223, column 7 - line 235, column 5: " + [ v7.constructor.name ]);
-          };
-      };
-      var addModuleImportCmd = (function () {
-          var view = function (x) {
-              return "<li>" + (x + "</li>");
-          };
-          return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getAvailableModules)(function (v7) {
-              return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImport)(Data_Maybe.Nothing.value)(v7));
-          }));
-      })();
-      var pursuitSearchModule = (function () {
-          var view = function (v7) {
-              return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v7.module + ("</span></div>" + ("<div class='secondary-line'>" + (v7["package"] + ("</div>" + "</li>"))))));
-          };
-          var importDialog = function (v7) {
-              var textView = function (x) {
-                  return "<li>" + (x + "</li>");
-              };
-              var doImport = function (mod1) {
-                  return function (x) {
-                      return Control_Monad.when(Control_Monad_Eff.monadEff)(x === "Import module")(addImport(mod1));
-                  };
-              };
-              return IdePurescript_Atom_SelectView.selectListViewStatic(textView)(doImport(v7.module))(Data_Maybe.Nothing.value)([ "Import module", "Cancel" ]);
-          };
-          return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(importDialog)(new Data_Maybe.Just("module"))(Prelude.id(Prelude.categoryFn))(IdePurescript_PscIde.getPursuitModuleCompletion)(1000);
-      })();
-      var addIdentImport$prime = function (moduleName) {
-          return function (ident) {
-              return function (editor) {
-                  var view = function (v7) {
-                      return "<li>" + (v7["module'"] + ("." + (v7.identifier + "</li>")));
-                  };
-                  var runCompletion = function (v7) {
-                      return v7;
-                  };
-                  var addImp = function (v7) {
-                      return Control_Monad_Aff.runAff(raiseError)(ignoreError)(addIdentImport(new Data_Maybe.Just(v7["module'"]))(v7.identifier));
-                  };
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.getText(editor)))(function (v7) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.getPath(editor)))(function (v8) {
-                          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.readRef(v2)))(function (v9) {
-                              if (v8 instanceof Data_Maybe.Just) {
-                                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addExplicitImport(v9)(v8.value0)(v7)(moduleName)(ident))(function (v10) {
-                                      return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.writeRef(v2)(v10.state)))(function () {
-                                          return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)((function () {
-                                              if (v10.result instanceof IdePurescript_Modules.UpdatedImports) {
-                                                  return function __do() {
-                                                      var v11 = Atom_Editor.getBuffer(editor)();
-                                                      return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_TextBuffer.setTextViaDiff(v11)(v10.result.value0))();
-                                                  };
-                                              };
-                                              if (v10.result instanceof IdePurescript_Modules.AmbiguousImport) {
-                                                  return IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImp)(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v10.result.value0));
-                                              };
-                                              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
-                                          })());
-                                      });
-                                  });
-                              };
-                              return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
-                          });
-                      });
-                  });
-              };
-          };
-      };
-      var addIdentImport = function (moduleName) {
-          return function (ident) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v7) {
-                  return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport$prime(moduleName)(ident))(v7);
-              });
-          };
-      };
-      var addSuggestionImport = function (v7) {
-          if (v7.suggestion.addImport instanceof Data_Maybe.Just && v7.suggestion.addImport.value0.qualifier instanceof Data_Maybe.Nothing) {
-              return addIdentImport$prime(new Data_Maybe.Just(v7.suggestion.addImport.value0.mod))(v7.suggestion.addImport.value0.identifier)(v7.editor);
-          };
-          return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
-      };
-      var fixTypo = (function () {
-          var body = (function () {
-              var view = function (v7) {
-                  return "<li>" + (v7["module'"] + ("." + (v7.identifier + "</li>")));
-              };
-              var runCompletion = function (v7) {
-                  return v7;
-              };
-              var replaceTypo = function (ed) {
-                  return function (wordRange) {
-                      return function (v7) {
-                          return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(ed)(wordRange)(v7.identifier)))(function () {
-                              return addIdentImport(new Data_Maybe.Just(v7["module'"]))(v7.identifier);
-                          }));
-                      };
-                  };
-              };
-              var getIdentFromCompletion = function (v7) {
-                  return v7.identifier;
-              };
-              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v7) {
-                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(getLinePosition(v7))))(function (v8) {
-                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(IdePurescript_Atom_Tooltips.getToken(v7)(v8.pos))))(function (v9) {
-                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.suggestTypos(v9.word)(2))))(function (v10) {
-                              return Control_Monad_Eff_Class.liftEff(Control_Monad_Maybe_Trans.monadEffMaybe(Control_Monad_Aff.monadEffAff))(IdePurescript_Atom_SelectView.selectListViewStatic(view)(replaceTypo(v7)(v9.range))(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v10)));
-                          });
-                      });
-                  });
-              });
-          })();
-          return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Control_Monad_Maybe_Trans.runMaybeT(body));
-      })();
-      var addExplicitImportCmd = Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v7) {
-          if (v7 instanceof Data_Maybe.Just) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(getLinePosition(v7.value0)))(function (v8) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.maybe("")(function (v9) {
-                      return v9.word;
-                  }))(IdePurescript_Atom_Tooltips.getToken(v7.value0)(v8.pos))))(function (v9) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_PromptPanel.addPromptPanel("Identifier")(v9))(function (v10) {
-                          return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport(Data_Maybe.Nothing.value))(v10);
-                      });
-                  });
-              });
-          };
-          if (v7 instanceof Data_Maybe.Nothing) {
-              return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
-          };
-          throw new Error("Failed pattern match at IdePurescript.Atom.Main line 178, column 7 - line 186, column 5: " + [ v7.constructor.name ]);
-      }));
-      var addClause = function __do() {
-          var v7 = Atom_Workspace.getActiveTextEditor(v.workspace)();
-          if (v7 instanceof Data_Maybe.Just) {
-              return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(getLinePosition(v7.value0)))(function (v8) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.addClause(v8.line)(true)))(function (v9) {
-                      return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(v7.value0)(v8.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v9)));
-                  });
-              }))();
-          };
-          if (v7 instanceof Data_Maybe.Nothing) {
-              return Prelude.unit;
-          };
-          throw new Error("Failed pattern match at IdePurescript.Atom.Main line 274, column 7 - line 282, column 5: " + [ v7.constructor.name ]);
-      };
       var activate = (function () {
           var cmd = function (name) {
               return function (action) {
@@ -8452,14 +9117,14 @@ var PS = { };
           return function __do() {
               cmd("build")(doLint)();
               cmd("show-quick-fixes")(quickFix)();
-              cmd("pursuit-search")(pursuitSearch)();
-              cmd("pursuit-search-modules")(pursuitSearchModule)();
-              cmd("add-module-import")(addModuleImportCmd)();
-              cmd("add-explicit-import")(addExplicitImportCmd)();
-              cmd("search")(localSearch)();
-              cmd("case-split")(caseSplit)();
-              cmd("add-clause")(addClause)();
-              cmd("fix-typo")(fixTypo)();
+              cmd("pursuit-search")(IdePurescript_Atom_Search.pursuitSearch)();
+              cmd("pursuit-search-modules")(IdePurescript_Atom_Search.pursuitSearchModule(v2))();
+              cmd("add-module-import")(IdePurescript_Atom_Imports.addModuleImportCmd(v2))();
+              cmd("add-explicit-import")(IdePurescript_Atom_Imports.addExplicitImportCmd(v2))();
+              cmd("search")(IdePurescript_Atom_Search.localSearch(v2))();
+              cmd("case-split")(IdePurescript_Atom_Assist.caseSplit)();
+              cmd("add-clause")(IdePurescript_Atom_Assist.addClause)();
+              cmd("fix-typo")(IdePurescript_Atom_Assist.fixTypo(v2))();
               IdePurescript_Atom_Hooks_Dependencies.installDependencies();
               Atom_Workspace.observeTextEditors(v.workspace)(function (editor) {
                   return function __do() {
@@ -8492,7 +9157,7 @@ var PS = { };
                       });
                   });
               }))();
-              return IdePurescript_Atom_Psci.init();
+              return IdePurescript_Atom_Psci.activate();
           };
       })();
       return {
@@ -8539,7 +9204,7 @@ var PS = { };
                   onDidInsertSuggestion: Data_Function_Eff.mkEffFn1(function (x) {
                       return function __do() {
                           var v8 = Atom_Config.getConfig(v.config)("ide-purescript.autocomplete.addImport")();
-                          return Control_Monad.when(Control_Monad_Eff.monadEff)(Prelude["=="](Data_Either.eqEither(Data_Foreign.eqForeignError)(Prelude.eqBoolean))(Data_Foreign.readBoolean(v8))(new Data_Either.Right(true)))(Control_Monad_Aff.runAff(raiseError)(ignoreError)(addSuggestionImport(x)))();
+                          return Control_Monad.when(Control_Monad_Eff.monadEff)(Prelude["=="](Data_Either.eqEither(Data_Foreign.eqForeignError)(Prelude.eqBoolean))(Data_Foreign.readBoolean(v8))(new Data_Either.Right(true)))(Control_Monad_Aff.runAff(raiseError)(ignoreError)(IdePurescript_Atom_Imports.addSuggestionImport(v2)(x)))();
                       };
                   })
               };
