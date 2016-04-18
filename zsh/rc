@@ -24,7 +24,4 @@ compinit
 
 export EDITOR=vi
 
-# Setup docker environment.
-[[ "$(docker-machine status default)" != "Stopped" ]] && eval "$(docker-machine env default)"
-
 export BRAND=ferocia
