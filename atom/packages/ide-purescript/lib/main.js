@@ -31,6 +31,17 @@ var PS = { };
   exports.runPure = function (f) {
     return f();
   };
+
+  exports.whileE = function (f) {
+    return function (a) {
+      return function () {
+        while (f()) {
+          a();
+        }
+        return {};
+      };
+    };
+  };
  
 })(PS["Control.Monad.Eff"] = PS["Control.Monad.Eff"] || {});
 (function(exports) {
@@ -451,6 +462,7 @@ var PS = { };
   exports["applicativeEff"] = applicativeEff;
   exports["bindEff"] = bindEff;
   exports["monadEff"] = monadEff;
+  exports["whileE"] = $foreign.whileE;
   exports["runPure"] = $foreign.runPure;;
  
 })(PS["Control.Monad.Eff"] = PS["Control.Monad.Eff"] || {});
@@ -566,12 +578,14 @@ var PS = { };
   var Prelude = PS["Prelude"];
   var DOM_Event_Types = PS["DOM.Event.Types"];
   var Unsafe_Coerce = PS["Unsafe.Coerce"];
-  var textToNode = Unsafe_Coerce.unsafeCoerce;                       
+  var textToNode = Unsafe_Coerce.unsafeCoerce;                 
+  var elementToParentNode = Unsafe_Coerce.unsafeCoerce;              
   var elementToNode = Unsafe_Coerce.unsafeCoerce;
   var elementToEventTarget = Unsafe_Coerce.unsafeCoerce;
   exports["textToNode"] = textToNode;
   exports["elementToEventTarget"] = elementToEventTarget;
-  exports["elementToNode"] = elementToNode;;
+  exports["elementToNode"] = elementToNode;
+  exports["elementToParentNode"] = elementToParentNode;;
  
 })(PS["DOM.Node.Types"] = PS["DOM.Node.Types"] || {});
 (function(exports) {
@@ -613,6 +627,11 @@ var PS = { };
 (function(exports) {
   /* global exports */
   "use strict";
+
+  // jshint maxparams: 1
+  exports.toForeign = function (value) {
+    return value;
+  };
 
   exports.unsafeFromForeign = function (value) {
     return value;
@@ -1465,7 +1484,8 @@ var PS = { };
   exports["readBoolean"] = readBoolean;
   exports["readString"] = readString;
   exports["unsafeReadTagged"] = unsafeReadTagged;
-  exports["eqForeignError"] = eqForeignError;;
+  exports["eqForeignError"] = eqForeignError;
+  exports["toForeign"] = $foreign.toForeign;;
  
 })(PS["Data.Foreign"] = PS["Data.Foreign"] || {});
 (function(exports) {
@@ -1576,6 +1596,14 @@ var PS = { };
       return w.open(name,opt).then(cb, err);
     };
   };
+
+  exports.addOpenerImpl = function (w) {
+    return w.addOpener.bind(w);
+  };
+
+  exports.paneForItemImpl = function (w) {
+    return w.paneForItem.bind(w);
+  };
  
 })(PS["Atom.Workspace"] = PS["Atom.Workspace"] || {});
 (function(exports) {
@@ -1589,14 +1617,12 @@ var PS = { };
   exports.getSelectedText = function (e) { return function () { return e.getSelectedText(); }; };
 
   exports.setTextInBufferRangeImpl = function(e) { return e.setTextInBufferRange.bind(e); }
-  exports.setTextImpl = function(e) { return e.setText.bind(e); }
-  exports.insertTextImpl = function(e) { return e.insertText.bind(e); }
+  exports.setTextImpl = function(e) { return e.setText.bind(e); }      
 
 
   exports.onDidSaveImpl = function(e) { return e.onDidSave.bind(e); };
 
   exports.getCursorBufferPosition = function (e) { return function () { return e.getCursorBufferPosition(); }; };
-  exports.moveToBottom = function (e) { return function () { return e.moveToBottom(); }; };
   exports.moveDownImpl = function (e) { return e.moveDown.bind(e); };
 
   exports.moveToBeginningOfLine = function(e) { return function () { return e.moveToBeginningOfLine(); }; };
@@ -1609,14 +1635,6 @@ var PS = { };
   exports.getBuffer = function (editor) {
     return function() {
       return editor.getBuffer();
-    };
-  };
-
-  exports.setGrammar = function (editor) {
-    return function (grammar) {
-      return function() {
-        editor.setGrammar(grammar);
-      };
     };
   };
  
@@ -1765,9 +1783,6 @@ var PS = { };
   var moveDown = function ($13) {
       return Data_Function_Eff.runEffFn1($foreign.moveDownImpl($13));
   };
-  var insertText = function ($14) {
-      return Data_Function_Eff.runEffFn1($foreign.insertTextImpl($14));
-  };
   var getTextInRange = function ($15) {
       return Data_Function_Eff.runEffFn1($foreign.getTextInRangeImpl($15));
   };
@@ -1780,14 +1795,11 @@ var PS = { };
   exports["moveDown"] = moveDown;
   exports["onDidSave"] = onDidSave;
   exports["toEditor"] = toEditor;
-  exports["insertText"] = insertText;
   exports["setText"] = setText;
   exports["setTextInBufferRange"] = setTextInBufferRange;
   exports["getTextInRange"] = getTextInRange;
   exports["getPath"] = getPath;
-  exports["setGrammar"] = $foreign.setGrammar;
   exports["moveToBeginningOfLine"] = $foreign.moveToBeginningOfLine;
-  exports["moveToBottom"] = $foreign.moveToBottom;
   exports["getCursorBufferPosition"] = $foreign.getCursorBufferPosition;
   exports["getBuffer"] = $foreign.getBuffer;
   exports["getSelectedText"] = $foreign.getSelectedText;
@@ -1795,16 +1807,76 @@ var PS = { };
  
 })(PS["Atom.Editor"] = PS["Atom.Editor"] || {});
 (function(exports) {
+  // module Atom.Pane
+
+  exports.destroyItemImpl = function (p) {
+    return p.destroyItem.bind(p);
+  };
+ 
+})(PS["Atom.Pane"] = PS["Atom.Pane"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Atom.Pane"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Data_Function_Eff = PS["Data.Function.Eff"];        
+  var destroyItem = function ($0) {
+      return Data_Function_Eff.runEffFn1($foreign.destroyItemImpl($0));
+  };
+  exports["destroyItem"] = destroyItem;;
+ 
+})(PS["Atom.Pane"] = PS["Atom.Pane"] || {});
+(function(exports) {
+  /* global exports */
+  "use strict";
+
+  // module Data.Nullable
+
+  exports["null"] = null;
+
+  exports.nullable = function(a, r, f) {
+      return a == null ? r : f(a);
+  };
+
+  exports.notNull = function(x) {
+      return x;
+  }; 
+ 
+})(PS["Data.Nullable"] = PS["Data.Nullable"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["Data.Nullable"];
+  var Prelude = PS["Prelude"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Function = PS["Data.Function"];        
+  var toNullable = Data_Maybe.maybe($foreign["null"])($foreign.notNull);
+  var toMaybe = function (n) {
+      return $foreign.nullable(n, Data_Maybe.Nothing.value, Data_Maybe.Just.create);
+  };
+  exports["toNullable"] = toNullable;
+  exports["toMaybe"] = toMaybe;;
+ 
+})(PS["Data.Nullable"] = PS["Data.Nullable"] || {});
+(function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
   var $foreign = PS["Atom.Workspace"];
   var Prelude = PS["Prelude"];
   var DOM_Node_Types = PS["DOM.Node.Types"];
   var Atom_Editor = PS["Atom.Editor"];
+  var Atom_Pane = PS["Atom.Pane"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var Data_Foreign = PS["Data.Foreign"];
   var Data_Function_Eff = PS["Data.Function.Eff"];
-  var Data_Maybe = PS["Data.Maybe"];        
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Nullable = PS["Data.Nullable"];
+  var paneForItem = function (w) {
+      return function (a) {
+          return Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Nullable.toMaybe)(Data_Function_Eff.runEffFn1($foreign.paneForItemImpl(w))(a));
+      };
+  };
   var open = function (w) {
       return function (s) {
           return function (o) {
@@ -1838,6 +1910,11 @@ var PS = { };
       pending: false, 
       searchAllPanes: false
   };
+  var addOpener = function (w) {
+      return function (f) {
+          return Data_Function_Eff.runEffFn1($foreign.addOpenerImpl(w))(Data_Function_Eff.mkEffFn1(f));
+      };
+  };
   var addModalPanel = function (w) {
       return function (item) {
           return function (visible) {
@@ -1851,6 +1928,8 @@ var PS = { };
           };
       };
   };
+  exports["paneForItem"] = paneForItem;
+  exports["addOpener"] = addOpener;
   exports["defaultOpenOptions"] = defaultOpenOptions;
   exports["open"] = open;
   exports["addModalPanel"] = addModalPanel;
@@ -3094,38 +3173,6 @@ var PS = { };
  
 })(PS["DOM.Node.Document"] = PS["DOM.Node.Document"] || {});
 (function(exports) {
-  /* global exports */
-  "use strict";
-
-  // module Data.Nullable
-
-  exports["null"] = null;
-
-  exports.nullable = function(a, r, f) {
-      return a == null ? r : f(a);
-  };
-
-  exports.notNull = function(x) {
-      return x;
-  }; 
- 
-})(PS["Data.Nullable"] = PS["Data.Nullable"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var $foreign = PS["Data.Nullable"];
-  var Prelude = PS["Prelude"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Function = PS["Data.Function"];        
-  var toNullable = Data_Maybe.maybe($foreign["null"])($foreign.notNull);
-  var toMaybe = function (n) {
-      return $foreign.nullable(n, Data_Maybe.Nothing.value, Data_Maybe.Just.create);
-  };
-  exports["toNullable"] = toNullable;
-  exports["toMaybe"] = toMaybe;;
- 
-})(PS["Data.Nullable"] = PS["Data.Nullable"] || {});
-(function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
   var $foreign = PS["DOM.Node.Document"];
@@ -3185,10 +3232,47 @@ var PS = { };
   /* global exports */
   "use strict";
 
+  // module DOM.Node.Node
+
+  var getEffProp = function (name) {
+    return function (node) {
+      return function () {
+        return node[name];
+      };
+    };
+  };                                                  
+
+  exports.hasChildNodes = function (node) {
+    return function () {
+      return node.hasChildNodes();
+    };
+  };                                            
+
+  exports.firstChild = getEffProp("firstChild");
+
+  exports.textContent = getEffProp("textContent");
+
+  exports.setTextContent = function (value) {
+    return function (node) {
+      return function () {
+        node.textContent = value;
+        return {};
+      };
+    };
+  };
+
   exports.appendChild = function (node) {
     return function (parent) {
       return function () {
         return parent.appendChild(node);
+      };
+    };
+  };
+
+  exports.removeChild = function (node) {
+    return function (parent) {
+      return function () {
+        return parent.removeChild(node);
       };
     };
   };
@@ -3206,9 +3290,67 @@ var PS = { };
   var DOM = PS["DOM"];
   var DOM_Node_NodeType = PS["DOM.Node.NodeType"];
   var DOM_Node_Types = PS["DOM.Node.Types"];
-  exports["appendChild"] = $foreign.appendChild;;
+  exports["removeChild"] = $foreign.removeChild;
+  exports["appendChild"] = $foreign.appendChild;
+  exports["setTextContent"] = $foreign.setTextContent;
+  exports["firstChild"] = $foreign.firstChild;
+  exports["hasChildNodes"] = $foreign.hasChildNodes;;
  
 })(PS["DOM.Node.Node"] = PS["DOM.Node.Node"] || {});
+(function(exports) {
+  /* global exports */
+  "use strict";                                               
+
+  exports.querySelector = function (selector) {
+    return function (node) {
+      return function () {
+        return node.querySelector(selector);
+      };
+    };
+  };
+ 
+})(PS["DOM.Node.ParentNode"] = PS["DOM.Node.ParentNode"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["DOM.Node.ParentNode"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Data_Nullable = PS["Data.Nullable"];
+  var DOM = PS["DOM"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
+  exports["querySelector"] = $foreign.querySelector;;
+ 
+})(PS["DOM.Node.ParentNode"] = PS["DOM.Node.ParentNode"] || {});
+(function(exports) {
+    
+
+  exports.setScrollTop = function(e) {
+    return function(value) {
+      return function() {
+        e.scrollTop = value;
+      };
+    };
+  };
+
+  exports.getScrollHeight = function (e) {
+    return function() {
+      return e.scrollHeight;
+    };
+  };
+ 
+})(PS["DOM.Util"] = PS["DOM.Util"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var $foreign = PS["DOM.Util"];
+  var Prelude = PS["Prelude"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var DOM = PS["DOM"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
+  exports["getScrollHeight"] = $foreign.getScrollHeight;
+  exports["setScrollTop"] = $foreign.setScrollTop;;
+ 
+})(PS["DOM.Util"] = PS["DOM.Util"] || {});
 (function(exports) {
   // module Data.Argonaut.Core
 
@@ -4737,15 +4879,16 @@ var PS = { };
 (function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
+  var Prelude = PS["Prelude"];
   var Control_Alt = PS["Control.Alt"];
   var Data_Argonaut_Combinators = PS["Data.Argonaut.Combinators"];
   var Data_Argonaut_Core = PS["Data.Argonaut.Core"];
   var Data_Argonaut_Decode = PS["Data.Argonaut.Decode"];
   var Data_Argonaut_Encode = PS["Data.Argonaut.Encode"];
   var Data_Argonaut_Parser = PS["Data.Argonaut.Parser"];
+  var Data_Array = PS["Data.Array"];
   var Data_Either = PS["Data.Either"];
   var Data_Maybe = PS["Data.Maybe"];
-  var Prelude = PS["Prelude"];        
   var Package = (function () {
       function Package() {
 
@@ -5038,22 +5181,33 @@ var PS = { };
       };
       return ImportCmd;
   })();
+  var RebuildCmd = (function () {
+      function RebuildCmd(value0) {
+          this.value0 = value0;
+      };
+      RebuildCmd.create = function (value0) {
+          return new RebuildCmd(value0);
+      };
+      return RebuildCmd;
+  })();
   var unwrapResponse = function (dictDecodeJson) {
-      return function (s) {
-          return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Parser.jsonParser(s))(function (v) {
-              return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Decode.decodeJson(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson))(v))(function (v1) {
-                  return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(v1)("resultType"))(function (v2) {
-                      if (v2 === "success") {
+      return function (dictDecodeJson1) {
+          return function (s) {
+              return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Parser.jsonParser(s))(function (v) {
+                  return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Decode.decodeJson(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson))(v))(function (v1) {
+                      return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(v1)("resultType"))(function (v2) {
+                          if (v2 === "success") {
+                              return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](dictDecodeJson1)(v1)("result"))(function (v3) {
+                                  return Prelude.pure(Data_Either.applicativeEither)(new Data_Either.Right(v3));
+                              });
+                          };
                           return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](dictDecodeJson)(v1)("result"))(function (v3) {
-                              return new Data_Either.Right(v3);
+                              return Prelude.pure(Data_Either.applicativeEither)(new Data_Either.Left(v3));
                           });
-                      };
-                      return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(v1)("result"))(function (v3) {
-                          return new Data_Either.Left(v3);
                       });
                   });
               });
-          });
+          };
       };
   };
   var showPursuitType = new Prelude.Show(function (v) {
@@ -5063,7 +5217,7 @@ var PS = { };
       if (v instanceof Ident) {
           return "completion";
       };
-      throw new Error("Failed pattern match at PscIde.Command line 16, column 3 - line 17, column 3: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at PscIde.Command line 17, column 3 - line 18, column 3: " + [ v.constructor.name ]);
   });
   var jsonSingletonObject$prime = function (dictEncodeJson) {
       return function (s) {
@@ -5079,8 +5233,8 @@ var PS = { };
           };
       };
   };
-  var encodePursuitType = new Data_Argonaut_Encode.EncodeJson(function ($90) {
-      return Data_Argonaut_Encode.encodeJson(Data_Argonaut_Encode.encodeJsonJString)(Prelude.show(showPursuitType)($90));
+  var encodePursuitType = new Data_Argonaut_Encode.EncodeJson(function ($102) {
+      return Data_Argonaut_Encode.encodeJson(Data_Argonaut_Encode.encodeJsonJString)(Prelude.show(showPursuitType)($102));
   });
   var encodeMatcher = new Data_Argonaut_Encode.EncodeJson(function (v) {
       if (v instanceof Flex) {
@@ -5089,7 +5243,7 @@ var PS = { };
       if (v instanceof Distance) {
           return Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJString)("matcher")("distance"))(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJson)("params")(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJString)("search")(v.value0))(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonInt)("maximumDistance")(v.value1))(Data_Argonaut_Core.jsonEmptyObject))))(Data_Argonaut_Core.jsonEmptyObject));
       };
-      throw new Error("Failed pattern match at PscIde.Command line 28, column 3 - line 32, column 3: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at PscIde.Command line 29, column 3 - line 33, column 3: " + [ v.constructor.name ]);
   });
   var encodeImportCommand = new Data_Argonaut_Encode.EncodeJson(function (v) {
       if (v instanceof AddImplicitImport) {
@@ -5098,7 +5252,7 @@ var PS = { };
       if (v instanceof AddImport) {
           return Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJString)("importCommand")("addImport"))(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJson)("identifier")(Data_Argonaut_Encode.encodeJson(Data_Argonaut_Encode.encodeJsonJString)(v.value0)))(Data_Argonaut_Core.jsonEmptyObject));
       };
-      throw new Error("Failed pattern match at PscIde.Command line 147, column 3 - line 151, column 3: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at PscIde.Command line 154, column 3 - line 158, column 3: " + [ v.constructor.name ]);
   });
   var encodeFilter = new Data_Argonaut_Encode.EncodeJson(function (v) {
       if (v instanceof ExactFilter) {
@@ -5113,7 +5267,7 @@ var PS = { };
       if (v instanceof DependencyFilter) {
           return filterWrapper(Data_Argonaut_Encode.encodeJsonJson)("dependencies")(jsonSingletonObject$prime(Data_Argonaut_Encode.encodeJsonArray(Data_Argonaut_Encode.encodeJsonJString))("modules")(v.value0));
       };
-      throw new Error("Failed pattern match at PscIde.Command line 57, column 3 - line 59, column 3: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at PscIde.Command line 58, column 3 - line 60, column 3: " + [ v.constructor.name ]);
   });
   var decodePursuitCompletion = new Data_Argonaut_Decode.DecodeJson(function (json) {
       return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Decode.decodeJson(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson))(json))(function (v) {
@@ -5137,8 +5291,8 @@ var PS = { };
       return Prelude["<$>"](Data_Either.functorEither)(ModuleList)(Data_Argonaut_Decode.decodeJson(Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeJsonString))(json));
   });
   var decodeMessage = new Data_Argonaut_Decode.DecodeJson(function (json) {
-      return Data_Maybe.maybe(new Data_Either.Left("Message not string"))(function ($91) {
-          return Data_Either.Right.create(Message($91));
+      return Data_Maybe.maybe(new Data_Either.Left("Message not string"))(function ($103) {
+          return Data_Either.Right.create(Message($103));
       })(Data_Argonaut_Core.toString(json));
   });
   var decodeImport = new Data_Argonaut_Decode.DecodeJson(function (json) {
@@ -5244,7 +5398,10 @@ var PS = { };
       if (v instanceof ImportCmd) {
           return commandWrapper(Data_Argonaut_Encode.encodeJsonJson)("import")(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJson)("file")(Data_Argonaut_Encode.encodeJson(Data_Argonaut_Encode.encodeJsonJString)(v.value0)))(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJson)("outfile")(Data_Argonaut_Encode.encodeJson(Data_Argonaut_Encode.encodeJsonMaybe(Data_Argonaut_Encode.encodeJsonJString))(v.value1)))(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJson)("filters")(Data_Argonaut_Encode.encodeJson(Data_Argonaut_Encode.encodeJsonArray(encodeFilter))(v.value2)))(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJson)("importCommand")(Data_Argonaut_Encode.encodeJson(encodeImportCommand)(v.value3)))(Data_Argonaut_Core.jsonEmptyObject)))));
       };
-      throw new Error("Failed pattern match at PscIde.Command line 90, column 3 - line 91, column 3: " + [ v.constructor.name ]);
+      if (v instanceof RebuildCmd) {
+          return commandWrapper(Data_Argonaut_Encode.encodeJsonJson)("rebuild")(Data_Argonaut_Combinators["~>"](Data_Argonaut_Encode.encodeJsonJson)(Data_Argonaut_Combinators[":="](Data_Argonaut_Encode.encodeJsonJson)("file")(Data_Argonaut_Encode.encodeJson(Data_Argonaut_Encode.encodeJsonJString)(v.value0)))(Data_Argonaut_Core.jsonEmptyObject));
+      };
+      throw new Error("Failed pattern match at PscIde.Command line 92, column 3 - line 93, column 3: " + [ v.constructor.name ]);
   });
   exports["SuccessFile"] = SuccessFile;
   exports["SuccessText"] = SuccessText;
@@ -5269,6 +5426,7 @@ var PS = { };
   exports["AddClause"] = AddClause;
   exports["CaseSplit"] = CaseSplit;
   exports["ImportCmd"] = ImportCmd;
+  exports["RebuildCmd"] = RebuildCmd;
   exports["ExactFilter"] = ExactFilter;
   exports["PrefixFilter"] = PrefixFilter;
   exports["ModuleFilter"] = ModuleFilter;
@@ -5299,94 +5457,156 @@ var PS = { };
   // Generated by psc version 0.8.3.0
   "use strict";
   var $foreign = PS["PscIde"];
+  var PscIde_Command = PS["PscIde.Command"];
   var Control_Alt = PS["Control.Alt"];
+  var Control_Bind = PS["Control.Bind"];
   var Control_Monad_Aff = PS["Control.Monad.Aff"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Data_Argonaut_Decode = PS["Data.Argonaut.Decode"];
-  var Data_Argonaut_Encode = PS["Data.Argonaut.Encode"];
+  var Data_Argonaut = PS["Data.Argonaut"];
+  var Data_Either = PS["Data.Either"];
   var Data_Maybe = PS["Data.Maybe"];
   var Prelude = PS["Prelude"];
-  var PscIde_Command = PS["PscIde.Command"];
   var Data_Argonaut_Core = PS["Data.Argonaut.Core"];
-  var Data_Either = PS["Data.Either"];        
+  var Data_Argonaut_Encode = PS["Data.Argonaut.Encode"];
+  var Data_Argonaut_Decode = PS["Data.Argonaut.Decode"];        
+  var sendCommandG = function (dictEncodeJson) {
+      return function (dictDecodeJson) {
+          return function (dictDecodeJson1) {
+              return function (port) {
+                  return function (command) {
+                      return function (unwrapper) {
+                          return Control_Monad_Aff.makeAff(function (err) {
+                              return function (succ) {
+                                  return $foreign.send(Prelude.show(Data_Argonaut_Core.showJson)(Data_Argonaut_Encode.encodeJson(dictEncodeJson)(command)))(port)(function ($9) {
+                                      return succ(unwrapper($9));
+                                  })(err);
+                              };
+                          });
+                      };
+                  };
+              };
+          };
+      };
+  };
+  var sendCommandR = function (dictEncodeJson) {
+      return function (dictDecodeJson) {
+          return function (dictDecodeJson1) {
+              return function (port) {
+                  return function (command) {
+                      return sendCommandG(dictEncodeJson)(dictDecodeJson)(dictDecodeJson1)(port)(command)(PscIde_Command.unwrapResponse(dictDecodeJson)(dictDecodeJson1));
+                  };
+              };
+          };
+      };
+  };
   var sendCommand = function (dictEncodeJson) {
       return function (dictDecodeJson) {
-          return function (c) {
-              return Control_Monad_Aff.makeAff(function (err) {
-                  return function (succ) {
-                      return $foreign.send(Prelude.show(Data_Argonaut_Core.showJson)(Data_Argonaut_Encode.encodeJson(dictEncodeJson)(c)))(4242)(function ($3) {
-                          return succ(PscIde_Command.unwrapResponse(dictDecodeJson)($3));
-                      })(err);
-                  };
-              });
+          return function (port) {
+              return function (command) {
+                  return Control_Monad_Aff.makeAff(function (err) {
+                      return function (succ) {
+                          return $foreign.send(Prelude.show(Data_Argonaut_Core.showJson)(Data_Argonaut_Encode.encodeJson(dictEncodeJson)(command)))(port)(function ($10) {
+                              return succ(Control_Bind.join(Data_Either.bindEither)(PscIde_Command.unwrapResponse(Data_Argonaut_Decode.decodeJsonString)(dictDecodeJson)($10)));
+                          })(err);
+                      };
+                  });
+              };
           };
       };
   };
-  var type$prime = function (s) {
+  var type$prime = function (port) {
+      return function (s) {
+          return function (fs) {
+              return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(PscIde_Command.decodeCompletion))(port)(new PscIde_Command.Type(s, fs));
+          };
+      };
+  };
+  var quit = function (port) {
+      return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeMessage)(port)(PscIde_Command.Quit.value);
+  };
+  var pursuitCompletion = function (port) {
+      return function (q) {
+          return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(PscIde_Command.decodePursuitCompletion))(port)(new PscIde_Command.Pursuit(PscIde_Command.Ident.value, q));
+      };
+  };
+  var load = function (port) {
+      return function (ms) {
+          return function (ds) {
+              return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeMessage)(port)(new PscIde_Command.Load(ms, ds));
+          };
+      };
+  };
+  var listLoadedModules = function (port) {
+      return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeModuleList)(port)(new PscIde_Command.Ls(PscIde_Command.LoadedModules.value));
+  };
+  var listImports = function (port) {
+      return function (fp) {
+          return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeImportList)(port)(new PscIde_Command.Ls(new PscIde_Command.Imports(fp)));
+      };
+  };
+  var listAvailableModules = function (port) {
+      return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeModuleList)(port)(new PscIde_Command.Ls(PscIde_Command.AvailableModules.value));
+  };
+  var implicitImport = function (port) {
+      return function (infile) {
+          return function (outfile) {
+              return function (filters) {
+                  return function (mod) {
+                      return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeImportResult)(port)(new PscIde_Command.ImportCmd(infile, outfile, filters, new PscIde_Command.AddImplicitImport(mod)));
+                  };
+              };
+          };
+      };
+  };
+  var explicitImport = function (port) {
+      return function (infile) {
+          return function (outfile) {
+              return function (filters) {
+                  return function (ident) {
+                      return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeImportResult)(port)(new PscIde_Command.ImportCmd(infile, outfile, filters, new PscIde_Command.AddImport(ident)));
+                  };
+              };
+          };
+      };
+  };
+  var cwd = function (port) {
+      return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeMessage)(port)(PscIde_Command.Cwd.value);
+  };
+  var complete = function (port) {
       return function (fs) {
-          return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(PscIde_Command.decodeCompletion))(new PscIde_Command.Type(s, fs));
-      };
-  };
-  var quit = sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeMessage)(PscIde_Command.Quit.value);
-  var pursuitCompletion = function (q) {
-      return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(PscIde_Command.decodePursuitCompletion))(new PscIde_Command.Pursuit(PscIde_Command.Ident.value, q));
-  };
-  var load = function (ms) {
-      return function (ds) {
-          return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeMessage)(new PscIde_Command.Load(ms, ds));
-      };
-  };
-  var listLoadedModules = sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeModuleList)(new PscIde_Command.Ls(PscIde_Command.LoadedModules.value));
-  var listImports = function (fp) {
-      return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeImportList)(new PscIde_Command.Ls(new PscIde_Command.Imports(fp)));
-  };
-  var listAvailableModules = sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeModuleList)(new PscIde_Command.Ls(PscIde_Command.AvailableModules.value));
-  var implicitImport = function (infile) {
-      return function (outfile) {
-          return function (filters) {
-              return function (mod) {
-                  return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeImportResult)(new PscIde_Command.ImportCmd(infile, outfile, filters, new PscIde_Command.AddImplicitImport(mod)));
-              };
+          return function (m) {
+              return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(PscIde_Command.decodeCompletion))(port)(new PscIde_Command.Complete(fs, m));
           };
       };
   };
-  var explicitImport = function (infile) {
-      return function (outfile) {
-          return function (filters) {
-              return function (ident) {
-                  return sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeImportResult)(new PscIde_Command.ImportCmd(infile, outfile, filters, new PscIde_Command.AddImport(ident)));
-              };
+  var suggestTypos = function (port) {
+      return function (q) {
+          return function (m) {
+              return Prelude["<$>"](Control_Monad_Aff.functorAff)(function (v) {
+                  return Control_Alt["<|>"](Data_Either.altEither)(v)(Prelude.pure(Data_Either.applicativeEither)([  ]));
+              })(complete(port)([  ])(new Data_Maybe.Just(new PscIde_Command.Distance(q, m))));
           };
       };
   };
-  var cwd = sendCommand(PscIde_Command.encodeCommand)(PscIde_Command.decodeMessage)(PscIde_Command.Cwd.value);
-  var complete = function (fs) {
-      return function (m) {
-          return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(PscIde_Command.decodeCompletion))(new PscIde_Command.Complete(fs, m));
-      };
-  };
-  var suggestTypos = function (q) {
-      return function (m) {
-          return Prelude["<$>"](Control_Monad_Aff.functorAff)(function (v) {
-              return Control_Alt["<|>"](Data_Either.altEither)(v)(Prelude.pure(Data_Either.applicativeEither)([  ]));
-          })(complete([  ])(new Data_Maybe.Just(new PscIde_Command.Distance(q, m))));
-      };
-  };
-  var caseSplit = function (line) {
-      return function (begin) {
-          return function (end) {
-              return function (annotations) {
-                  return function (typ) {
-                      return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeJsonString))(new PscIde_Command.CaseSplit(line, begin, end, annotations, typ));
+  var caseSplit = function (port) {
+      return function (line) {
+          return function (begin) {
+              return function (end) {
+                  return function (annotations) {
+                      return function (typ) {
+                          return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeJsonString))(port)(new PscIde_Command.CaseSplit(line, begin, end, annotations, typ));
+                      };
                   };
               };
           };
       };
   };
-  var addClause = function (line) {
-      return function (annotations) {
-          return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeJsonString))(new PscIde_Command.AddClause(line, annotations));
+  var addClause = function (port) {
+      return function (line) {
+          return function (annotations) {
+              return sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeJsonString))(port)(new PscIde_Command.AddClause(line, annotations));
+          };
       };
   };
   exports["explicitImport"] = explicitImport;
@@ -5403,7 +5623,9 @@ var PS = { };
   exports["listAvailableModules"] = listAvailableModules;
   exports["listLoadedModules"] = listLoadedModules;
   exports["cwd"] = cwd;
-  exports["sendCommand"] = sendCommand;;
+  exports["sendCommand"] = sendCommand;
+  exports["sendCommandR"] = sendCommandR;
+  exports["sendCommandG"] = sendCommandG;;
  
 })(PS["PscIde"] = PS["PscIde"] || {});
 (function(exports) {
@@ -5517,16 +5739,22 @@ var PS = { };
       var conv = function (v) {
           return v;
       };
-      return result(conv)(PscIde.listAvailableModules);
+      return function ($50) {
+          return result(conv)(PscIde.listAvailableModules($50));
+      };
   })();
   var getLoadedModules = (function () {
       var conv = function (v) {
           return v;
       };
-      return result(conv)(PscIde.listLoadedModules);
+      return function ($51) {
+          return result(conv)(PscIde.listLoadedModules($51));
+      };
   })();
-  var loadDeps = function (main) {
-      return result(runMsg)(PscIde.load([  ])([ main ]));
+  var loadDeps = function (port) {
+      return function (main) {
+          return result(runMsg)(PscIde.load(port)([  ])([ main ]));
+      };
   };
   var decodeModuleCompletion = new Data_Argonaut_Decode.DecodeJson(function (json) {
       return Prelude.bind(Data_Either.bindEither)(Data_Argonaut_Decode.decodeJson(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson))(json))(function (v) {
@@ -5540,19 +5768,23 @@ var PS = { };
           });
       });
   });
-  var getPursuitModuleCompletion = function (str) {
-      var convPursuitModuleCompletion = function (v) {
-          return {
-              "package": v.value0["package"], 
-              module: v.value0["module'"]
+  var getPursuitModuleCompletion = function (port) {
+      return function (str) {
+          var convPursuitModuleCompletion = function (v) {
+              return {
+                  "package": v.value0["package"], 
+                  module: v.value0["module'"]
+              };
           };
+          var complete = function (q) {
+              return PscIde.sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(decodeModuleCompletion))(port)(new PscIde_Command.Pursuit(PscIde_Command.Package.value, q));
+          };
+          return result(Prelude.map(Prelude.functorArray)(convPursuitModuleCompletion))(complete(str));
       };
-      var complete = function (q) {
-          return PscIde.sendCommand(PscIde_Command.encodeCommand)(Data_Argonaut_Decode.decodeArray(decodeModuleCompletion))(new PscIde_Command.Pursuit(PscIde_Command.Package.value, q));
-      };
-      return result(Prelude.map(Prelude.functorArray)(convPursuitModuleCompletion))(complete(str));
   };
-  var cwd = result(runMsg)(PscIde.cwd);
+  var cwd = function ($52) {
+      return result(runMsg)(PscIde.cwd($52));
+  };
   var convPursuitCompletion = function (v) {
       return {
           identifier: v.identifier, 
@@ -5561,8 +5793,10 @@ var PS = { };
           module: v["module'"]
       };
   };
-  var getPursuitCompletion = function (str) {
-      return result(Prelude.map(Prelude.functorArray)(convPursuitCompletion))(PscIde.pursuitCompletion(str));
+  var getPursuitCompletion = function (port) {
+      return function (str) {
+          return result(Prelude.map(Prelude.functorArray)(convPursuitCompletion))(PscIde.pursuitCompletion(port)(str));
+      };
   };
   var convCompletion = function (v) {
       return {
@@ -5571,22 +5805,24 @@ var PS = { };
           module: v["module'"]
       };
   };
-  var getCompletion = function (prefix) {
-      return function (modulePrefix) {
-          return function (moduleCompletion) {
-              return function (unqualModules) {
-                  return function (getQualifiedModule) {
-                      var mods = (function () {
-                          if (moduleCompletion) {
-                              return [  ];
-                          };
-                          if (!moduleCompletion) {
-                              return moduleFilterModules(modulePrefix)(unqualModules)(getQualifiedModule);
-                          };
-                          throw new Error("Failed pattern match at IdePurescript.PscIde line 94, column 10 - line 95, column 3: " + [ moduleCompletion.constructor.name ]);
-                      })();
-                      var conv = Prelude.map(Prelude.functorArray)(convCompletion);
-                      return Prelude["<$>"](Control_Monad_Aff.functorAff)(conv)(eitherToErr(PscIde.complete(Data_Array[":"](new PscIde_Command.PrefixFilter(prefix))(moduleFilters(mods)))(Data_Maybe.Nothing.value)));
+  var getCompletion = function (port) {
+      return function (prefix) {
+          return function (modulePrefix) {
+              return function (moduleCompletion) {
+                  return function (unqualModules) {
+                      return function (getQualifiedModule) {
+                          var mods = (function () {
+                              if (moduleCompletion) {
+                                  return [  ];
+                              };
+                              if (!moduleCompletion) {
+                                  return moduleFilterModules(modulePrefix)(unqualModules)(getQualifiedModule);
+                              };
+                              throw new Error("Failed pattern match at IdePurescript.PscIde line 94, column 10 - line 95, column 3: " + [ moduleCompletion.constructor.name ]);
+                          })();
+                          var conv = Prelude.map(Prelude.functorArray)(convCompletion);
+                          return Prelude["<$>"](Control_Monad_Aff.functorAff)(conv)(eitherToErr(PscIde.complete(port)(Data_Array[":"](new PscIde_Command.PrefixFilter(prefix))(moduleFilters(mods)))(Data_Maybe.Nothing.value)));
+                      };
                   };
               };
           };
@@ -5605,22 +5841,24 @@ var PS = { };
       })());
       return Data_String_Regex.replace(r)("$1");
   })();
-  var getType = function (text) {
-      return function (modulePrefix) {
-          return function (unqualModules) {
-              return function (getQualifiedModule) {
-                  var mods = moduleFilterModules(modulePrefix)(unqualModules)(getQualifiedModule);
-                  var conv = function (r) {
-                      var $48 = Data_Array.head(Prelude.map(Prelude.functorArray)(convCompletion)(r));
-                      if ($48 instanceof Data_Maybe.Just) {
-                          return abbrevType($48.value0.type);
+  var getType = function (port) {
+      return function (text) {
+          return function (modulePrefix) {
+              return function (unqualModules) {
+                  return function (getQualifiedModule) {
+                      var mods = moduleFilterModules(modulePrefix)(unqualModules)(getQualifiedModule);
+                      var conv = function (r) {
+                          var $48 = Data_Array.head(Prelude.map(Prelude.functorArray)(convCompletion)(r));
+                          if ($48 instanceof Data_Maybe.Just) {
+                              return abbrevType($48.value0.type);
+                          };
+                          if ($48 instanceof Data_Maybe.Nothing) {
+                              return "";
+                          };
+                          throw new Error("Failed pattern match at IdePurescript.PscIde line 83, column 14 - line 87, column 1: " + [ $48.constructor.name ]);
                       };
-                      if ($48 instanceof Data_Maybe.Nothing) {
-                          return "";
-                      };
-                      throw new Error("Failed pattern match at IdePurescript.PscIde line 83, column 14 - line 87, column 1: " + [ $48.constructor.name ]);
+                      return result(conv)(PscIde["type'"](port)(text)(moduleFilters(mods)));
                   };
-                  return result(conv)(PscIde["type'"](text)(moduleFilters(mods)));
               };
           };
       };
@@ -5679,133 +5917,137 @@ var PS = { };
       return Value;
   })();
   var moduleRegex = Data_String_Regex_1.regex("(?:^|[^A-Za-z_.])(?:((?:[A-Z][A-Za-z0-9]*\\.)*(?:[A-Z][A-Za-z0-9]*))\\.)?([a-zA-Z][a-zA-Z0-9_']*)?$")(Data_String_Regex_1.noFlags);
-  var getModuleSuggestions = function (prefix) {
-      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.listAvailableModules))(function (v) {
-          return Prelude["return"](Control_Monad_Aff.applicativeAff)(Data_Array.filter(function (m) {
-              return Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqInt))(Data_String.indexOf(prefix)(m))(new Data_Maybe.Just(0));
-          })(v));
-      });
-  };
-  var getSuggestions = function (v) {
-      var suggestionTypeAtomValue = function (s) {
-          if (s instanceof Module) {
-              return "import";
-          };
-          if (s instanceof Type) {
-              return "type";
-          };
-          if (s instanceof $$Function) {
-              return "function";
-          };
-          if (s instanceof Value) {
-              return "value";
-          };
-          throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 77, column 33 - line 83, column 5: " + [ s.constructor.name ]);
+  var getModuleSuggestions = function (port) {
+      return function (prefix) {
+          return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.listAvailableModules(port)))(function (v) {
+              return Prelude["return"](Control_Monad_Aff.applicativeAff)(Data_Array.filter(function (m) {
+                  return Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqInt))(Data_String.indexOf(prefix)(m))(new Data_Maybe.Just(0));
+              })(v));
+          });
       };
-      var result = function (qualifier) {
-          return function (prefix) {
-              return function (v1) {
-                  var suggestType = (function () {
-                      var $13 = Data_String.contains("->")(v1.type);
-                      if ($13) {
-                          return $$Function.value;
-                      };
-                      if (!$13) {
-                          var $14 = Data_String_Regex_1.test(Data_String_Regex_1.regex("^[A-Z]")(Data_String_Regex_1.noFlags))(v1.identifier);
+  };
+  var getSuggestions = function (port) {
+      return function (v) {
+          var suggestionTypeAtomValue = function (s) {
+              if (s instanceof Module) {
+                  return "import";
+              };
+              if (s instanceof Type) {
+                  return "type";
+              };
+              if (s instanceof $$Function) {
+                  return "function";
+              };
+              if (s instanceof Value) {
+                  return "value";
+              };
+              throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 77, column 33 - line 83, column 5: " + [ s.constructor.name ]);
+          };
+          var result = function (qualifier) {
+              return function (prefix) {
+                  return function (v1) {
+                      var suggestType = (function () {
+                          var $14 = Data_String.contains("->")(v1.type);
                           if ($14) {
-                              return Type.value;
+                              return $$Function.value;
                           };
                           if (!$14) {
-                              return Value.value;
+                              var $15 = Data_String_Regex_1.test(Data_String_Regex_1.regex("^[A-Z]")(Data_String_Regex_1.noFlags))(v1.identifier);
+                              if ($15) {
+                                  return Type.value;
+                              };
+                              if (!$15) {
+                                  return Value.value;
+                              };
+                              throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 114, column 16 - line 115, column 16: " + [ $15.constructor.name ]);
                           };
-                          throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 114, column 16 - line 115, column 16: " + [ $14.constructor.name ]);
-                      };
-                      throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 113, column 11 - line 115, column 16: " + [ $13.constructor.name ]);
-                  })();
-                  return {
-                      text: v1.module + ("." + v1.identifier), 
-                      snippet: v1.identifier, 
-                      displayText: (function () {
-                          if (suggestType instanceof Type) {
+                          throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 113, column 11 - line 115, column 16: " + [ $14.constructor.name ]);
+                      })();
+                      return {
+                          text: v1.module + ("." + v1.identifier), 
+                          snippet: v1.identifier, 
+                          displayText: (function () {
+                              if (suggestType instanceof Type) {
+                                  return v1.identifier;
+                              };
                               return v1.identifier;
-                          };
-                          return v1.identifier;
-                      })(), 
-                      type: suggestionTypeAtomValue(suggestType), 
-                      description: v1.type, 
-                      replacementPrefix: prefix, 
-                      rightLabel: v1.module, 
-                      className: "purescript-suggestion", 
-                      addImport: new Data_Maybe.Just({
-                          mod: v1.module, 
-                          identifier: v1.identifier, 
-                          qualifier: (function () {
-                              var $16 = qualifier === "";
-                              if ($16) {
-                                  return Data_Maybe.Nothing.value;
-                              };
-                              if (!$16) {
-                                  return new Data_Maybe.Just(qualifier);
-                              };
-                              throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 109, column 55 - line 109, column 107: " + [ $16.constructor.name ]);
-                          })()
-                      })
+                          })(), 
+                          type: suggestionTypeAtomValue(suggestType), 
+                          description: v1.type, 
+                          replacementPrefix: prefix, 
+                          rightLabel: v1.module, 
+                          className: "purescript-suggestion", 
+                          addImport: new Data_Maybe.Just({
+                              mod: v1.module, 
+                              identifier: v1.identifier, 
+                              qualifier: (function () {
+                                  var $17 = qualifier === "";
+                                  if ($17) {
+                                      return Data_Maybe.Nothing.value;
+                                  };
+                                  if (!$17) {
+                                      return new Data_Maybe.Just(qualifier);
+                                  };
+                                  throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 109, column 55 - line 109, column 107: " + [ $17.constructor.name ]);
+                              })()
+                          })
+                      };
                   };
               };
           };
-      };
-      var parsed = (function () {
-          var $20 = Data_String_Regex_1.match(moduleRegex)(v.line);
-          if ($20 instanceof Data_Maybe.Just && ($20.value0.length === 3 && ($20.value0[0] instanceof Data_Maybe.Just && (Prelude["/="](Data_Maybe.eqMaybe(Prelude.eqString))($20.value0[1])(Data_Maybe.Nothing.value) || Prelude["/="](Data_Maybe.eqMaybe(Prelude.eqString))($20.value0[2])(Data_Maybe.Nothing.value))))) {
-              return new Data_Maybe.Just({
-                  mod: Data_Maybe.fromMaybe("")($20.value0[1]), 
-                  token: Data_Maybe.fromMaybe("")($20.value0[2])
-              });
-          };
-          return Data_Maybe.Nothing.value;
-      })();
-      var modResult = function (prefix) {
-          return function (moduleName) {
-              return {
-                  text: moduleName, 
-                  snippet: moduleName, 
-                  displayText: moduleName, 
-                  type: suggestionTypeAtomValue(Module.value), 
-                  description: "", 
-                  replacementPrefix: prefix, 
-                  rightLabel: "", 
-                  className: "purescript-suggestion", 
-                  addImport: Data_Maybe.Nothing.value
+          var parsed = (function () {
+              var $21 = Data_String_Regex_1.match(moduleRegex)(v.line);
+              if ($21 instanceof Data_Maybe.Just && ($21.value0.length === 3 && ($21.value0[0] instanceof Data_Maybe.Just && (Prelude["/="](Data_Maybe.eqMaybe(Prelude.eqString))($21.value0[1])(Data_Maybe.Nothing.value) || Prelude["/="](Data_Maybe.eqMaybe(Prelude.eqString))($21.value0[2])(Data_Maybe.Nothing.value))))) {
+                  return new Data_Maybe.Just({
+                      mod: Data_Maybe.fromMaybe("")($21.value0[1]), 
+                      token: Data_Maybe.fromMaybe("")($21.value0[2])
+                  });
+              };
+              return Data_Maybe.Nothing.value;
+          })();
+          var modResult = function (prefix) {
+              return function (moduleName) {
+                  return {
+                      text: moduleName, 
+                      snippet: moduleName, 
+                      displayText: moduleName, 
+                      type: suggestionTypeAtomValue(Module.value), 
+                      description: "", 
+                      replacementPrefix: prefix, 
+                      rightLabel: "", 
+                      className: "purescript-suggestion", 
+                      addImport: Data_Maybe.Nothing.value
+                  };
               };
           };
-      };
-      var getModuleName = function (v1) {
-          return function (token) {
-              if (v1 === "") {
-                  return token;
+          var getModuleName = function (v1) {
+              return function (token) {
+                  if (v1 === "") {
+                      return token;
+                  };
+                  return v1 + ("." + token);
               };
-              return v1 + ("." + token);
           };
-      };
-      var moduleCompletion = Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqInt))(Data_String.indexOf("import")(v.line))(new Data_Maybe.Just(0));
-      if (parsed instanceof Data_Maybe.Just) {
-          if (moduleCompletion) {
-              var prefix = getModuleName(parsed.value0.mod)(parsed.value0.token);
-              return Prelude.bind(Control_Monad_Aff.bindAff)(getModuleSuggestions(prefix))(function (v1) {
-                  return Prelude["return"](Control_Monad_Aff.applicativeAff)(Prelude.map(Prelude.functorArray)(modResult(prefix))(v1));
-              });
+          var moduleCompletion = Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqInt))(Data_String.indexOf("import")(v.line))(new Data_Maybe.Just(0));
+          if (parsed instanceof Data_Maybe.Just) {
+              if (moduleCompletion) {
+                  var prefix = getModuleName(parsed.value0.mod)(parsed.value0.token);
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(getModuleSuggestions(port)(prefix))(function (v1) {
+                      return Prelude["return"](Control_Monad_Aff.applicativeAff)(Prelude.map(Prelude.functorArray)(modResult(prefix))(v1));
+                  });
+              };
+              if (!moduleCompletion) {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getCompletion(port)(parsed.value0.token)(parsed.value0.mod)(moduleCompletion)(v.moduleInfo.modules)(v.moduleInfo.getQualifiedModule))(function (v1) {
+                      return Prelude["return"](Control_Monad_Aff.applicativeAff)(Prelude.map(Prelude.functorArray)(result(parsed.value0.mod)(parsed.value0.token))(v1));
+                  });
+              };
+              throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 59, column 7 - line 66, column 5: " + [ moduleCompletion.constructor.name ]);
           };
-          if (!moduleCompletion) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getCompletion(parsed.value0.token)(parsed.value0.mod)(moduleCompletion)(v.moduleInfo.modules)(v.moduleInfo.getQualifiedModule))(function (v1) {
-                  return Prelude["return"](Control_Monad_Aff.applicativeAff)(Prelude.map(Prelude.functorArray)(result(parsed.value0.mod)(parsed.value0.token))(v1));
-              });
+          if (parsed instanceof Data_Maybe.Nothing) {
+              return Prelude["return"](Control_Monad_Aff.applicativeAff)([  ]);
           };
-          throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 59, column 7 - line 66, column 5: " + [ moduleCompletion.constructor.name ]);
+          throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 57, column 6 - line 67, column 3: " + [ parsed.constructor.name ]);
       };
-      if (parsed instanceof Data_Maybe.Nothing) {
-          return Prelude["return"](Control_Monad_Aff.applicativeAff)([  ]);
-      };
-      throw new Error("Failed pattern match at IdePurescript.Atom.Completion line 57, column 6 - line 67, column 3: " + [ parsed.constructor.name ]);
   };
   exports["Module"] = Module;
   exports["Type"] = Type;
@@ -6599,123 +6841,129 @@ var PS = { };
       };
       return Data_Maybe.Nothing.value;
   };
-  var getModulesForFile = function (file) {
-      return function (fullText) {
-          var mod = function (v) {
-              if (v.qualifier instanceof Data_Maybe.Nothing && v.importType instanceof PscIde_Command.Explicit) {
-                  return new Explicit(v.moduleName, v.importType.value0);
+  var getModulesForFile = function (port) {
+      return function (file) {
+          return function (fullText) {
+              var mod = function (v) {
+                  if (v.qualifier instanceof Data_Maybe.Nothing && v.importType instanceof PscIde_Command.Explicit) {
+                      return new Explicit(v.moduleName, v.importType.value0);
+                  };
+                  if (v.qualifier instanceof Data_Maybe.Nothing) {
+                      return new Implicit(v.moduleName);
+                  };
+                  if (v.qualifier instanceof Data_Maybe.Just) {
+                      return new Qualified(v.qualifier.value0, v.moduleName);
+                  };
+                  throw new Error("Failed pattern match at IdePurescript.Modules line 71, column 3 - line 72, column 3: " + [ v.constructor.name ]);
               };
-              if (v.qualifier instanceof Data_Maybe.Nothing) {
-                  return new Implicit(v.moduleName);
+              var idents = function (v) {
+                  if (v instanceof Explicit) {
+                      return v.value1;
+                  };
+                  return [  ];
               };
-              if (v.qualifier instanceof Data_Maybe.Just) {
-                  return new Qualified(v.qualifier.value0, v.moduleName);
-              };
-              throw new Error("Failed pattern match at IdePurescript.Modules line 71, column 3 - line 72, column 3: " + [ v.constructor.name ]);
-          };
-          var idents = function (v) {
-              if (v instanceof Explicit) {
-                  return v.value1;
-              };
-              return [  ];
-          };
-          return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde.listImports(file))(function (v) {
-              var modules = Data_Either.either(Prelude["const"]([  ]))(function (v1) {
-                  return Prelude.map(Prelude.functorArray)(mod)(v1);
-              })(v);
-              var main = getMainModule(fullText);
-              var identifiers = Data_Array.concatMap(idents)(modules);
-              return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-                  main: main, 
-                  modules: modules, 
-                  identifiers: identifiers
+              return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde.listImports(port)(file))(function (v) {
+                  var modules = Data_Either.either(Prelude["const"]([  ]))(function (v1) {
+                      return Prelude.map(Prelude.functorArray)(mod)(v1);
+                  })(v);
+                  var main = getMainModule(fullText);
+                  var identifiers = Data_Array.concatMap(idents)(modules);
+                  return Prelude.pure(Control_Monad_Aff.applicativeAff)({
+                      main: main, 
+                      modules: modules, 
+                      identifiers: identifiers
+                  });
               });
-          });
+          };
       };
   };
   var addModuleImport = function (state) {
-      return function (fileName) {
-          return function (text) {
-              return function (moduleName) {
-                  var shouldAdd = Prelude["/="](Data_Maybe.eqMaybe(Prelude.eqString))(state.main)(new Data_Maybe.Just(moduleName)) && Data_Foldable.elem(Data_Foldable.foldableArray)(moduleEq)(new Implicit(moduleName))(state.modules);
-                  var addImport = function (tmpFile) {
-                      return PscIde.implicitImport(tmpFile)(new Data_Maybe.Just(tmpFile))([  ])(moduleName);
+      return function (port) {
+          return function (fileName) {
+              return function (text) {
+                  return function (moduleName) {
+                      var shouldAdd = Prelude["/="](Data_Maybe.eqMaybe(Prelude.eqString))(state.main)(new Data_Maybe.Just(moduleName)) && Data_Foldable.elem(Data_Foldable.foldableArray)(moduleEq)(new Implicit(moduleName))(state.modules);
+                      var addImport = function (tmpFile) {
+                          return PscIde.implicitImport(port)(tmpFile)(new Data_Maybe.Just(tmpFile))([  ])(moduleName);
+                      };
+                      if (!shouldAdd) {
+                          return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
+                      };
+                      if (shouldAdd) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(withTempFile(fileName)(text)(addImport))(function (v) {
+                              return Prelude.pure(Control_Monad_Aff.applicativeAff)((function () {
+                                  if (v instanceof UpdatedImports) {
+                                      return new Data_Maybe.Just({
+                                          state: state, 
+                                          result: v.value0
+                                      });
+                                  };
+                                  return Data_Maybe.Nothing.value;
+                              })());
+                          });
+                      };
+                      throw new Error("Failed pattern match at IdePurescript.Modules line 125, column 3 - line 132, column 3: " + [ shouldAdd.constructor.name ]);
                   };
-                  if (!shouldAdd) {
-                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
-                  };
-                  if (shouldAdd) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(withTempFile(fileName)(text)(addImport))(function (v) {
-                          return Prelude.pure(Control_Monad_Aff.applicativeAff)((function () {
-                              if (v instanceof UpdatedImports) {
-                                  return new Data_Maybe.Just({
-                                      state: state, 
-                                      result: v.value0
-                                  });
-                              };
-                              return Data_Maybe.Nothing.value;
-                          })());
-                      });
-                  };
-                  throw new Error("Failed pattern match at IdePurescript.Modules line 125, column 3 - line 132, column 3: " + [ shouldAdd.constructor.name ]);
               };
           };
       };
   };
   var addExplicitImport = function (state) {
-      return function (fileName) {
-          return function (text) {
-              return function (moduleName) {
-                  return function (identifier) {
-                      var isThisModule = (function () {
-                          if (moduleName instanceof Data_Maybe.Just) {
-                              return Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqString))(moduleName)(state.main);
+      return function (port) {
+          return function (fileName) {
+              return function (text) {
+                  return function (moduleName) {
+                      return function (identifier) {
+                          var isThisModule = (function () {
+                              if (moduleName instanceof Data_Maybe.Just) {
+                                  return Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqString))(moduleName)(state.main);
+                              };
+                              return false;
+                          })();
+                          var shouldAdd = !isThisModule && (!Data_Foldable.elem(Data_Foldable.foldableArray)(Prelude.eqString)(identifier)(state.identifiers) && Data_Maybe.maybe(true)(function (mn) {
+                              return !Data_Foldable.elem(Data_Foldable.foldableArray)(moduleEq)(new Implicit(mn))(state.modules);
+                          })(moduleName));
+                          var filters = (function () {
+                              if (moduleName instanceof Data_Maybe.Nothing) {
+                                  return [  ];
+                              };
+                              if (moduleName instanceof Data_Maybe.Just) {
+                                  return [ new PscIde_Command.ModuleFilter([ moduleName.value0 ]) ];
+                              };
+                              throw new Error("Failed pattern match at IdePurescript.Modules line 150, column 15 - line 153, column 5: " + [ moduleName.constructor.name ]);
+                          })();
+                          var addImport = function (tmpFile) {
+                              return PscIde.explicitImport(port)(tmpFile)(new Data_Maybe.Just(tmpFile))(filters)(identifier);
                           };
-                          return false;
-                      })();
-                      var shouldAdd = !isThisModule && (!Data_Foldable.elem(Data_Foldable.foldableArray)(Prelude.eqString)(identifier)(state.identifiers) && Data_Maybe.maybe(true)(function (mn) {
-                          return !Data_Foldable.elem(Data_Foldable.foldableArray)(moduleEq)(new Implicit(mn))(state.modules);
-                      })(moduleName));
-                      var filters = (function () {
-                          if (moduleName instanceof Data_Maybe.Nothing) {
-                              return [  ];
-                          };
-                          if (moduleName instanceof Data_Maybe.Just) {
-                              return [ new PscIde_Command.ModuleFilter([ moduleName.value0 ]) ];
-                          };
-                          throw new Error("Failed pattern match at IdePurescript.Modules line 150, column 15 - line 153, column 5: " + [ moduleName.constructor.name ]);
-                      })();
-                      var addImport = function (tmpFile) {
-                          return PscIde.explicitImport(tmpFile)(new Data_Maybe.Just(tmpFile))(filters)(identifier);
-                      };
-                      if (!shouldAdd) {
-                          return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-                              state: state, 
-                              result: FailedImport.value
-                          });
-                      };
-                      if (shouldAdd) {
-                          return Prelude.bind(Control_Monad_Aff.bindAff)(withTempFile(fileName)(text)(addImport))(function (v) {
-                              var state$prime = (function () {
-                                  if (v instanceof UpdatedImports) {
-                                      var $110 = {};
-                                      for (var $111 in state) {
-                                          if (state.hasOwnProperty($111)) {
-                                              $110[$111] = state[$111];
-                                          };
-                                      };
-                                      $110.identifiers = Data_Array[":"](identifier)(state.identifiers);
-                                      return $110;
-                                  };
-                                  return state;
-                              })();
+                          if (!shouldAdd) {
                               return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-                                  result: v, 
-                                  state: state$prime
+                                  state: state, 
+                                  result: FailedImport.value
                               });
-                          });
+                          };
+                          if (shouldAdd) {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(withTempFile(fileName)(text)(addImport))(function (v) {
+                                  var state$prime = (function () {
+                                      if (v instanceof UpdatedImports) {
+                                          var $110 = {};
+                                          for (var $111 in state) {
+                                              if (state.hasOwnProperty($111)) {
+                                                  $110[$111] = state[$111];
+                                              };
+                                          };
+                                          $110.identifiers = Data_Array[":"](identifier)(state.identifiers);
+                                          return $110;
+                                      };
+                                      return state;
+                                  })();
+                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)({
+                                      result: v, 
+                                      state: state$prime
+                                  });
+                              });
+                          };
+                          throw new Error("Failed pattern match at IdePurescript.Modules line 140, column 3 - line 148, column 3: " + [ shouldAdd.constructor.name ]);
                       };
-                      throw new Error("Failed pattern match at IdePurescript.Modules line 140, column 3 - line 148, column 3: " + [ shouldAdd.constructor.name ]);
                   };
               };
           };
@@ -6795,48 +7043,52 @@ var PS = { };
           };
       };
   };
-  var getTooltips = function (state) {
-      return function (pos) {
-          var ignore = function (v) {
-              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
-          };
-          return function __do() {
-              var v = Atom_Atom.getAtom();
-              var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
-              return Control_Promise.fromAff((function () {
-                  if (v1 instanceof Data_Maybe.Just) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(getToken(v1.value0)(pos)))(function (v2) {
-                          if (v2 instanceof Data_Maybe.Just) {
-                              var prefix = Data_Maybe.maybe("")(Prelude.id(Prelude.categoryFn))(v2.value0.qualifier);
-                              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getType(v2.value0.word)(prefix)(IdePurescript_Modules.getUnqualActiveModules(state)(new Data_Maybe.Just(v2.value0.word)))(Prelude.flip(IdePurescript_Modules.getQualModule)(state)))(function (v3) {
-                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-                                      valid: Data_String.length(v3) > 0, 
-                                      info: v3
+  var getTooltips = function (port) {
+      return function (state) {
+          return function (pos) {
+              var ignore = function (v) {
+                  return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
+              };
+              return function __do() {
+                  var v = Atom_Atom.getAtom();
+                  var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
+                  return Control_Promise.fromAff((function () {
+                      if (v1 instanceof Data_Maybe.Just) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(getToken(v1.value0)(pos)))(function (v2) {
+                              if (v2 instanceof Data_Maybe.Just) {
+                                  var prefix = Data_Maybe.maybe("")(Prelude.id(Prelude.categoryFn))(v2.value0.qualifier);
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getType(port)(v2.value0.word)(prefix)(IdePurescript_Modules.getUnqualActiveModules(state)(new Data_Maybe.Just(v2.value0.word)))(Prelude.flip(IdePurescript_Modules.getQualModule)(state)))(function (v3) {
+                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)({
+                                          valid: Data_String.length(v3) > 0, 
+                                          info: v3
+                                      });
                                   });
+                              };
+                              return Prelude.pure(Control_Monad_Aff.applicativeAff)({
+                                  valid: false, 
+                                  info: ""
                               });
-                          };
-                          return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-                              valid: false, 
-                              info: ""
                           });
+                      };
+                      return Prelude.pure(Control_Monad_Aff.applicativeAff)({
+                          valid: false, 
+                          info: ""
                       });
-                  };
-                  return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-                      valid: false, 
-                      info: ""
-                  });
-              })())();
+                  })())();
+              };
           };
       };
   };
-  var registerTooltips = function (ref) {
-      return Prelude["void"](Control_Monad_Eff.functorEff)(Data_Function_Eff.runEffFn1($foreign.mkTooltipProvider)(Data_Function_Eff.mkEffFn1(function (v) {
-          return function __do() {
-              var v1 = Control_Monad_Eff_Ref.readRef(ref)();
-              var point = Atom_Point.mkPoint(v.line - 1)(v.column - 1);
-              return getTooltips(v1)(point)();
-          };
-      })));
+  var registerTooltips = function (port) {
+      return function (ref) {
+          return Prelude["void"](Control_Monad_Eff.functorEff)(Data_Function_Eff.runEffFn1($foreign.mkTooltipProvider)(Data_Function_Eff.mkEffFn1(function (v) {
+              return function __do() {
+                  var v1 = Control_Monad_Eff_Ref.readRef(ref)();
+                  var point = Atom_Point.mkPoint(v.line - 1)(v.column - 1);
+                  return getTooltips(port)(v1)(point)();
+              };
+          })));
+      };
   };
   exports["getTooltips"] = getTooltips;
   exports["getToken"] = getToken;
@@ -6880,126 +7132,138 @@ var PS = { };
       };
       return Control_Monad_Aff.runAff(raiseError)(Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)));
   })();
-  var addImport = function (modulesState) {
-      return function (moduleName) {
-          return function __do() {
-              var v = Atom_Atom.getAtom();
-              var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
-              var v2 = Control_Monad_Eff_Ref.readRef(modulesState)();
-              if (v1 instanceof Data_Maybe.Nothing) {
-                  return Prelude.unit;
-              };
-              if (v1 instanceof Data_Maybe.Just) {
-                  var v3 = Atom_Editor.getText(v1.value0)();
-                  var v4 = Atom_Editor.getPath(v1.value0)();
-                  if (v4 instanceof Data_Maybe.Just) {
-                      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addModuleImport(v2)(v4.value0)(v3)(moduleName))(function (v5) {
-                          return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($80) {
-                              return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_Editor.setText(v1.value0)((function (v6) {
-                                  return v6.result;
-                              })($80)));
-                          })(v5));
-                      }))();
-                  };
-                  if (v4 instanceof Data_Maybe.Nothing) {
+  var addImport = function (port) {
+      return function (modulesState) {
+          return function (moduleName) {
+              return function __do() {
+                  var v = Atom_Atom.getAtom();
+                  var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
+                  var v2 = Control_Monad_Eff_Ref.readRef(modulesState)();
+                  if (v1 instanceof Data_Maybe.Nothing) {
                       return Prelude.unit;
                   };
-                  throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 105, column 7 - line 112, column 1: " + [ v4.constructor.name ]);
+                  if (v1 instanceof Data_Maybe.Just) {
+                      var v3 = Atom_Editor.getText(v1.value0)();
+                      var v4 = Atom_Editor.getPath(v1.value0)();
+                      if (v4 instanceof Data_Maybe.Just) {
+                          return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addModuleImport(v2)(port)(v4.value0)(v3)(moduleName))(function (v5) {
+                              return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($82) {
+                                  return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_Editor.setText(v1.value0)((function (v6) {
+                                      return v6.result;
+                                  })($82)));
+                              })(v5));
+                          }))();
+                      };
+                      if (v4 instanceof Data_Maybe.Nothing) {
+                          return Prelude.unit;
+                      };
+                      throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 105, column 7 - line 112, column 1: " + [ v4.constructor.name ]);
+                  };
+                  throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 100, column 3 - line 112, column 1: " + [ v1.constructor.name ]);
               };
-              throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 100, column 3 - line 112, column 1: " + [ v1.constructor.name ]);
           };
       };
   };
-  var addModuleImportCmd = function (modulesState) {
-      var view = function (x) {
-          return "<li>" + (x + "</li>");
+  var addModuleImportCmd = function (port) {
+      return function (modulesState) {
+          var view = function (x) {
+              return "<li>" + (x + "</li>");
+          };
+          var liftEffI = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+          return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getAvailableModules(port))(function (v) {
+              return liftEffI(IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImport(port)(modulesState))(Data_Maybe.Nothing.value)(v));
+          }));
       };
-      var liftEffI = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
-      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getAvailableModules)(function (v) {
-          return liftEffI(IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImport(modulesState))(Data_Maybe.Nothing.value)(v));
-      }));
   };
-  var addIdentImport$prime = function (modulesState) {
-      return function (moduleName) {
-          return function (ident) {
-              return function (editor) {
-                  var view = function (v) {
-                      return "<li>" + (v["module'"] + ("." + (v.identifier + "</li>")));
-                  };
-                  var runCompletion = function (v) {
-                      return v;
-                  };
-                  var addImp = function (v) {
-                      return launchAffAndRaise(addIdentImport(modulesState)(new Data_Maybe.Just(v["module'"]))(v.identifier));
-                  };
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Editor.getText(editor)))(function (v) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Editor.getPath(editor)))(function (v1) {
-                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Control_Monad_Eff_Ref.readRef(modulesState)))(function (v2) {
-                              if (v1 instanceof Data_Maybe.Just) {
-                                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addExplicitImport(v2)(v1.value0)(v)(moduleName)(ident))(function (v3) {
-                                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Control_Monad_Eff_Ref.writeRef(modulesState)(v3.state)))(function () {
-                                          return liftEffM((function () {
-                                              if (v3.result instanceof IdePurescript_Modules.UpdatedImports) {
-                                                  return function __do() {
-                                                      var v4 = Atom_Editor.getBuffer(editor)();
-                                                      return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_TextBuffer.setTextViaDiff(v4)(v3.result.value0))();
+  var addIdentImport$prime = function (port) {
+      return function (modulesState) {
+          return function (moduleName) {
+              return function (ident) {
+                  return function (editor) {
+                      var view = function (v) {
+                          return "<li>" + (v["module'"] + ("." + (v.identifier + "</li>")));
+                      };
+                      var runCompletion = function (v) {
+                          return v;
+                      };
+                      var addImp = function (v) {
+                          return launchAffAndRaise(addIdentImport(port)(modulesState)(new Data_Maybe.Just(v["module'"]))(v.identifier));
+                      };
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Editor.getText(editor)))(function (v) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Editor.getPath(editor)))(function (v1) {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Control_Monad_Eff_Ref.readRef(modulesState)))(function (v2) {
+                                  if (v1 instanceof Data_Maybe.Just) {
+                                      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.addExplicitImport(v2)(port)(v1.value0)(v)(moduleName)(ident))(function (v3) {
+                                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Control_Monad_Eff_Ref.writeRef(modulesState)(v3.state)))(function () {
+                                              return liftEffM((function () {
+                                                  if (v3.result instanceof IdePurescript_Modules.UpdatedImports) {
+                                                      return function __do() {
+                                                          var v4 = Atom_Editor.getBuffer(editor)();
+                                                          return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_TextBuffer.setTextViaDiff(v4)(v3.result.value0))();
+                                                      };
                                                   };
-                                              };
-                                              if (v3.result instanceof IdePurescript_Modules.AmbiguousImport) {
-                                                  return IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImp)(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v3.result.value0));
-                                              };
-                                              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
-                                          })());
+                                                  if (v3.result instanceof IdePurescript_Modules.AmbiguousImport) {
+                                                      return IdePurescript_Atom_SelectView.selectListViewStatic(view)(addImp)(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v3.result.value0));
+                                                  };
+                                                  return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
+                                              })());
+                                          });
                                       });
-                                  });
-                              };
-                              return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+                                  };
+                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+                              });
                           });
+                      });
+                  };
+              };
+          };
+      };
+  };
+  var addIdentImport = function (port) {
+      return function (modulesState) {
+          return function (moduleName) {
+              return function (ident) {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Atom.getAtom))(function (v) {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v1) {
+                          return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport$prime(port)(modulesState)(moduleName)(ident))(v1);
                       });
                   });
               };
-          };
-      };
-  };
-  var addIdentImport = function (modulesState) {
-      return function (moduleName) {
-          return function (ident) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Atom.getAtom))(function (v) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v1) {
-                      return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport$prime(modulesState)(moduleName)(ident))(v1);
-                  });
-              });
           };
       };
   };
   var addSuggestionImport = function (v) {
       return function (v1) {
-          if (v1.suggestion.addImport instanceof Data_Maybe.Just && v1.suggestion.addImport.value0.qualifier instanceof Data_Maybe.Nothing) {
-              return addIdentImport$prime(v)(new Data_Maybe.Just(v1.suggestion.addImport.value0.mod))(v1.suggestion.addImport.value0.identifier)(v1.editor);
+          return function (v2) {
+              if (v2.suggestion.addImport instanceof Data_Maybe.Just && v2.suggestion.addImport.value0.qualifier instanceof Data_Maybe.Nothing) {
+                  return addIdentImport$prime(v)(v1)(new Data_Maybe.Just(v2.suggestion.addImport.value0.mod))(v2.suggestion.addImport.value0.identifier)(v2.editor);
+              };
+              return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
           };
-          return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
       };
   };
-  var addExplicitImportCmd = function (modulesState) {
-      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Atom.getAtom))(function (v) {
-          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v1) {
-              if (v1 instanceof Data_Maybe.Just) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(IdePurescript_Atom_Editor.getLinePosition(v1.value0)))(function (v2) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.maybe("")(function (v3) {
-                          return v3.word;
-                      }))(IdePurescript_Atom_Tooltips.getToken(v1.value0)(v2.pos))))(function (v3) {
-                          return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_PromptPanel.addPromptPanel("Identifier")(v3))(function (v4) {
-                              return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport(modulesState)(Data_Maybe.Nothing.value))(v4);
+  var addExplicitImportCmd = function (port) {
+      return function (modulesState) {
+          return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Atom.getAtom))(function (v) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v1) {
+                  if (v1 instanceof Data_Maybe.Just) {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(IdePurescript_Atom_Editor.getLinePosition(v1.value0)))(function (v2) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffM(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.maybe("")(function (v3) {
+                              return v3.word;
+                          }))(IdePurescript_Atom_Tooltips.getToken(v1.value0)(v2.pos))))(function (v3) {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_PromptPanel.addPromptPanel("Identifier")(v3))(function (v4) {
+                                  return Data_Maybe.maybe(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(addIdentImport(port)(modulesState)(Data_Maybe.Nothing.value))(v4);
+                              });
                           });
                       });
-                  });
-              };
-              if (v1 instanceof Data_Maybe.Nothing) {
-                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
-              };
-              throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 53, column 3 - line 61, column 1: " + [ v1.constructor.name ]);
-          });
-      }));
+                  };
+                  if (v1 instanceof Data_Maybe.Nothing) {
+                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+                  };
+                  throw new Error("Failed pattern match at IdePurescript.Atom.Imports line 53, column 3 - line 61, column 1: " + [ v1.constructor.name ]);
+              });
+          }));
+      };
   };
   exports["liftEffM"] = liftEffM;
   exports["addImport"] = addImport;
@@ -7017,6 +7281,7 @@ var PS = { };
   var PscIde_1 = PS["PscIde"];
   var Atom_Atom = PS["Atom.Atom"];
   var Atom_CommandRegistry = PS["Atom.CommandRegistry"];
+  var Atom_Config = PS["Atom.Config"];
   var Atom_Editor = PS["Atom.Editor"];
   var Atom_NotificationManager = PS["Atom.NotificationManager"];
   var Atom_Point = PS["Atom.Point"];
@@ -7029,7 +7294,9 @@ var PS = { };
   var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
   var Control_Monad_Maybe_Trans = PS["Control.Monad.Maybe.Trans"];
   var DOM = PS["DOM"];
+  var Data_Either = PS["Data.Either"];
   var Data_Foldable = PS["Data.Foldable"];
+  var Data_Foreign = PS["Data.Foreign"];
   var Data_Maybe = PS["Data.Maybe"];
   var IdePurescript_Atom_Editor = PS["IdePurescript.Atom.Editor"];
   var IdePurescript_Atom_Imports = PS["IdePurescript.Atom.Imports"];
@@ -7053,6 +7320,11 @@ var PS = { };
       };
       return Control_Monad_Aff.runAff(raiseError)(Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)));
   })();
+  var getPort = function __do() {
+      var v = Atom_Atom.getAtom();
+      var v1 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readInt)(Atom_Config.getConfig(v.config)("ide-purescript.pscIdePort"))();
+      return Data_Either.either(Prelude["const"](Data_Maybe.Nothing.value))(Data_Maybe.Just.create)(v1);
+  };
   var fixTypo = function (modulesState) {
       var body = (function () {
           var view = function (v) {
@@ -7061,12 +7333,14 @@ var PS = { };
           var runCompletion = function (v) {
               return v;
           };
-          var replaceTypo = function (ed) {
-              return function (wordRange) {
-                  return function (v) {
-                      return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(ed)(wordRange)(v.identifier)))(function () {
-                          return IdePurescript_Atom_Imports.addIdentImport(modulesState)(new Data_Maybe.Just(v["module'"]))(v.identifier);
-                      }));
+          var replaceTypo = function (port) {
+              return function (ed) {
+                  return function (wordRange) {
+                      return function (v) {
+                          return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(ed)(wordRange)(v.identifier)))(function () {
+                              return IdePurescript_Atom_Imports.addIdentImport(port)(modulesState)(new Data_Maybe.Just(v["module'"]))(v.identifier);
+                          }));
+                      };
                   };
               };
           };
@@ -7074,11 +7348,13 @@ var PS = { };
               return v.identifier;
           };
           return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(Atom_Atom.getAtom)))(function (v) {
-              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v1) {
-                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(IdePurescript_Atom_Editor.getLinePosition(v1))))(function (v2) {
-                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(IdePurescript_Atom_Tooltips.getToken(v1)(v2.pos))))(function (v3) {
-                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.suggestTypos(v3.word)(2))))(function (v4) {
-                              return Control_Monad_Eff_Class.liftEff(Control_Monad_Maybe_Trans.monadEffMaybe(Control_Monad_Aff.monadEffAff))(IdePurescript_Atom_SelectView.selectListViewStatic(view)(replaceTypo(v1)(v3.range))(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v4)));
+              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(getPort)))(function (v1) {
+                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v2) {
+                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(IdePurescript_Atom_Editor.getLinePosition(v2))))(function (v3) {
+                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(IdePurescript_Atom_Tooltips.getToken(v2)(v3.pos))))(function (v4) {
+                              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.suggestTypos(v1)(v4.word)(2))))(function (v5) {
+                                  return Control_Monad_Eff_Class.liftEff(Control_Monad_Maybe_Trans.monadEffMaybe(Control_Monad_Aff.monadEffAff))(IdePurescript_Atom_SelectView.selectListViewStatic(view)(replaceTypo(v1)(v2)(v4.range))(Data_Maybe.Nothing.value)(Prelude["<$>"](Prelude.functorArray)(runCompletion)(v5)));
+                              });
                           });
                       });
                   });
@@ -7089,12 +7365,14 @@ var PS = { };
   };
   var caseSplit = (function () {
       var body = Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(Atom_Atom.getAtom)))(function (v) {
-          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v1) {
-              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(IdePurescript_Atom_Editor.getLinePosition(v1))))(function (v2) {
-                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(IdePurescript_Atom_Tooltips.getToken(v1)(v2.pos))))(function (v3) {
-                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(IdePurescript_Atom_PromptPanel.addPromptPanel("Parameter type")("")))(function (v4) {
-                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.caseSplit(v2.line)(Atom_Point.getColumn(Atom_Range.getStart(v3.range)))(Atom_Point.getColumn(Atom_Range.getEnd(v3.range)))(true)(v4))))(function (v5) {
-                              return Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(Prelude["void"](Control_Monad_Aff.functorAff)(liftEff$prime$prime(Atom_Editor.setTextInBufferRange(v1)(v2.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v5)))));
+          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(getPort)))(function (v1) {
+              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(Atom_Workspace.getActiveTextEditor(v.workspace))))(function (v2) {
+                  return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(liftEff$prime$prime(IdePurescript_Atom_Editor.getLinePosition(v2))))(function (v3) {
+                      return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(liftEff$prime$prime(IdePurescript_Atom_Tooltips.getToken(v2)(v3.pos))))(function (v4) {
+                          return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Maybe_Trans.MaybeT(IdePurescript_Atom_PromptPanel.addPromptPanel("Parameter type")("")))(function (v5) {
+                              return Prelude.bind(Control_Monad_Maybe_Trans.bindMaybeT(Control_Monad_Aff.monadAff))(Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.caseSplit(v1)(v3.line)(Atom_Point.getColumn(Atom_Range.getStart(v4.range)))(Atom_Point.getColumn(Atom_Range.getEnd(v4.range)))(true)(v5))))(function (v6) {
+                                  return Control_Monad_Trans.lift(Control_Monad_Maybe_Trans.monadTransMaybeT)(Control_Monad_Aff.monadAff)(Prelude["void"](Control_Monad_Aff.functorAff)(liftEff$prime$prime(Atom_Editor.setTextInBufferRange(v2)(v3.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v6)))));
+                              });
                           });
                       });
                   });
@@ -7106,99 +7384,21 @@ var PS = { };
   var addClause = function __do() {
       var v = Atom_Atom.getAtom();
       var v1 = Atom_Workspace.getActiveTextEditor(v.workspace)();
-      if (v1 instanceof Data_Maybe.Just) {
-          return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(IdePurescript_Atom_Editor.getLinePosition(v1.value0)))(function (v2) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.addClause(v2.line)(true)))(function (v3) {
-                  return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(v1.value0)(v2.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v3)));
+      var v2 = getPort();
+      if (v1 instanceof Data_Maybe.Just && v2 instanceof Data_Maybe.Just) {
+          return launchAffAndRaise(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(IdePurescript_Atom_Editor.getLinePosition(v1.value0)))(function (v3) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.eitherToErr(PscIde_1.addClause(v2.value0)(v3.line)(true)))(function (v4) {
+                  return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Editor.setTextInBufferRange(v1.value0)(v3.range)(Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\n")(v4)));
               });
           }))();
       };
-      if (v1 instanceof Data_Maybe.Nothing) {
-          return Prelude.unit;
-      };
-      throw new Error("Failed pattern match at IdePurescript.Atom.Assist line 69, column 3 - line 77, column 1: " + [ v1.constructor.name ]);
+      return Prelude.unit;
   };
   exports["fixTypo"] = fixTypo;
   exports["addClause"] = addClause;
   exports["caseSplit"] = caseSplit;;
  
 })(PS["IdePurescript.Atom.Assist"] = PS["IdePurescript.Atom.Assist"] || {});
-(function(exports) {
-  // Generated by psc version 0.8.3.0
-  "use strict";
-  var Prelude = PS["Prelude"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Argonaut_Core = PS["Data.Argonaut.Core"];
-  var Data_Argonaut_Combinators = PS["Data.Argonaut.Combinators"];
-  var Data_Argonaut_Parser = PS["Data.Argonaut.Parser"];
-  var Data_Traversable = PS["Data.Traversable"];
-  var Control_Bind = PS["Control.Bind"];
-  var Data_Argonaut_Decode = PS["Data.Argonaut.Decode"];        
-  var parseSuggestion = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
-      return Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("replacement");
-  });
-  var parsePosition = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
-      return Prelude.map(Data_Either.functorEither)(Data_Maybe.Just.create)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
-          return function (v1) {
-              return function (v2) {
-                  return function (v3) {
-                      return {
-                          startLine: v, 
-                          startColumn: v1, 
-                          endLine: v2, 
-                          endColumn: v3
-                      };
-                  };
-              };
-          };
-      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startColumn")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endColumn")));
-  });
-  var parsePscError = function (obj) {
-      return Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
-          return function (v1) {
-              return function (v2) {
-                  return function (v3) {
-                      return function (v4) {
-                          return function (v5) {
-                              return function (v6) {
-                                  return {
-                                      moduleName: v, 
-                                      errorCode: v1, 
-                                      message: v2, 
-                                      filename: v3, 
-                                      position: v4, 
-                                      errorLink: v5, 
-                                      suggestion: v6
-                                  };
-                              };
-                          };
-                      };
-                  };
-              };
-          };
-      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("moduleName")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorCode")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("message")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("filename")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("position"))(parsePosition)))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorLink")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("suggestion"))(parseSuggestion));
-  };
-  var parsePscResult = function (obj) {
-      return Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
-          return function (v1) {
-              return {
-                  warnings: v, 
-                  errors: v1
-              };
-          };
-      })(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("warnings"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError))))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("errors"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError)));
-  };
-  var parsePscOutput = Control_Bind["<=<"](Data_Either.bindEither)(function ($13) {
-      return Data_Maybe.maybe(new Data_Either.Left("not object"))(parsePscResult)(Data_Argonaut_Core.toObject($13));
-  })(Data_Argonaut_Parser.jsonParser);
-  exports["parseSuggestion"] = parseSuggestion;
-  exports["parsePosition"] = parsePosition;
-  exports["parsePscError"] = parsePscError;
-  exports["parsePscResult"] = parsePscResult;
-  exports["parsePscOutput"] = parsePscOutput;;
- 
-})(PS["IdePurescript.PscErrors"] = PS["IdePurescript.PscErrors"] || {});
 (function(exports) {
   "use strict";
 
@@ -7536,20 +7736,119 @@ var PS = { };
 (function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
+  var Prelude = PS["Prelude"];
+  var Control_Alt = PS["Control.Alt"];
+  var Control_Bind = PS["Control.Bind"];
+  var Data_Argonaut = PS["Data.Argonaut"];
+  var Data_Argonaut_Combinators = PS["Data.Argonaut.Combinators"];
+  var Data_Argonaut_Core = PS["Data.Argonaut.Core"];
+  var Data_Argonaut_Parser = PS["Data.Argonaut.Parser"];
+  var Data_Array = PS["Data.Array"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var Data_Argonaut_Decode = PS["Data.Argonaut.Decode"];        
+  var PscError = function (x) {
+      return x;
+  };
+  var RebuildResult = function (x) {
+      return x;
+  };
+  var parseSuggestion = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
+      return Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("replacement");
+  });
+  var parsePosition = Data_Maybe.maybe(Prelude.pure(Data_Either.applicativeEither)(Data_Maybe.Nothing.value))(function (obj) {
+      return Prelude.map(Data_Either.functorEither)(Data_Maybe.Just.create)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
+          return function (v1) {
+              return function (v2) {
+                  return function (v3) {
+                      return {
+                          startLine: v, 
+                          startColumn: v1, 
+                          endLine: v2, 
+                          endColumn: v3
+                      };
+                  };
+              };
+          };
+      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("startColumn")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endLine")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonInt)(obj)("endColumn")));
+  });
+  var parsePscError = function (obj) {
+      return Prelude["<$>"](Data_Either.functorEither)(PscError)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
+          return function (v1) {
+              return function (v2) {
+                  return function (v3) {
+                      return function (v4) {
+                          return function (v5) {
+                              return function (v6) {
+                                  return {
+                                      moduleName: v, 
+                                      errorCode: v1, 
+                                      message: v2, 
+                                      filename: v3, 
+                                      position: v4, 
+                                      errorLink: v5, 
+                                      suggestion: v6
+                                  };
+                              };
+                          };
+                      };
+                  };
+              };
+          };
+      })(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("moduleName")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorCode")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("message")))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeJsonString))(obj)("filename")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("position"))(parsePosition)))(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonString)(obj)("errorLink")))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeJsonMaybe(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("suggestion"))(parseSuggestion)));
+  };
+  var parsePscResult = function (obj) {
+      return Prelude["<*>"](Data_Either.applyEither)(Prelude["<$>"](Data_Either.functorEither)(function (v) {
+          return function (v1) {
+              return {
+                  warnings: v, 
+                  errors: v1
+              };
+          };
+      })(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("warnings"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError))))(Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Combinators[".?"](Data_Argonaut_Decode.decodeArray(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson)))(obj)("errors"))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Either.applicativeEither)(parsePscError)));
+  };
+  var parsePscOutput = Control_Bind["<=<"](Data_Either.bindEither)(function ($13) {
+      return Data_Maybe.maybe(new Data_Either.Left("not object"))(parsePscResult)(Data_Argonaut_Core.toObject($13));
+  })(Data_Argonaut_Parser.jsonParser);
+  var decodeJsonPscError = new Data_Argonaut_Decode.DecodeJson(function (json) {
+      return Prelude[">>="](Data_Either.bindEither)(Data_Argonaut_Decode.decodeJson(Data_Argonaut_Decode.decodeStrMap(Data_Argonaut_Decode.decodeJsonJson))(json))(parsePscError);
+  });
+  var decodeRebuildResult = new Data_Argonaut_Decode.DecodeJson(function (json) {
+      return Prelude["<$>"](Data_Either.functorEither)(RebuildResult)(Control_Alt["<|>"](Data_Either.altEither)(Data_Argonaut_Decode.decodeJson(Data_Argonaut_Decode.decodeArray(decodeJsonPscError))(json))(Prelude["<$>"](Data_Either.functorEither)(Data_Array.singleton)(Data_Argonaut_Decode.decodeJson(decodeJsonPscError)(json))));
+  });
+  exports["PscError"] = PscError;
+  exports["RebuildResult"] = RebuildResult;
+  exports["parseSuggestion"] = parseSuggestion;
+  exports["parsePosition"] = parsePosition;
+  exports["parsePscError"] = parsePscError;
+  exports["parsePscResult"] = parsePscResult;
+  exports["parsePscOutput"] = parsePscOutput;
+  exports["decodeRebuildResult"] = decodeRebuildResult;
+  exports["decodeJsonPscError"] = decodeJsonPscError;;
+ 
+})(PS["IdePurescript.PscErrors"] = PS["IdePurescript.PscErrors"] || {});
+(function(exports) {
+  // Generated by psc version 0.8.3.0
+  "use strict";
+  var Node_ChildProcess = PS["Node.ChildProcess"];
+  var Node_Stream = PS["Node.Stream"];
+  var PscIde_1 = PS["PscIde"];
+  var PscIde_Command = PS["PscIde.Command"];
   var Control_Monad_Aff = PS["Control.Monad.Aff"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
   var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
   var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var Control_Monad_Error_Class = PS["Control.Monad.Error.Class"];
   var Data_Either = PS["Data.Either"];
   var Data_Foldable = PS["Data.Foldable"];
   var Data_Maybe = PS["Data.Maybe"];
   var Data_String = PS["Data.String"];
   var IdePurescript_PscErrors = PS["IdePurescript.PscErrors"];
-  var Node_ChildProcess = PS["Node.ChildProcess"];
   var Node_Encoding = PS["Node.Encoding"];
-  var Node_Stream = PS["Node.Stream"];
   var Prelude = PS["Prelude"];
+  var PscIde_1 = PS["PscIde"];
   var Control_Monad_Eff_Unsafe = PS["Control.Monad.Eff.Unsafe"];        
   var Command = (function () {
       function Command(value0, value1) {
@@ -7563,22 +7862,55 @@ var PS = { };
       };
       return Command;
   })();
+  var rebuild = function (port) {
+      return function (file) {
+          var rebuild$prime = function (port1) {
+              return function (file1) {
+                  return PscIde_1.sendCommandR(PscIde_Command.encodeCommand)(IdePurescript_PscErrors.decodeRebuildResult)(IdePurescript_PscErrors.decodeRebuildResult)(port1)(new PscIde_Command.RebuildCmd(file1));
+              };
+          };
+          var onResult = Data_Either.either(function (v) {
+              return {
+                  errors: {
+                      errors: v, 
+                      warnings: [  ]
+                  }, 
+                  success: false
+              };
+          })(function (v) {
+              return {
+                  errors: {
+                      errors: [  ], 
+                      warnings: v
+                  }, 
+                  success: true
+              };
+          });
+          return Prelude.bind(Control_Monad_Aff.bindAff)(rebuild$prime(port)(file))(function (v) {
+              return Data_Either.either(function ($27) {
+                  return Control_Monad_Error_Class.throwError(Control_Monad_Aff.monadErrorAff)(Control_Monad_Eff_Exception.error($27));
+              })(function ($28) {
+                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(onResult($28));
+              })(v);
+          });
+      };
+  };
   var build = function (v) {
       return Control_Monad_Aff.makeAff(function (err) {
           return function (succ) {
               return function __do() {
                   var v1 = Node_ChildProcess.spawn(v.command.value0)(v.command.value1)((function () {
-                      var $5 = {};
-                      for (var $6 in Node_ChildProcess.defaultSpawnOptions) {
-                          if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($6)) {
-                              $5[$6] = Node_ChildProcess.defaultSpawnOptions[$6];
+                      var $11 = {};
+                      for (var $12 in Node_ChildProcess.defaultSpawnOptions) {
+                          if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($12)) {
+                              $11[$12] = Node_ChildProcess.defaultSpawnOptions[$12];
                           };
                       };
-                      $5.cwd = new Data_Maybe.Just(v.directory);
-                      return $5;
+                      $11.cwd = new Data_Maybe.Just(v.directory);
+                      return $11;
                   })())();
-                  Node_ChildProcess.onError(v1)(function ($21) {
-                      return err(Node_ChildProcess.toStandardError($21));
+                  Node_ChildProcess.onError(v1)(function ($29) {
+                      return err(Node_ChildProcess.toStandardError($29));
                   })();
                   var stderr = Node_ChildProcess.stderr(v1);
                   var v2 = Control_Monad_Eff_Ref.newRef("")();
@@ -7596,20 +7928,20 @@ var PS = { };
                               var json = Data_Foldable.find(Data_Foldable.foldableArray)(function (s) {
                                   return Prelude["=="](Data_Maybe.eqMaybe(Prelude.eqInt))(Data_String.indexOf("{\"")(s))(new Data_Maybe.Just(0));
                               })(lines);
-                              var $11 = Prelude["<$>"](Data_Maybe.functorMaybe)(IdePurescript_PscErrors.parsePscOutput)(json);
-                              if ($11 instanceof Data_Maybe.Just && $11.value0 instanceof Data_Either.Left) {
-                                  return err(Control_Monad_Eff_Exception.error($11.value0.value0))();
+                              var $17 = Prelude["<$>"](Data_Maybe.functorMaybe)(IdePurescript_PscErrors.parsePscOutput)(json);
+                              if ($17 instanceof Data_Maybe.Just && $17.value0 instanceof Data_Either.Left) {
+                                  return err(Control_Monad_Eff_Exception.error($17.value0.value0))();
                               };
-                              if ($11 instanceof Data_Maybe.Just && $11.value0 instanceof Data_Either.Right) {
+                              if ($17 instanceof Data_Maybe.Just && $17.value0 instanceof Data_Either.Right) {
                                   return succ({
-                                      errors: $11.value0.value0, 
+                                      errors: $17.value0.value0, 
                                       success: exit.value0 === 0
                                   })();
                               };
-                              if ($11 instanceof Data_Maybe.Nothing) {
+                              if ($17 instanceof Data_Maybe.Nothing) {
                                   return err(Control_Monad_Eff_Exception.error("Didn't find JSON output"))();
                               };
-                              throw new Error("Failed pattern match at IdePurescript.Build line 50, column 7 - line 54, column 5: " + [ $11.constructor.name ]);
+                              throw new Error("Failed pattern match at IdePurescript.Build line 54, column 7 - line 58, column 5: " + [ $17.constructor.name ]);
                           };
                       };
                       return err(Control_Monad_Eff_Exception.error("Process exited abnormally"));
@@ -7619,17 +7951,18 @@ var PS = { };
       });
   };
   exports["Command"] = Command;
+  exports["rebuild"] = rebuild;
   exports["build"] = build;;
  
 })(PS["IdePurescript.Build"] = PS["IdePurescript.Build"] || {});
 (function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
+  var Prelude = PS["Prelude"];
   var Control_Monad_Aff = PS["Control.Monad.Aff"];
   var Data_Maybe = PS["Data.Maybe"];
   var IdePurescript_Build = PS["IdePurescript.Build"];
-  var IdePurescript_PscErrors = PS["IdePurescript.PscErrors"];
-  var Prelude = PS["Prelude"];        
+  var IdePurescript_PscErrors = PS["IdePurescript.PscErrors"];        
   var Errors = (function () {
       function Errors() {
 
@@ -7651,65 +7984,67 @@ var PS = { };
       if (v instanceof Success) {
           return "success";
       };
-      throw new Error("Failed pattern match at IdePurescript.Atom.Build line 30, column 1 - line 31, column 1: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at IdePurescript.Atom.Build line 29, column 1 - line 30, column 1: " + [ v.constructor.name ]);
   };
-  var linterBuild = function (v) {
-      var range = function (v1) {
-          if (v1 instanceof Data_Maybe.Nothing) {
+  var toLintResult = function (res) {
+      var range = function (v) {
+          if (v instanceof Data_Maybe.Nothing) {
               return [  ];
           };
-          if (v1 instanceof Data_Maybe.Just) {
-              return [ [ v1.value0.startLine - 1, v1.value0.startColumn - 1 ], [ v1.value0.endLine - 1, v1.value0.endColumn - 1 ] ];
+          if (v instanceof Data_Maybe.Just) {
+              return [ [ v.value0.startLine - 1, v.value0.startColumn - 1 ], [ v.value0.endLine - 1, v.value0.endColumn - 1 ] ];
           };
-          throw new Error("Failed pattern match at IdePurescript.Atom.Build line 49, column 3 - line 50, column 3: " + [ v1.constructor.name ]);
+          throw new Error("Failed pattern match at IdePurescript.Atom.Build line 51, column 3 - line 52, column 3: " + [ v.constructor.name ]);
       };
       var result = function (errorType) {
-          return function (v1) {
+          return function (v) {
               return {
                   type: errorType, 
-                  text: v1.message, 
+                  text: v.message, 
                   suggestion: Data_Maybe.maybe({
                       replacement: "", 
                       hasSuggestion: false
-                  })(function (v2) {
+                  })(function (v1) {
                       return {
-                          replacement: v2, 
+                          replacement: v1, 
                           hasSuggestion: true
                       };
-                  })(v1.suggestion), 
-                  filePath: Data_Maybe.fromMaybe("")(v1.filename), 
-                  range: range(v1.position), 
+                  })(v.suggestion), 
+                  filePath: Data_Maybe.fromMaybe("")(v.filename), 
+                  range: range(v.position), 
                   multiline: true, 
-                  errorCode: v1.errorCode, 
+                  errorCode: v.errorCode, 
                   trace: [ {
                       type: "Link", 
-                      html: "<a href=\"" + (v1.errorLink + "\">More info (wiki)</a>")
+                      html: "<a href=\"" + (v.errorLink + "\">More info (wiki)</a>")
                   } ]
               };
           };
       };
-      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Build.build({
+      var warnings = Prelude["<$>"](Prelude.functorArray)(result("Warning"))(res.errors.warnings);
+      var errors = Prelude["<$>"](Prelude.functorArray)(result("Error"))(res.errors.errors);
+      return {
+          messages: Prelude["++"](Prelude.semigroupArray)(errors)(warnings), 
+          result: resultToString((function () {
+              if (res.success) {
+                  return Success.value;
+              };
+              if (!res.success) {
+                  return Errors.value;
+              };
+              throw new Error("Failed pattern match at IdePurescript.Atom.Build line 47, column 13 - line 48, column 3: " + [ res.success.constructor.name ]);
+          })())
+      };
+  };
+  var linterBuild = function (v) {
+      return IdePurescript_Build.build({
           command: new IdePurescript_Build.Command(v.command, v.args), 
           directory: v.directory
-      }))(function (v1) {
-          var warnings = Prelude["<$>"](Prelude.functorArray)(result("Warning"))(v1.errors.warnings);
-          var errors = Prelude["<$>"](Prelude.functorArray)(result("Error"))(v1.errors.errors);
-          return Prelude.pure(Control_Monad_Aff.applicativeAff)({
-              messages: Prelude["++"](Prelude.semigroupArray)(errors)(warnings), 
-              result: resultToString((function () {
-                  if (v1.success) {
-                      return Success.value;
-                  };
-                  if (!v1.success) {
-                      return Errors.value;
-                  };
-                  throw new Error("Failed pattern match at IdePurescript.Atom.Build line 45, column 13 - line 46, column 3: " + [ v1.success.constructor.name ]);
-              })())
-          });
       });
   };
   exports["Errors"] = Errors;
   exports["Success"] = Success;
+  exports["toLintResult"] = toLintResult;
   exports["linterBuild"] = linterBuild;
   exports["resultToString"] = resultToString;;
  
@@ -7954,18 +8289,28 @@ var PS = { };
   "use strict";
   var Prelude = PS["Prelude"];
   var Node_Process = PS["Node.Process"];
+  var Atom_Atom = PS["Atom.Atom"];
+  var Atom_Config = PS["Atom.Config"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Foreign = PS["Data.Foreign"];
   var Node_Platform = PS["Node.Platform"];        
   var pulpCmd = (function () {
-      var $0 = Prelude["=="](Node_Platform.eqPlatform)(Node_Process.platform)(Node_Platform.Win32.value);
-      if ($0) {
+      var $2 = Prelude["=="](Node_Platform.eqPlatform)(Node_Process.platform)(Node_Platform.Win32.value);
+      if ($2) {
           return "pulp.cmd";
       };
-      if (!$0) {
+      if (!$2) {
           return "pulp";
       };
-      throw new Error("Failed pattern match at IdePurescript.Atom.Config line 8, column 11 - line 10, column 1: " + [ $0.constructor.name ]);
+      throw new Error("Failed pattern match at IdePurescript.Atom.Config line 13, column 11 - line 15, column 1: " + [ $2.constructor.name ]);
   })();
-  var config = {
+  var getPscIdePort = function __do() {
+      var v = Atom_Atom.getAtom();
+      var v1 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readInt)(Atom_Config.getConfig(v.config)("ide-purescript.pscIdePort"))();
+      return Data_Either.either(Prelude["const"](4242))(Prelude.id(Prelude.categoryFn))(v1);
+  };
+  var config = Data_Foreign.toForeign({
       pscIdePort: {
           title: "psc-ide port number", 
           description: "The port to use to communicate with `psc-ide-server`, also to launch the server with if required. " + "The default port is 4242 and this only need be changed if you've explicitly chosen to use another port.", 
@@ -7979,16 +8324,22 @@ var PS = { };
           "default": "psc-ide-server"
       }, 
       buildCommand: {
-          title: "build command", 
+          title: "Build command", 
           description: "Command line to build the project. " + ("Could be pulp (default), psc or a gulpfile, so long as it passes through errors from psc. " + ("Should output json errors (`--json-errors` flag). " + ("This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path." + "See [examples on the README](https://github.com/nwolverson/atom-ide-purescript/#build-configuration-hints)"))), 
           type: "string", 
           "default": pulpCmd + " build --no-psa --json-errors"
       }, 
       buildOnSave: {
-          title: "build on save", 
+          title: "Build on save", 
           description: "Build automatically on save. Enables in-line and collected errors. Otherwise a build command is available to be invoked manually.", 
           type: "boolean", 
           "default": true
+      }, 
+      fastRebuild: {
+          title: "Use fast rebuild", 
+          description: "Use psc-ide-server rebuild function to build the current file only on save", 
+          type: "boolean", 
+          "default": false
       }, 
       psciCommand: {
           title: "psci command (eg 'psci' or 'pulp psci' or full path)", 
@@ -8013,7 +8364,8 @@ var PS = { };
               }
           }
       }
-  };
+  });
+  exports["getPscIdePort"] = getPscIdePort;
   exports["config"] = config;;
  
 })(PS["IdePurescript.Atom.Config"] = PS["IdePurescript.Atom.Config"] || {});
@@ -8183,84 +8535,107 @@ var PS = { };
   var Data_Traversable = PS["Data.Traversable"];
   var IdePurescript_Atom_Build = PS["IdePurescript.Atom.Build"];
   var IdePurescript_Atom_BuildStatus = PS["IdePurescript.Atom.BuildStatus"];
+  var IdePurescript_Atom_Config = PS["IdePurescript.Atom.Config"];
   var IdePurescript_Atom_Hooks_Linter = PS["IdePurescript.Atom.Hooks.Linter"];
+  var IdePurescript_Build = PS["IdePurescript.Build"];
   var Node_ChildProcess = PS["Node.ChildProcess"];
   var Node_FS = PS["Node.FS"];
-  var Node_FS_Sync = PS["Node.FS.Sync"];        
-  var lint = function (config) {
-      return function (projdir) {
-          return function (linter) {
-              return function (statusElt) {
-                  var status = function (s) {
-                      return function (msg) {
+  var Node_FS_Sync = PS["Node.FS.Sync"];
+  var PscIde = PS["PscIde"];        
+  var lint = function (file) {
+      return function (config) {
+          return function (projdir) {
+              return function (linter) {
+                  return function (statusElt) {
+                      var status = function (s) {
+                          return function (msg) {
+                              return function __do() {
+                                  IdePurescript_Atom_BuildStatus.updateBuildStatus(statusElt)(s)();
+                                  return (function () {
+                                      var $14 = Prelude["=="](IdePurescript_Atom_BuildStatus.eqBuildStatus)(s)(IdePurescript_Atom_BuildStatus.Failure.value);
+                                      if ($14) {
+                                          return Control_Monad_Eff_Console.error;
+                                      };
+                                      if (!$14) {
+                                          return Control_Monad_Eff_Console.log;
+                                      };
+                                      throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 126, column 8 - line 126, column 43: " + [ $14.constructor.name ]);
+                                  })()("PureScript build status: " + (Prelude.show(IdePurescript_Atom_BuildStatus.showBuildStatus)(s) + Data_Maybe.maybe("")(function (v) {
+                                      return ": " + v;
+                                  })(msg)))();
+                              };
+                          };
+                      };
+                      var liftEffA = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
+                      var failure = function (s) {
                           return function __do() {
-                              IdePurescript_Atom_BuildStatus.updateBuildStatus(statusElt)(s)();
-                              return (function () {
-                                  var $12 = Prelude["=="](IdePurescript_Atom_BuildStatus.eqBuildStatus)(s)(IdePurescript_Atom_BuildStatus.Failure.value);
-                                  if ($12) {
-                                      return Control_Monad_Eff_Console.error;
-                                  };
-                                  if (!$12) {
-                                      return Control_Monad_Eff_Console.log;
-                                  };
-                                  throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 110, column 6 - line 110, column 41: " + [ $12.constructor.name ]);
-                              })()("PureScript build status: " + (Prelude.show(IdePurescript_Atom_BuildStatus.showBuildStatus)(s) + Data_Maybe.maybe("")(function (v) {
-                                  return ": " + v;
-                              })(msg)))();
+                              var v = Atom_Atom.getAtom();
+                              status(IdePurescript_Atom_BuildStatus.Failure.value)(new Data_Maybe.Just(s))();
+                              return Atom_NotificationManager.addError(v.notifications)(s)();
                           };
                       };
-                  };
-                  var liftEffA = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
-                  var failure = function (s) {
-                      return function __do() {
-                          var v = Atom_Atom.getAtom();
-                          status(IdePurescript_Atom_BuildStatus.Failure.value)(new Data_Maybe.Just(s))();
-                          return Atom_NotificationManager.addError(v.notifications)(s)();
-                      };
-                  };
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Atom.getAtom))(function (v) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Config.getConfig(config)("ide-purescript.buildCommand")))(function (v1) {
-                          var buildCommand = Data_Either.either(Prelude["const"]([  ]))(function ($38) {
-                              return Data_String_Regex.split(Data_String_Regex.regex("\\s+")(Data_String_Regex.noFlags))(Data_String.trim($38));
-                          })(Data_Foreign.readString(v1));
-                          var $16 = Data_Array.uncons(buildCommand);
-                          if ($16 instanceof Data_Maybe.Just) {
-                              return Control_Monad_Error_Class.catchError(Control_Monad_Aff.monadErrorAff)(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(status(IdePurescript_Atom_BuildStatus.Building.value)(Data_Maybe.Nothing.value)))(function () {
-                                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_Build.linterBuild({
-                                      command: $16.value0.head, 
-                                      args: $16.value0.tail, 
-                                      directory: projdir
-                                  }))(function (v2) {
-                                      return liftEffA(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.Just.create)(function __do() {
-                                          IdePurescript_Atom_Hooks_Linter.deleteMessages(linter)();
-                                          IdePurescript_Atom_Hooks_Linter.setMessages(linter)(v2.messages)();
-                                          status((function () {
-                                              var $19 = v2.result === "success";
-                                              if ($19) {
-                                                  return IdePurescript_Atom_BuildStatus.Success.value;
-                                              };
-                                              if (!$19) {
-                                                  return IdePurescript_Atom_BuildStatus.Errors.value;
-                                              };
-                                              throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 91, column 21 - line 91, column 68: " + [ $19.constructor.name ]);
-                                          })())(Data_Maybe.Nothing.value)();
-                                          return v2.messages;
-                                      }));
-                                  });
-                              }))(function (v2) {
-                                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error running PureScript build command: " + Prelude.show(Control_Monad_Eff_Exception.showError)(v2))))(function () {
-                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
-                                  });
+                      var doBuild = function (buildCmd) {
+                          return Control_Monad_Error_Class.catchError(Control_Monad_Aff.monadErrorAff)(Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(status(IdePurescript_Atom_BuildStatus.Building.value)(Data_Maybe.Nothing.value)))(function () {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(Prelude["<$>"](Control_Monad_Aff.functorAff)(IdePurescript_Atom_Build.toLintResult)(buildCmd))(function (v) {
+                                  return liftEffA(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.Just.create)(function __do() {
+                                      IdePurescript_Atom_Hooks_Linter.deleteMessages(linter)();
+                                      IdePurescript_Atom_Hooks_Linter.setMessages(linter)(v.messages)();
+                                      status((function () {
+                                          var $18 = v.result === "success";
+                                          if ($18) {
+                                              return IdePurescript_Atom_BuildStatus.Success.value;
+                                          };
+                                          if (!$18) {
+                                              return IdePurescript_Atom_BuildStatus.Errors.value;
+                                          };
+                                          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 111, column 21 - line 111, column 68: " + [ $18.constructor.name ]);
+                                      })())(Data_Maybe.Nothing.value)();
+                                      return v.messages;
+                                  }));
                               });
-                          };
-                          if ($16 instanceof Data_Maybe.Nothing) {
-                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error parsing PureScript build command")))(function () {
+                          }))(function (v) {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error running PureScript build command: " + Prelude.show(Control_Monad_Eff_Exception.showError)(v))))(function () {
                                   return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
                               });
-                          };
-                          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 82, column 3 - line 99, column 3: " + [ $16.constructor.name ]);
+                          });
+                      };
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Atom.getAtom))(function (v) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Atom_Config.getConfig(config)("ide-purescript.buildCommand")))(function (v1) {
+                              var buildCommand = Data_Either.either(Prelude["const"]([  ]))(function ($48) {
+                                  return Data_String_Regex.split(Data_String_Regex.regex("\\s+")(Data_String_Regex.noFlags))(Data_String.trim($48));
+                              })(Data_Foreign.readString(v1));
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(IdePurescript_Atom_Config.getPscIdePort))(function (v2) {
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readBoolean)(Atom_Config.getConfig(config)("ide-purescript.fastRebuild"))))(function (v3) {
+                                      var fastBuild = (function () {
+                                          if (v3 instanceof Data_Either.Right && (v3.value0 && file instanceof Data_Maybe.Just)) {
+                                              return Data_Maybe.Just.create(IdePurescript_Build.rebuild(v2)(file.value0));
+                                          };
+                                          return Data_Maybe.Nothing.value;
+                                      })();
+                                      return Prelude.bind(Control_Monad_Aff.bindAff)(Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit))(function () {
+                                          var $31 = Data_Array.uncons(buildCommand);
+                                          if (fastBuild instanceof Data_Maybe.Just) {
+                                              return doBuild(fastBuild.value0);
+                                          };
+                                          if ($31 instanceof Data_Maybe.Just) {
+                                              return doBuild(IdePurescript_Atom_Build.linterBuild({
+                                                  command: $31.value0.head, 
+                                                  args: $31.value0.tail, 
+                                                  directory: projdir
+                                              }));
+                                          };
+                                          if ($31 instanceof Data_Maybe.Nothing) {
+                                              return Prelude.bind(Control_Monad_Aff.bindAff)(liftEffA(failure("Error parsing PureScript build command")))(function () {
+                                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(Data_Maybe.Nothing.value);
+                                              });
+                                          };
+                                          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 94, column 3 - line 100, column 3: " + [ fastBuild.constructor.name, $31.constructor.name ]);
+                                      });
+                                  });
+                              });
+                          });
                       });
-                  });
+                  };
               };
           };
       };
@@ -8273,11 +8648,11 @@ var PS = { };
       var getRoot = function (path) {
           var src = Node_Path.concat([ path, "src" ]);
           var parent = getParent(path);
-          var $26 = path === "" || path === parent;
-          if ($26) {
+          var $36 = path === "" || path === parent;
+          if ($36) {
               return Prelude.pure(Control_Monad_Eff.applicativeEff)(Data_Maybe.Nothing.value);
           };
-          if (!$26) {
+          if (!$36) {
               return function __do() {
                   var v = Node_FS_Sync.exists(src)();
                   if (v) {
@@ -8286,36 +8661,49 @@ var PS = { };
                   if (!v) {
                       return getRoot(parent)();
                   };
-                  throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 69, column 7 - line 71, column 3: " + [ v.constructor.name ]);
+                  throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 72, column 7 - line 74, column 3: " + [ v.constructor.name ]);
               };
           };
-          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 65, column 5 - line 71, column 3: " + [ $26.constructor.name ]);
+          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 68, column 5 - line 74, column 3: " + [ $36.constructor.name ]);
       };
       return function __do() {
           var v = Atom_Atom.getAtom();
           var v1 = Atom_Project.getPaths(v.project)();
           var v2 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Array.catMaybes)(Data_Traversable.traverse(Data_Traversable.traversableArray)(Control_Monad_Eff.applicativeEff)(getRoot)(v1))();
           var v3 = Data_Array.filterM(Control_Monad_Eff.monadEff)(validDir)(v2)();
-          var $33 = Data_Array.uncons(v3);
-          if ($33 instanceof Data_Maybe.Nothing) {
+          var $43 = Data_Array.uncons(v3);
+          if ($43 instanceof Data_Maybe.Nothing) {
               Atom_NotificationManager.addWarning(v.notifications)("Doesn't look like a purescript project - didn't find any src dir")();
               return Data_Maybe.Nothing.value;
           };
-          if ($33 instanceof Data_Maybe.Just) {
-              Control_Monad.when(Control_Monad_Eff.monadEff)(!Data_Array["null"]($33.value0.tail))(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots, using first: " + $33.value0.head))();
-              Control_Monad.when(Control_Monad_Eff.monadEff)(Data_Array["null"]($33.value0.tail) && Data_Array.length(v2) > 1)(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots but only 1 looks valid: " + $33.value0.head))();
-              var output = Node_Path.concat([ $33.value0.head, "output" ]);
+          if ($43 instanceof Data_Maybe.Just) {
+              Control_Monad.when(Control_Monad_Eff.monadEff)(!Data_Array["null"]($43.value0.tail))(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots, using first: " + $43.value0.head))();
+              Control_Monad.when(Control_Monad_Eff.monadEff)(Data_Array["null"]($43.value0.tail) && Data_Array.length(v2) > 1)(Atom_NotificationManager.addWarning(v.notifications)("Multiple project roots but only 1 looks valid: " + $43.value0.head))();
+              var output = Node_Path.concat([ $43.value0.head, "output" ]);
               var v4 = Node_FS_Sync.exists(output)();
               Control_Monad.when(Control_Monad_Eff.monadEff)(!v4)(Atom_NotificationManager.addWarning(v.notifications)("Doesn't look like a project has been built - didn't find: " + output))();
-              return new Data_Maybe.Just($33.value0.head);
+              return new Data_Maybe.Just($43.value0.head);
           };
-          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 39, column 3 - line 50, column 3: " + [ $33.constructor.name ]);
+          throw new Error("Failed pattern match at IdePurescript.Atom.LinterBuild line 42, column 3 - line 53, column 3: " + [ $43.constructor.name ]);
       };
   })();
   exports["lint"] = lint;
   exports["getProjectRoot"] = getProjectRoot;;
  
 })(PS["IdePurescript.Atom.LinterBuild"] = PS["IdePurescript.Atom.LinterBuild"] || {});
+(function(exports) {
+   
+
+  exports.getModel = function(element) {
+    return function() {
+      if (typeof element.getModel === "function") {
+        return element.getModel();
+      }
+      return null;
+    }
+  }
+ 
+})(PS["IdePurescript.Atom.Psci"] = PS["IdePurescript.Atom.Psci"] || {});
 (function(exports) {
   // Generated by psc version 0.8.3.0
   "use strict";
@@ -8328,6 +8716,7 @@ var PS = { };
   var Atom_Grammar = PS["Atom.Grammar"];
   var Atom_GrammarRegistry = PS["Atom.GrammarRegistry"];
   var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_Pane = PS["Atom.Pane"];
   var Atom_Point = PS["Atom.Point"];
   var Atom_Project = PS["Atom.Project"];
   var Atom_Range = PS["Atom.Range"];
@@ -8338,10 +8727,21 @@ var PS = { };
   var Control_Monad_Eff_Console = PS["Control.Monad.Eff.Console"];
   var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
   var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var DOM = PS["DOM"];
+  var DOM_HTML = PS["DOM.HTML"];
+  var DOM_HTML_Types = PS["DOM.HTML.Types"];
+  var DOM_HTML_Window = PS["DOM.HTML.Window"];
+  var DOM_Node_Document = PS["DOM.Node.Document"];
+  var DOM_Node_Element = PS["DOM.Node.Element"];
+  var DOM_Node_Node = PS["DOM.Node.Node"];
+  var DOM_Node_ParentNode = PS["DOM.Node.ParentNode"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
+  var DOM_Util = PS["DOM.Util"];
   var Data_Array = PS["Data.Array"];
   var Data_Either = PS["Data.Either"];
   var Data_Foreign = PS["Data.Foreign"];
   var Data_Maybe = PS["Data.Maybe"];
+  var Data_Nullable = PS["Data.Nullable"];
   var Data_String = PS["Data.String"];
   var Data_String_Regex = PS["Data.String.Regex"];
   var IdePurescript_Atom_Imports = PS["IdePurescript.Atom.Imports"];
@@ -8349,20 +8749,106 @@ var PS = { };
   var Node_ChildProcess = PS["Node.ChildProcess"];
   var Node_Encoding = PS["Node.Encoding"];
   var Node_FS = PS["Node.FS"];
-  var Node_Stream = PS["Node.Stream"];        
-  var sendText = function (editor) {
+  var Node_Stream = PS["Node.Stream"];
+  var Unsafe_Coerce = PS["Unsafe.Coerce"];        
+  var paneUri = "purescript://psci";
+  var createElement$prime = function (elt) {
+      return function __do() {
+          var v = Prelude["<$>"](Control_Monad_Eff.functorEff)(DOM_HTML_Types.htmlDocumentToDocument)(Prelude[">>="](Control_Monad_Eff.bindEff)(DOM_HTML.window)(DOM_HTML_Window.document))();
+          return DOM_Node_Document.createElement(elt)(v)();
+      };
+  };
+  var opener = function (s) {
+      var $38 = Data_String.indexOf(paneUri)(s);
+      if ($38 instanceof Data_Maybe.Just && $38.value0 === 0) {
+          return function __do() {
+              var v = createElement$prime("div")();
+              DOM_Node_Element.setClassName("psci-pane")(v)();
+              var v1 = createElement$prime("div")();
+              DOM_Node_Element.setClassName("psci-lines")(v1)();
+              DOM_Node_Node.appendChild(DOM_Node_Types.elementToNode(v1))(DOM_Node_Types.elementToNode(v))();
+              var v2 = createElement$prime("div")();
+              DOM_Node_Element.setClassName("psci-input padded inset-panel")(v2)();
+              var v3 = createElement$prime("atom-text-editor")();
+              DOM_Node_Element.setAttribute("mini")("true")(v3)();
+              DOM_Node_Node.appendChild(DOM_Node_Types.elementToNode(v3))(DOM_Node_Types.elementToNode(v2))();
+              DOM_Node_Node.appendChild(DOM_Node_Types.elementToNode(v2))(DOM_Node_Types.elementToNode(v))();
+              return Data_Nullable.toNullable(new Data_Maybe.Just({
+                  getTitle: function (v4) {
+                      return "PSCI";
+                  }, 
+                  element: v
+              }));
+          };
+      };
+      return Prelude.pure(Control_Monad_Eff.applicativeEff)(Data_Nullable.toNullable(Data_Maybe.Nothing.value));
+  };
+  var openPsci = Control_Monad_Aff.makeAff(function (err) {
+      return function (cb) {
+          return function __do() {
+              var v = Atom_Atom.getAtom();
+              Atom_Workspace.addOpener(v.workspace)(Unsafe_Coerce.unsafeCoerce(opener))();
+              return Atom_Workspace.open(v.workspace)(paneUri)((function () {
+                  var $46 = {};
+                  for (var $47 in Atom_Workspace.defaultOpenOptions) {
+                      if (Atom_Workspace.defaultOpenOptions.hasOwnProperty($47)) {
+                          $46[$47] = Atom_Workspace.defaultOpenOptions[$47];
+                      };
+                  };
+                  $46.split = "right";
+                  $46.activatePane = false;
+                  return $46;
+              })())(cb)(err(Control_Monad_Eff_Exception.error("Can't Open PSCI")))();
+          };
+      };
+  });
+  var clearText = function (v) {
+      var node = DOM_Node_Types.elementToNode(v.element);
+      return Control_Monad_Eff.whileE(DOM_Node_Node.hasChildNodes(node))(function __do() {
+          var v1 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Nullable.toMaybe)(DOM_Node_Node.firstChild(node))();
+          return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($104) {
+              return Prelude["void"](Control_Monad_Eff.functorEff)(Prelude.flip(DOM_Node_Node.removeChild)(node)($104));
+          })(v1)();
+      });
+  };
+  var appendText = function (v) {
+      return function (text) {
+          return function __do() {
+              var v1 = createElement$prime("div")();
+              DOM_Node_Element.setClassName("psci-line")(v1)();
+              DOM_Node_Node.setTextContent(text)(DOM_Node_Types.elementToNode(v1))();
+              var v2 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Nullable.toMaybe)(DOM_Node_ParentNode.querySelector(".psci-lines")(DOM_Node_Types.elementToParentNode(v.element)))();
+              return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function (lines$prime) {
+                  return function __do() {
+                      DOM_Node_Node.appendChild(DOM_Node_Types.elementToNode(v1))(DOM_Node_Types.elementToNode(lines$prime))();
+                      var v3 = DOM_Util.getScrollHeight(lines$prime)();
+                      return DOM_Util.setScrollTop(lines$prime)(v3)();
+                  };
+              })(v2)();
+          };
+      };
+  };
+  var sendText = function (pane) {
       return function (proc) {
           return function (text) {
               var text$prime = Data_String.trim(text) + "\n";
               return function __do() {
-                  Atom_Editor.insertText(editor)(text$prime)();
+                  appendText(pane)(text$prime)();
                   return Prelude["void"](Control_Monad_Eff.functorEff)(Node_Stream.writeString(Node_ChildProcess.stdin(proc))(Node_Encoding.UTF8.value)(text$prime)(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)))();
               };
           };
       };
   };
+  var closePsci = function (pane) {
+      return function (proc) {
+          return function __do() {
+              sendText(pane)(proc)(":q")();
+              return Node_Stream.end(Node_ChildProcess.stdin(proc))(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))();
+          };
+      };
+  };
   var sendText$prime = function (getText) {
-      return function (editor) {
+      return function (pane) {
           return function (proc) {
               return function __do() {
                   var v = Atom_Atom.getAtom();
@@ -8370,14 +8856,13 @@ var PS = { };
                   return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function (ed) {
                       return function __do() {
                           var v2 = getText(ed)();
-                          return sendText(editor)(proc)(v2)();
+                          return sendText(pane)(proc)(v2)();
                       };
                   })(v1)();
               };
           };
       };
   };
-  var sendSelection = sendText$prime(Atom_Editor.getSelectedText);
   var sendLine = sendText$prime(function (ed) {
       return function __do() {
           var v = Atom_Editor.getCursorBufferPosition(ed)();
@@ -8390,74 +8875,41 @@ var PS = { };
           return v1;
       };
   });
-  var openPsci = Control_Monad_Aff.makeAff(function (err) {
-      return function (cb) {
-          return function __do() {
-              var v = Atom_Atom.getAtom();
-              return Atom_Workspace.open(v.workspace)("PSCI")((function () {
-                  var $26 = {};
-                  for (var $27 in Atom_Workspace.defaultOpenOptions) {
-                      if (Atom_Workspace.defaultOpenOptions.hasOwnProperty($27)) {
-                          $26[$27] = Atom_Workspace.defaultOpenOptions[$27];
-                      };
-                  };
-                  $26.split = "right";
-                  $26.activatePane = false;
-                  return $26;
-              })())(cb)(err(Control_Monad_Eff_Exception.error("Can't Open PSCI")))();
-          };
-      };
-  });
-  var closePsci = function (editor) {
-      return function (proc) {
-          return function __do() {
-              sendText(editor)(proc)(":q")();
-              return Node_Stream.end(Node_ChildProcess.stdin(proc))(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))();
-          };
-      };
-  };
-  var appendText = function (editor) {
-      return function (text) {
-          return function __do() {
-              Atom_Editor.moveToBottom(editor)();
-              return Atom_Editor.insertText(editor)(text)();
-          };
-      };
-  };
-  var startRepl = function (editorRef) {
+  var sendSelection = sendText$prime(Atom_Editor.getSelectedText);
+  var startRepl = function (paneRef) {
       return function (psciRef) {
           var liftEff$prime$prime = Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff);
           return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Atom_Atom.getAtom))(function (v) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(openPsci)(function (v1) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(Unsafe_Coerce.unsafeCoerce(openPsci))(function (v1) {
                   return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(function __do() {
-                      Control_Monad_Eff_Ref.writeRef(editorRef)(new Data_Maybe.Just(v1))();
+                      Control_Monad_Eff_Ref.writeRef(paneRef)(new Data_Maybe.Just(v1))();
                       Control_Monad_Eff_Console.log("Started PSCI")();
                       var v2 = Atom_GrammarRegistry.grammarForScopeName(v.grammars)("source.purescript.psci")();
-                      return Atom_Editor.setGrammar(v1)(v2)();
+                      return Prelude.unit;
                   }))(function () {
                       return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Foreign.readString)(Atom_Config.getConfig(v.config)("ide-purescript.psciCommand"))))(function (v2) {
                           return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(IdePurescript_Atom_LinterBuild.getProjectRoot))(function (v3) {
-                              var command = Data_Either.either(Prelude["const"]([  ]))(function ($63) {
-                                  return Data_String_Regex.split(Data_String_Regex.regex("\\s+")(Data_String_Regex.noFlags))(Data_String.trim($63));
+                              var command = Data_Either.either(Prelude["const"]([  ]))(function ($105) {
+                                  return Data_String_Regex.split(Data_String_Regex.regex("\\s+")(Data_String_Regex.noFlags))(Data_String.trim($105));
                               })(v2);
                               return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime((function () {
-                                  var $34 = Data_Array.uncons(command);
-                                  if (v3 instanceof Data_Maybe.Just && $34 instanceof Data_Maybe.Just) {
-                                      return Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.Just.create)(Node_ChildProcess.spawn($34.value0.head)($34.value0.tail)((function () {
-                                          var $35 = {};
-                                          for (var $36 in Node_ChildProcess.defaultSpawnOptions) {
-                                              if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($36)) {
-                                                  $35[$36] = Node_ChildProcess.defaultSpawnOptions[$36];
+                                  var $68 = Data_Array.uncons(command);
+                                  if (v3 instanceof Data_Maybe.Just && $68 instanceof Data_Maybe.Just) {
+                                      return Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Maybe.Just.create)(Node_ChildProcess.spawn($68.value0.head)($68.value0.tail)((function () {
+                                          var $69 = {};
+                                          for (var $70 in Node_ChildProcess.defaultSpawnOptions) {
+                                              if (Node_ChildProcess.defaultSpawnOptions.hasOwnProperty($70)) {
+                                                  $69[$70] = Node_ChildProcess.defaultSpawnOptions[$70];
                                               };
                                           };
-                                          $35.cwd = v3;
-                                          return $35;
+                                          $69.cwd = v3;
+                                          return $69;
                                       })()));
                                   };
                                   return Prelude.pure(Control_Monad_Eff.applicativeEff)(Data_Maybe.Nothing.value);
                               })()))(function (v4) {
-                                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($64) {
-                                      return Control_Monad_Eff_Ref.writeRef(psciRef)(Data_Maybe.Just.create($64));
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function ($106) {
+                                      return Control_Monad_Eff_Ref.writeRef(psciRef)(Data_Maybe.Just.create($106));
                                   })(v4)))(function () {
                                       return liftEff$prime$prime(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function (proc) {
                                           return Control_Monad_Eff_Exception.catchException(Prelude["const"](Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit)))(function __do() {
@@ -8466,12 +8918,29 @@ var PS = { };
                                               Node_ChildProcess.onError(proc)(function (err) {
                                                   return Control_Monad_Eff_Console.log("PSCI error");
                                               })();
-                                              return Node_ChildProcess.onClose(proc)(function (exit) {
+                                              Node_ChildProcess.onClose(proc)(function (exit) {
                                                   if (exit instanceof Node_ChildProcess.Normally && exit.value0 === 0) {
                                                       return Control_Monad_Eff_Console.log("psci exited successfully");
                                                   };
                                                   return Atom_NotificationManager.addError(v.notifications)("PSCI exited abnormally");
                                               })();
+                                              var v5 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Nullable.toMaybe)(DOM_Node_ParentNode.querySelector(".psci-input atom-text-editor")(DOM_Node_Types.elementToParentNode(v1.element)))();
+                                              if (v5 instanceof Data_Maybe.Just) {
+                                                  var v6 = Prelude["<$>"](Control_Monad_Eff.functorEff)(Data_Nullable.toMaybe)($foreign.getModel(v5.value0))();
+                                                  return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(function (ed) {
+                                                      return Atom_CommandRegistry["addCommand'"](v.commands)(v5.value0)("core:confirm")(function (v7) {
+                                                          return function __do() {
+                                                              var v8 = Atom_Editor.getText(ed)();
+                                                              Atom_Editor.setText(ed)("")();
+                                                              return sendText(v1)(proc)(v8)();
+                                                          };
+                                                      });
+                                                  })(v6)();
+                                              };
+                                              if (v5 instanceof Data_Maybe.Nothing) {
+                                                  return Prelude.unit;
+                                              };
+                                              throw new Error("Failed pattern match at IdePurescript.Atom.Psci line 183, column 5 - line 195, column 3: " + [ v5.constructor.name ]);
                                           });
                                       })(v4));
                                   });
@@ -8493,7 +8962,15 @@ var PS = { };
           if (v3 instanceof Data_Maybe.Just && v4 instanceof Data_Maybe.Just) {
               closePsci(v3.value0)(v4.value0)();
               Control_Monad_Eff_Ref.writeRef(v2)(Data_Maybe.Nothing.value)();
-              return Control_Monad_Eff_Ref.writeRef(v1)(Data_Maybe.Nothing.value)();
+              Control_Monad_Eff_Ref.writeRef(v1)(Data_Maybe.Nothing.value)();
+              var v5 = Atom_Workspace.paneForItem(v.workspace)(v3.value0)();
+              if (v5 instanceof Data_Maybe.Just) {
+                  return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_Pane.destroyItem(v5.value0)(v3.value0))();
+              };
+              if (v5 instanceof Data_Maybe.Nothing) {
+                  return Prelude.unit;
+              };
+              throw new Error("Failed pattern match at IdePurescript.Atom.Psci line 215, column 13 - line 218, column 11: " + [ v5.constructor.name ]);
           };
           return Prelude.unit;
       };
@@ -8513,12 +8990,7 @@ var PS = { };
       var reset = function __do() {
           var v3 = Control_Monad_Eff_Ref.readRef(v1)();
           close();
-          (function () {
-              if (v3 instanceof Data_Maybe.Just) {
-                  return Prelude["void"](Control_Monad_Eff.functorEff)(Atom_Editor.setText(v3.value0)(""));
-              };
-              return Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit);
-          })()();
+          Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(clearText)(v3)();
           return open();
       };
       var cmd = function (isEditor) {
@@ -8531,13 +9003,13 @@ var PS = { };
                       if (!isEditor) {
                           return "atom-workspace";
                       };
-                      throw new Error("Failed pattern match at IdePurescript.Atom.Psci line 157, column 23 - line 158, column 3: " + [ isEditor.constructor.name ]);
+                      throw new Error("Failed pattern match at IdePurescript.Atom.Psci line 238, column 23 - line 239, column 3: " + [ isEditor.constructor.name ]);
                   })();
                   return Atom_CommandRegistry.addCommand(v.commands)("atom-workspace")("psci:" + name)(Prelude["const"](action));
               };
           };
       };
-      cmd(false)("open")(open)();
+      cmd(false)("open")(reset)();
       cmd(true)("send-line")(IdePurescript_Atom_Imports.launchAffAndRaise(runCmd(sendLine)))();
       cmd(true)("send-selection")(IdePurescript_Atom_Imports.launchAffAndRaise(runCmd(sendSelection)))();
       return cmd(true)("reset")(reset)();
@@ -8548,8 +9020,11 @@ var PS = { };
   exports["closePsci"] = closePsci;
   exports["sendLine"] = sendLine;
   exports["sendText"] = sendText;
+  exports["clearText"] = clearText;
   exports["appendText"] = appendText;
-  exports["openPsci"] = openPsci;;
+  exports["openPsci"] = openPsci;
+  exports["opener"] = opener;
+  exports["paneUri"] = paneUri;;
  
 })(PS["IdePurescript.Atom.Psci"] = PS["IdePurescript.Atom.Psci"] || {});
 (function(exports) {
@@ -8611,7 +9086,7 @@ var PS = { };
   })();
   var stopServer = function (port) {
       return function (cp) {
-          return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde.quit)(function (v) {
+          return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde.quit(port))(function (v) {
               return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
           });
       };
@@ -8669,7 +9144,7 @@ var PS = { };
                       throw new Error("Failed pattern match at IdePurescript.PscIdeServer line 44, column 5 - line 54, column 1: " + [ $14.constructor.name ]);
                   })());
               };
-              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Aff.attempt(IdePurescript_PscIde.cwd))(function (v) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Aff.attempt(IdePurescript_PscIde.cwd(port)))(function (v) {
                   return Data_Either.either(Prelude["const"](launchServer))(gotPath)(v);
               });
           };
@@ -8761,6 +9236,7 @@ var PS = { };
   // Generated by psc version 0.8.3.0
   "use strict";
   var Prelude = PS["Prelude"];
+  var Atom_Config = PS["Atom.Config"];
   var Atom_Editor = PS["Atom.Editor"];
   var Atom_NotificationManager = PS["Atom.NotificationManager"];
   var Atom_Range = PS["Atom.Range"];
@@ -8888,46 +9364,50 @@ var PS = { };
   var Node_FS = PS["Node.FS"];
   var PscIde = PS["PscIde"];
   var Control_Monad_Aff = PS["Control.Monad.Aff"];        
-  var pursuitSearchModule = function (modulesState) {
-      var view = function (v) {
-          return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.module + ("</span></div>" + ("<div class='secondary-line'>" + (v["package"] + ("</div>" + "</li>"))))));
-      };
-      var importDialog = function (v) {
-          var textView = function (x) {
-              return "<li>" + (x + "</li>");
+  var pursuitSearchModule = function (port) {
+      return function (modulesState) {
+          var view = function (v) {
+              return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.module + ("</span></div>" + ("<div class='secondary-line'>" + (v["package"] + ("</div>" + "</li>"))))));
           };
-          var doImport = function (mod1) {
-              return function (x) {
-                  return Control_Monad.when(Control_Monad_Eff.monadEff)(x === "Import module")(IdePurescript_Atom_Imports.addImport(modulesState)(mod1));
+          var importDialog = function (v) {
+              var textView = function (x) {
+                  return "<li>" + (x + "</li>");
               };
+              var doImport = function (mod1) {
+                  return function (x) {
+                      return Control_Monad.when(Control_Monad_Eff.monadEff)(x === "Import module")(IdePurescript_Atom_Imports.addImport(port)(modulesState)(mod1));
+                  };
+              };
+              return IdePurescript_Atom_SelectView.selectListViewStatic(textView)(doImport(v.module))(Data_Maybe.Nothing.value)([ "Import module", "Cancel" ]);
           };
-          return IdePurescript_Atom_SelectView.selectListViewStatic(textView)(doImport(v.module))(Data_Maybe.Nothing.value)([ "Import module", "Cancel" ]);
+          return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(importDialog)(new Data_Maybe.Just("module"))(Prelude.id(Prelude.categoryFn))(IdePurescript_PscIde.getPursuitModuleCompletion(port))(1000);
       };
-      return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(importDialog)(new Data_Maybe.Just("module"))(Prelude.id(Prelude.categoryFn))(IdePurescript_PscIde.getPursuitModuleCompletion)(1000);
   };
-  var pursuitSearch = (function () {
+  var pursuitSearch = function (port) {
       var view = function (v) {
           return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.identifier + (": <span class='text-info'>" + (v.type + ("</span></div>" + ("<div class='secondary-line'>" + (v.module + (" (" + (v["package"] + (")</div>" + "</li>"))))))))));
       };
       return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(function (x) {
           return Control_Monad_Eff_Console.log(x.identifier);
-      })(Data_Maybe.Nothing.value)(Prelude["const"](""))(IdePurescript_PscIde.getPursuitCompletion)(1000);
-  })();
-  var localSearch = function (modulesState) {
-      var view = function (v) {
-          return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.identifier + (": <span class='text-info'>" + (v.type + ("</span></div>" + ("<div class='secondary-line'>" + (v.module + ("</div>" + "</li>"))))))));
-      };
-      var search = function (text) {
-          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.readRef(modulesState)))(function (v) {
-              return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getLoadedModules)(function (v1) {
-                  var getQualifiedModule = Prelude.flip(IdePurescript_Modules.getQualModule)(v);
-                  return IdePurescript_PscIde.getCompletion(text)("")(false)(v1)(getQualifiedModule);
+      })(Data_Maybe.Nothing.value)(Prelude["const"](""))(IdePurescript_PscIde.getPursuitCompletion(port))(1000);
+  };
+  var localSearch = function (port) {
+      return function (modulesState) {
+          var view = function (v) {
+              return "<li class='two-lines'>" + ("<div class='primary-line'>" + (v.identifier + (": <span class='text-info'>" + (v.type + ("</span></div>" + ("<div class='secondary-line'>" + (v.module + ("</div>" + "</li>"))))))));
+          };
+          var search = function (text) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.readRef(modulesState)))(function (v) {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.getLoadedModules(port))(function (v1) {
+                      var getQualifiedModule = Prelude.flip(IdePurescript_Modules.getQualModule)(v);
+                      return IdePurescript_PscIde.getCompletion(port)(text)("")(false)(v1)(getQualifiedModule);
+                  });
               });
-          });
+          };
+          return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(function (x) {
+              return Control_Monad_Eff_Console.log(x.identifier);
+          })(Data_Maybe.Nothing.value)(Prelude["const"](""))(search)(50);
       };
-      return IdePurescript_Atom_SelectView.selectListViewDynamic(view)(function (x) {
-          return Control_Monad_Eff_Console.log(x.identifier);
-      })(Data_Maybe.Nothing.value)(Prelude["const"](""))(search)(50);
   };
   exports["localSearch"] = localSearch;
   exports["pursuitSearchModule"] = pursuitSearchModule;
@@ -8948,6 +9428,7 @@ var PS = { };
   var Atom_Editor = PS["Atom.Editor"];
   var Atom_Grammar = PS["Atom.Grammar"];
   var Atom_NotificationManager = PS["Atom.NotificationManager"];
+  var Atom_Pane = PS["Atom.Pane"];
   var Atom_Point = PS["Atom.Point"];
   var Atom_Project = PS["Atom.Project"];
   var Atom_Range = PS["Atom.Range"];
@@ -9006,11 +9487,12 @@ var PS = { };
           return function __do() {
               var v = Atom_Editor.getPath(editor)();
               var v1 = Atom_Editor.getText(editor)();
+              var v2 = IdePurescript_Atom_Config.getPscIdePort();
               var mainModule = IdePurescript_Modules.getMainModule(v1);
               if (v instanceof Data_Maybe.Just && mainModule instanceof Data_Maybe.Just) {
-                  return Control_Monad_Aff.runAff(logError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.loadDeps(mainModule.value0))(function () {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.getModulesForFile(v.value0)(v1))(function (v2) {
-                          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.writeRef(modulesStateRef)(v2)))(function () {
+                  return Control_Monad_Aff.runAff(logError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_PscIde.loadDeps(v2)(mainModule.value0))(function () {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Modules.getModulesForFile(v2)(v.value0)(v1))(function (v3) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.writeRef(modulesStateRef)(v3)))(function () {
                               return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
                           });
                       });
@@ -9034,25 +9516,27 @@ var PS = { };
               var range = Atom_Range.mkRange(Atom_Point.mkPoint(Atom_Point.getRow(v.bufferPosition))(0))(v.bufferPosition);
               return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Atom_Editor.getTextInRange(v.editor)(range)))(function (v1) {
                   return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Atom_Atom.getAtom))(function (v2) {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Atom_Config.getConfig(v2.config)("ide-purescript.autocomplete.allModules")))(function (v3) {
-                          var autoCompleteAllModules = Data_Either.either(Prelude["const"](false))(Prelude.id(Prelude.categoryFn))(Data_Foreign.readBoolean(v3));
-                          return Prelude.bind(Control_Monad_Aff.bindAff)((function () {
-                              var $51 = v.activatedManually || autoCompleteAllModules;
-                              if ($51) {
-                                  return IdePurescript_PscIde.getLoadedModules;
-                              };
-                              if (!$51) {
-                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(IdePurescript_Modules.getUnqualActiveModules(state)(Data_Maybe.Nothing.value));
-                              };
-                              throw new Error("Failed pattern match at IdePurescript.Atom.Main line 64, column 14 - line 65, column 3: " + [ $51.constructor.name ]);
-                          })())(function (v4) {
-                              var getQualifiedModule = Prelude.flip(IdePurescript_Modules.getQualModule)(state);
-                              return IdePurescript_Atom_Completion.getSuggestions({
-                                  line: v1, 
-                                  moduleInfo: {
-                                      modules: v4, 
-                                      getQualifiedModule: getQualifiedModule
-                                  }
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(IdePurescript_Atom_Config.getPscIdePort))(function (v3) {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(liftEff$prime$prime(Atom_Config.getConfig(v2.config)("ide-purescript.autocomplete.allModules")))(function (v4) {
+                              var autoCompleteAllModules = Data_Either.either(Prelude["const"](false))(Prelude.id(Prelude.categoryFn))(Data_Foreign.readBoolean(v4));
+                              return Prelude.bind(Control_Monad_Aff.bindAff)((function () {
+                                  var $58 = v.activatedManually || autoCompleteAllModules;
+                                  if ($58) {
+                                      return IdePurescript_PscIde.getLoadedModules(v3);
+                                  };
+                                  if (!$58) {
+                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(IdePurescript_Modules.getUnqualActiveModules(state)(Data_Maybe.Nothing.value));
+                                  };
+                                  throw new Error("Failed pattern match at IdePurescript.Atom.Main line 66, column 14 - line 67, column 3: " + [ $58.constructor.name ]);
+                              })())(function (v5) {
+                                  var getQualifiedModule = Prelude.flip(IdePurescript_Modules.getQualModule)(state);
+                                  return IdePurescript_Atom_Completion.getSuggestions(v3)({
+                                      line: v1, 
+                                      moduleInfo: {
+                                          modules: v5, 
+                                          getQualifiedModule: getQualifiedModule
+                                      }
+                                  });
                               });
                           });
                       });
@@ -9073,94 +9557,96 @@ var PS = { };
           var v7 = Control_Monad_Eff_Ref.readRef(v3)();
           var v8 = Atom_Workspace.getActiveTextEditor(v.workspace)();
           var v9 = Control_Monad_Eff_Ref.readRef(v4)();
-          var $66 = {
+          var $73 = {
               editor: v8, 
               linter: v9, 
               n: Data_Array.length(v7)
           };
-          if ($66.editor instanceof Data_Maybe.Just && ($66.linter instanceof Data_Maybe.Just && $66.n > 0)) {
-              return IdePurescript_Atom_QuickFixes.showQuickFixes(v2)($66.editor.value0)($66.linter.value0)(v7)();
+          if ($73.editor instanceof Data_Maybe.Just && ($73.linter instanceof Data_Maybe.Just && $73.n > 0)) {
+              return IdePurescript_Atom_QuickFixes.showQuickFixes(v2)($73.editor.value0)($73.linter.value0)(v7)();
           };
           return Prelude.unit;
       };
-      var doLint = function __do() {
-          var v7 = IdePurescript_Atom_LinterBuild.getProjectRoot();
-          var v8 = Control_Monad_Eff_Ref.readRef(v1)();
-          var v9 = Control_Monad_Eff_Ref.readRef(v6)();
-          var $75 = {
-              root: v7, 
-              linterIndie: v8, 
-              statusElt: v9
-          };
-          if ($75.root instanceof Data_Maybe.Just && ($75.linterIndie instanceof Data_Maybe.Just && $75.statusElt instanceof Data_Maybe.Just)) {
-              return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_LinterBuild.lint(v.config)($75.root.value0)($75.linterIndie.value0)($75.statusElt.value0))(function (v10) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(Control_Monad_Eff_Ref.writeRef(v3))(v10)))(function () {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde_1.load([  ])([  ]))(function () {
-                          return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v11) {
-                              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(useEditor(v2))(v11)))(function () {
-                                  return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+      var doLint = function (file) {
+          return function __do() {
+              var v7 = IdePurescript_Atom_LinterBuild.getProjectRoot();
+              var v8 = Control_Monad_Eff_Ref.readRef(v1)();
+              var v9 = Control_Monad_Eff_Ref.readRef(v6)();
+              var v10 = IdePurescript_Atom_Config.getPscIdePort();
+              var $83 = {
+                  root: v7, 
+                  linterIndie: v8, 
+                  statusElt: v9
+              };
+              if ($83.root instanceof Data_Maybe.Just && ($83.linterIndie instanceof Data_Maybe.Just && $83.statusElt instanceof Data_Maybe.Just)) {
+                  return Control_Monad_Aff.runAff(raiseError)(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_LinterBuild.lint(file)(v.config)($83.root.value0)($83.linterIndie.value0)($83.statusElt.value0))(function (v11) {
+                      return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(Control_Monad_Eff_Ref.writeRef(v3))(v11)))(function () {
+                          return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde_1.load(v10)([  ])([  ]))(function () {
+                              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Atom_Workspace.getActiveTextEditor(v.workspace)))(function (v12) {
+                                  return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(useEditor(v2))(v12)))(function () {
+                                      return Prelude.pure(Control_Monad_Aff.applicativeAff)(Prelude.unit);
+                                  });
                               });
                           });
                       });
-                  });
-              }))();
+                  }))();
+              };
+              return Prelude.unit;
           };
-          return Prelude.unit;
       };
       var deactivate = Control_Bind.join(Control_Monad_Eff.bindEff)(Control_Monad_Eff_Ref.readRef(v5));
-      var activate = (function () {
+      var activate = function __do() {
+          var v7 = IdePurescript_Atom_Config.getPscIdePort();
           var cmd = function (name) {
               return function (action) {
                   return Atom_CommandRegistry.addCommand(v.commands)("atom-workspace")("purescript:" + name)(Prelude["const"](action));
               };
           };
-          return function __do() {
-              cmd("build")(doLint)();
-              cmd("show-quick-fixes")(quickFix)();
-              cmd("pursuit-search")(IdePurescript_Atom_Search.pursuitSearch)();
-              cmd("pursuit-search-modules")(IdePurescript_Atom_Search.pursuitSearchModule(v2))();
-              cmd("add-module-import")(IdePurescript_Atom_Imports.addModuleImportCmd(v2))();
-              cmd("add-explicit-import")(IdePurescript_Atom_Imports.addExplicitImportCmd(v2))();
-              cmd("search")(IdePurescript_Atom_Search.localSearch(v2))();
-              cmd("case-split")(IdePurescript_Atom_Assist.caseSplit)();
-              cmd("add-clause")(IdePurescript_Atom_Assist.addClause)();
-              cmd("fix-typo")(IdePurescript_Atom_Assist.fixTypo(v2))();
-              IdePurescript_Atom_Hooks_Dependencies.installDependencies();
-              Atom_Workspace.observeTextEditors(v.workspace)(function (editor) {
-                  return function __do() {
-                      var v7 = Atom_Editor.getPath(editor)();
-                      if (v7 instanceof Data_Maybe.Just && Data_String.contains(".purs")(v7.value0)) {
-                          useEditor(v2)(editor)();
-                          return Atom_Editor.onDidSave(editor)(function (v8) {
-                              return function __do() {
-                                  var v9 = Atom_Config.getConfig(v.config)("ide-purescript.buildOnSave")();
-                                  return Control_Monad.when(Control_Monad_Eff.monadEff)(Data_Either.either(Prelude["const"](false))(Prelude.id(Prelude.categoryFn))(Data_Foreign.readBoolean(v9)))(doLint)();
-                              };
-                          })();
-                      };
-                      return Prelude.unit;
+          cmd("build")(doLint(Data_Maybe.Nothing.value))();
+          cmd("show-quick-fixes")(quickFix)();
+          cmd("pursuit-search")(IdePurescript_Atom_Search.pursuitSearch(v7))();
+          cmd("pursuit-search-modules")(IdePurescript_Atom_Search.pursuitSearchModule(v7)(v2))();
+          cmd("add-module-import")(IdePurescript_Atom_Imports.addModuleImportCmd(v7)(v2))();
+          cmd("add-explicit-import")(IdePurescript_Atom_Imports.addExplicitImportCmd(v7)(v2))();
+          cmd("search")(IdePurescript_Atom_Search.localSearch(v7)(v2))();
+          cmd("case-split")(IdePurescript_Atom_Assist.caseSplit)();
+          cmd("add-clause")(IdePurescript_Atom_Assist.addClause)();
+          cmd("fix-typo")(IdePurescript_Atom_Assist.fixTypo(v2))();
+          IdePurescript_Atom_Hooks_Dependencies.installDependencies();
+          Atom_Workspace.observeTextEditors(v.workspace)(function (editor) {
+              return function __do() {
+                  var v8 = Atom_Editor.getPath(editor)();
+                  if (v8 instanceof Data_Maybe.Just && Data_String.contains(".purs")(v8.value0)) {
+                      useEditor(v2)(editor)();
+                      return Atom_Editor.onDidSave(editor)(function (v9) {
+                          return function __do() {
+                              var v10 = Atom_Config.getConfig(v.config)("ide-purescript.buildOnSave")();
+                              return Control_Monad.when(Control_Monad_Eff.monadEff)(Data_Either.either(Prelude["const"](false))(Prelude.id(Prelude.categoryFn))(Data_Foreign.readBoolean(v10)))(doLint(v8))();
+                          };
+                      })();
                   };
-              })();
-              Atom_Workspace.onDidChangeActivePaneItem(v.workspace)(function (item) {
-                  return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(useEditor(v2))(Atom_Editor.toEditor(item));
-              })();
-              IdePurescript_Atom_Tooltips.registerTooltips(v2)();
-              Control_Monad_Aff.runAff(function (v7) {
-                  return Control_Monad_Eff_Console.log("Error starting server");
-              })(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_PscIdeServer.startServer)(function (v7) {
-                  return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.writeRef(v5)(v7)))(function () {
-                      return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde_1.load([  ])([  ]))(function () {
-                          return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(function __do() {
-                              var v8 = Atom_Workspace.getActiveTextEditor(v.workspace)();
-                              return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(useEditor(v2))(v8)();
-                          });
+                  return Prelude.unit;
+              };
+          })();
+          Atom_Workspace.onDidChangeActivePaneItem(v.workspace)(function (item) {
+              return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(useEditor(v2))(Atom_Editor.toEditor(item));
+          })();
+          IdePurescript_Atom_Tooltips.registerTooltips(v7)(v2)();
+          Control_Monad_Aff.runAff(function (v8) {
+              return Control_Monad_Eff_Console.log("Error starting server");
+          })(ignoreError)(Prelude.bind(Control_Monad_Aff.bindAff)(IdePurescript_Atom_PscIdeServer.startServer)(function (v8) {
+              return Prelude.bind(Control_Monad_Aff.bindAff)(Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(Control_Monad_Eff_Ref.writeRef(v5)(v8)))(function () {
+                  return Prelude.bind(Control_Monad_Aff.bindAff)(PscIde_1.load(v7)([  ])([  ]))(function () {
+                      return Control_Monad_Eff_Class.liftEff(Control_Monad_Aff.monadEffAff)(function __do() {
+                          var v9 = Atom_Workspace.getActiveTextEditor(v.workspace)();
+                          return Data_Maybe.maybe(Prelude.pure(Control_Monad_Eff.applicativeEff)(Prelude.unit))(useEditor(v2))(v9)();
                       });
                   });
-              }))();
-              return IdePurescript_Atom_Psci.activate();
-          };
-      })();
-      return {
+              });
+          }))();
+          return IdePurescript_Atom_Psci.activate();
+      };
+      return Data_Foreign.toForeign({
           config: IdePurescript_Atom_Config.config, 
           activate: Data_Function_Eff.mkEffFn1(function (v7) {
               return activate;
@@ -9204,12 +9690,13 @@ var PS = { };
                   onDidInsertSuggestion: Data_Function_Eff.mkEffFn1(function (x) {
                       return function __do() {
                           var v8 = Atom_Config.getConfig(v.config)("ide-purescript.autocomplete.addImport")();
-                          return Control_Monad.when(Control_Monad_Eff.monadEff)(Prelude["=="](Data_Either.eqEither(Data_Foreign.eqForeignError)(Prelude.eqBoolean))(Data_Foreign.readBoolean(v8))(new Data_Either.Right(true)))(Control_Monad_Aff.runAff(raiseError)(ignoreError)(IdePurescript_Atom_Imports.addSuggestionImport(v2)(x)))();
+                          var v9 = IdePurescript_Atom_Config.getPscIdePort();
+                          return Control_Monad.when(Control_Monad_Eff.monadEff)(Prelude["=="](Data_Either.eqEither(Data_Foreign.eqForeignError)(Prelude.eqBoolean))(Data_Foreign.readBoolean(v8))(new Data_Either.Right(true)))(Control_Monad_Aff.runAff(raiseError)(ignoreError)(IdePurescript_Atom_Imports.addSuggestionImport(v9)(v2)(x)))();
                       };
                   })
               };
           }
-      };
+      });
   };
   exports["logError"] = logError;
   exports["ignoreError"] = ignoreError;
