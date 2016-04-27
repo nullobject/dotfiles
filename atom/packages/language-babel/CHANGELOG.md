@@ -1,3 +1,13 @@
+### 2.18.2
+  - Fix function call td.function() being interpreted as a function definition. [Fixes #169](https://github.com/gandm/language-babel/issues)
+  
+### 2.18.1
+  - Incorrect scope for arrow function async keyword inside object literal. [Fixes](https://github.com/gandm/language-babel/issues/168)
+
+### 2.18.0
+  - Allow flow syntax to be used within files that use ASI.
+  - Use two forms of scoping for interpolated strings. [Fixes](https://github.com/gandm/language-babel/issues/167)
+
 ### 2.17.3
   - [Fixes #166](https://github.com/gandm/language-babel/issues/166) Grammar for `async`, `get` and `set` on shorthand object functions
 
