@@ -1,7 +1,7 @@
 {
   "name": "aligner",
   "main": "./lib/main",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "private": true,
   "description": "Easily align multiple lines and blocks with support for different operators and custom configurations",
   "keywords": [
@@ -36,10 +36,10 @@
     "url": "https://github.com/adrianlee44/atom-aligner/issues"
   },
   "homepage": "https://github.com/adrianlee44/atom-aligner#readme",
-  "_id": "aligner@0.21.0",
-  "_shasum": "dce1bece6a082c35aa45e0190ac8eac1809c6c7b",
-  "_resolved": "file:../d-116317-3462-eg42xr/package.tgz",
-  "_from": "../d-116317-3462-eg42xr/package.tgz",
+  "_id": "aligner@0.22.0",
+  "_shasum": "de8552b597bb7e890bd7495c1e7f7a69a589ac74",
+  "_resolved": "file:../d-11643-56397-ldel50/package.tgz",
+  "_from": "../d-11643-56397-ldel50/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [

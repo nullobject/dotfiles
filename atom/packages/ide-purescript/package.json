@@ -1,7 +1,7 @@
 {
   "name": "ide-purescript",
   "main": "./lib/main",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "PureScript support for completion, build and maybe more",
   "keywords": [],
   "activationHooks": [
@@ -44,7 +44,8 @@
     "atom-package-deps": "^4.0.1",
     "atom-space-pen-views": "^2.1.0",
     "glob": "^5.0.14",
-    "hover-tooltips": "^0.5.0"
+    "hover-tooltips": "^0.5.0",
+    "which": "^1.2.4"
   },
   "package-deps": [
     "linter",
@@ -80,10 +81,10 @@
     "url": "https://github.com/nwolverson/atom-ide-purescript/issues"
   },
   "homepage": "https://github.com/nwolverson/atom-ide-purescript#readme",
-  "_id": "ide-purescript@0.13.1",
-  "_shasum": "a1f7623173956dbfaff9e3689a2720683e25e52b",
-  "_resolved": "file:../d-116328-32260-ror295/package.tgz",
-  "_from": "../d-116328-32260-ror295/package.tgz",
+  "_id": "ide-purescript@0.13.2",
+  "_shasum": "fe23055a9cde6b8ebf98c4899713ef2bc6c99718",
+  "_resolved": "file:../d-11643-56407-zvadeh/package.tgz",
+  "_from": "../d-11643-56407-zvadeh/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -234,12 +235,12 @@
       },
       {
         "name": "brace-expansion",
-        "version": "1.1.3",
+        "version": "1.1.4",
         "path": "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/index.js"
       },
       {
         "name": "balanced-match",
-        "version": "0.3.0",
+        "version": "0.4.1",
         "path": "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/node_modules/balanced-match/index.js"
       },
       {
@@ -336,6 +337,26 @@
         "name": "q",
         "version": "1.0.1",
         "path": "node_modules/hover-tooltips/node_modules/q/q.js"
+      },
+      {
+        "name": "which",
+        "version": "1.2.4",
+        "path": "node_modules/which/which.js"
+      },
+      {
+        "name": "is-absolute",
+        "version": "0.1.7",
+        "path": "node_modules/which/node_modules/is-absolute/index.js"
+      },
+      {
+        "name": "is-relative",
+        "version": "0.1.3",
+        "path": "node_modules/which/node_modules/is-absolute/node_modules/is-relative/index.js"
+      },
+      {
+        "name": "isexe",
+        "version": "1.1.2",
+        "path": "node_modules/which/node_modules/isexe/index.js"
       }
     ],
     "extensions": {
@@ -396,6 +417,10 @@
         "node_modules/hover-tooltips/package.json",
         "node_modules/hover-tooltips/styles/tsconfig.json",
         "node_modules/hover-tooltips/typings/tsd.json",
+        "node_modules/which/node_modules/is-absolute/node_modules/is-relative/package.json",
+        "node_modules/which/node_modules/is-absolute/package.json",
+        "node_modules/which/node_modules/isexe/package.json",
+        "node_modules/which/package.json",
         "package.json"
       ],
       ".js": [
@@ -950,7 +975,6 @@
         "node_modules/glob/node_modules/minimatch/minimatch.js",
         "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/example.js",
         "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/index.js",
-        "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/node_modules/balanced-match/example.js",
         "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/node_modules/balanced-match/index.js",
         "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/node_modules/concat-map/example/map.js",
         "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/node_modules/concat-map/index.js",
@@ -1400,6 +1424,13 @@
         "node_modules/hover-tooltips/node_modules/q/benchmark/scenarios.js",
         "node_modules/hover-tooltips/node_modules/q/q.js",
         "node_modules/hover-tooltips/node_modules/q/queue.js",
+        "node_modules/which/node_modules/is-absolute/index.js",
+        "node_modules/which/node_modules/is-absolute/node_modules/is-relative/index.js",
+        "node_modules/which/node_modules/isexe/access.js",
+        "node_modules/which/node_modules/isexe/index.js",
+        "node_modules/which/node_modules/isexe/mode.js",
+        "node_modules/which/node_modules/isexe/windows.js",
+        "node_modules/which/which.js",
         "src/DOM/Util.js",
         "src/IdePurescript/Atom/Hooks/Dependencies.js",
         "src/IdePurescript/Atom/Hooks/Linter.js",
@@ -1407,7 +1438,8 @@
         "src/IdePurescript/Atom/PromptPanel.js",
         "src/IdePurescript/Atom/Psci.js",
         "src/IdePurescript/Atom/SelectView.js",
-        "src/IdePurescript/Atom/Tooltips.js"
+        "src/IdePurescript/Atom/Tooltips.js",
+        "src/Node/Which.js"
       ]
     },
     "folders": [
@@ -1417,14 +1449,16 @@
           "lib",
           "src/DOM",
           "src/IdePurescript/Atom/Hooks",
-          "src/IdePurescript/Atom"
+          "src/IdePurescript/Atom",
+          "src/Node"
         ],
         "dependencies": {
           "atom-linter": "^3.0.0",
           "atom-package-deps": "^4.0.1",
           "atom-space-pen-views": "^2.1.0",
           "glob": "^5.0.14",
-          "hover-tooltips": "^0.5.0"
+          "hover-tooltips": "^0.5.0",
+          "which": "^1.2.4"
         }
       },
       {
@@ -1788,7 +1822,7 @@
           "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion"
         ],
         "dependencies": {
-          "balanced-match": "^0.3.0",
+          "balanced-match": "^0.4.1",
           "concat-map": "0.0.1"
         }
       },
@@ -2070,6 +2104,24 @@
         ],
         "dependencies": {
           "underscore": "~1.6.0"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/which",
+          "node_modules/which/test"
+        ],
+        "dependencies": {
+          "is-absolute": "^0.1.7",
+          "isexe": "^1.1.1"
+        }
+      },
+      {
+        "paths": [
+          "node_modules/which/node_modules/is-absolute"
+        ],
+        "dependencies": {
+          "is-relative": "^0.1.0"
         }
       }
     ]

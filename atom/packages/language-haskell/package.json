@@ -1,6 +1,6 @@
 {
   "name": "language-haskell",
-  "version": "1.7.10",
+  "version": "1.7.13",
   "description": "Haskell language support in Atom",
   "repository": {
     "type": "git",
@@ -18,16 +18,16 @@
   "scripts": {
     "postinstall": "coffee src/haskell.coffee"
   },
-  "readme": "# Haskell support in Atom\n\nAdds syntax highlighting and snippets to Haskell files in Atom.\n\nGrammars:\n\n* Haskell (\\*.hs)\n* Literate Haskell (\\*.lhs)\n* Cabal (\\*.cabal)\n\n![image](https://cloud.githubusercontent.com/assets/7275622/8120540/f16d7ee6-10a8-11e5-9b9d-223ff05a54c6.png)\n\nBased on [Haskell TextMate bundle](https://github.com/textmate/haskell.tmbundle).\n\n# Auto-indent\n\nIf you don't like current auto-indentation settings, you can define your own regexp in `config.cson` (Edit -> Open Your Config), or disable it altogether, e.g.\n\nTo disable auto-indent:\n\n```cson\n\".haskell.source\":\n  editor:\n    increaseIndentPattern: ''\n```\n\nNote that regexp expression is using oniguruma for parsing, and it needs to be a string, not a javascript regexp. You'll also have to escape `\\`.\n\nBy default, `increaseIndentPattern` has the following value:\n\n```cson\n\".haskell.source\":\n  editor:\n    increaseIndentPattern: '(((=|\\\\bdo|\\\\bwhere|\\\\bthen|\\\\belse|\\\\bof)\\\\s*)|(\\\\bif(?!.*\\\\bthen\\\\b.*\\\\belse\\\\b.*).*))$'\n```\n# License\n\nCopyright © 2015 Atom-Haskell\n\nContributors:\n* Ian D. Bollinger\n* Jared Roesch\n* Jesse Cooke\n* Matthew Griffith\n* mdgriffith\n* Michael Rawson\n* Nikolay Yakimov\n* Ross Ogilvie\n* samuela\n\nSee the [LICENSE.md][LICENSE] for details.\n\n[LICENSE]: https://github.com/atom-haskell/language-haskell/blob/master/LICENSE.md\n",
+  "readme": "# Haskell support in Atom\n\nAdds syntax highlighting and snippets to Haskell files in Atom.\n\nGrammars:\n\n* Haskell (\\*.hs)\n* Literate Haskell (\\*.lhs)\n* Cabal (\\*.cabal)\n\n![image](https://cloud.githubusercontent.com/assets/7275622/8120540/f16d7ee6-10a8-11e5-9b9d-223ff05a54c6.png)\n\nBased on [Haskell TextMate bundle](https://github.com/textmate/haskell.tmbundle).\n\n# Auto-indent\n\nIf you don't like current auto-indentation settings, you can define your own regexp in `config.cson` (Edit -> Open Your Config), or disable it altogether, e.g.\n\nTo disable auto-indent:\n\n```cson\n\".haskell.source\":\n  editor:\n    increaseIndentPattern: ''\n```\n\nNote that regexp expression is using oniguruma for parsing, and it needs to be a string, not a javascript regexp. You'll also have to escape `\\`.\n\nBy default, `increaseIndentPattern` has the following value:\n\n```cson\n\".haskell.source\":\n  editor:\n    increaseIndentPattern: '(((=|\\\\bdo|\\\\bwhere|\\\\bthen|\\\\belse|\\\\bof)\\\\s*)|(\\\\bif(?!.*\\\\bthen\\\\b.*\\\\belse\\\\b.*).*))$'\n```\n# License\n\nCopyright © 2015 Atom-Haskell\n\nContributors:\n* Ian D. Bollinger\n* Jared Roesch\n* Jesse Cooke\n* Matthew Griffith\n* mdgriffith\n* Michael Rawson\n* Nikolay Yakimov\n* Ranjit Jhala\n* Rob Rix\n* Ross Ogilvie\n* samuela\n\nSee the [LICENSE.md][LICENSE] for details.\n\n[LICENSE]: https://github.com/atom-haskell/language-haskell/blob/master/LICENSE.md\n",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/atom-haskell/language-haskell/issues"
   },
   "homepage": "https://github.com/atom-haskell/language-haskell#readme",
-  "_id": "language-haskell@1.7.10",
-  "_shasum": "cd3d7d0fc56d72fc84bd8b0d03730898d8078998",
-  "_resolved": "file:../d-11638-48127-glg70q/package.tgz",
-  "_from": "../d-11638-48127-glg70q/package.tgz",
+  "_id": "language-haskell@1.7.13",
+  "_shasum": "45fd9577e8f5fef8bb46b50ef57561b4aeb98604",
+  "_resolved": "file:../d-11643-56421-g4fs4e/package.tgz",
+  "_from": "../d-11643-56421-g4fs4e/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -133,7 +133,7 @@
       },
       {
         "name": "fs-plus",
-        "version": "2.8.1",
+        "version": "2.8.2",
         "path": "node_modules/season/node_modules/fs-plus/lib/fs-plus.js"
       },
       {

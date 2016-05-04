@@ -319,7 +319,7 @@ haskellGrammar =
       match: /\b([0-9]+|0([xX][0-9a-fA-F]+|[oO][0-7]+))\b/
     ,
       name: 'meta.preprocessor.c'
-      begin: /{maybeBirdTrack}\s*(?=#)/
+      begin: /{maybeBirdTrack}(?=#)/
       end: '(?<!\\\\)(?=\\n)'
       patterns: [
         include: 'source.c'
@@ -374,6 +374,7 @@ haskellGrammar =
         2: name: 'keyword.other.double-colon.haskell'
         3: {name: 'meta.type-signature.haskell', patterns: [include: '#type_signature']}
     ,
+      # match: '(::|∷)((?:(?:{className}|{functionName}|->|=>|[→⇒()\\[\\]]|\\s)(?!:<-|=))*)'
       match: '(::|∷)((?:{className}|{functionName}|\\->|=>|[→⇒()\\[\\]]|\\s)*)'
       captures:
         1: name: 'keyword.other.double-colon.haskell'
@@ -381,8 +382,6 @@ haskellGrammar =
     ,
       match: /\b(Just|Left|Right|Nothing|True|False|LT|EQ|GT)(?!')\b/
       name: 'support.tag.haskell'
-    ,
-      include: '#type_ctor'
     ,
       include: '#comments'
     ,
@@ -417,6 +416,16 @@ haskellGrammar =
     ,
       name: 'punctuation.separator.comma.haskell'
       match: /,/
+    ,
+      match: '\\b{functionName}\\b'
+      captures:
+        0:
+          patterns: [
+            name: 'support.other.module.haskell'
+            match: /^(?:{className}\.)*{className}\.?/
+          ]
+    ,
+      include: '#type_ctor'
   ]
   repository:
     block_comment:

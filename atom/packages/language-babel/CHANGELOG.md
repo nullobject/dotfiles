@@ -1,6 +1,34 @@
+### 2.19.3
+  - Added more cases as per 2.19.2 for function/arrow labels.
+
+### 2.19.2
+  - Parsing some ternaries as key/value arrow constants,
+
+### 2.19.1
+  - Incorrect JSX Start regex
+
+### 2.19.0
+  - Modified grammar scopes to highlight JSX components as classes. [Enhancement Request #173](https://github.com/gandm/language-babel/issues/173)
+
+### 2.18.7
+  - Add close brace and close array as let, var and const terminators.
+
+### 2.18.6
+  - Fix keys & values named type & declare being highlighted as js keywords. [Fixes #172 ](https://github.com/gandm/language-babel/issues/172)
+  - Scope flow variant polymorph operators <+T,-V>
+
+### 2.18.5
+  - Grammar incorrectly parsed a returned object literal. [Fixes #171](https://github.com/gandm/language-babel/issues/171)
+
+### 2.18.4
+  - Make literal-object grammar recursive to fix nested object methods.
+
+### 2.18.3
+  - Improve detection of object literals. [Fixes #170](https://github.com/gandm/language-babel/issues/170)
+
 ### 2.18.2
   - Fix function call td.function() being interpreted as a function definition. [Fixes #169](https://github.com/gandm/language-babel/issues)
-  
+
 ### 2.18.1
   - Incorrect scope for arrow function async keyword inside object literal. [Fixes](https://github.com/gandm/language-babel/issues/168)
 

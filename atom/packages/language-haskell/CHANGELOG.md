@@ -1,3 +1,14 @@
+## 1.7.13
+* Fix runaway module name
+
+## 1.7.12
+* Spec update
+* Capture identifiers before type ctors
+
+## 1.7.11
+* Fix CPP # confusion
+* Updated contributors
+
 ## 1.7.10
 * added liquidhaskell comment block (PR #69 by @ranjitjhala)
 
