@@ -50,6 +50,7 @@ export default React.createClass({
 //       ^    punctuation.definition.parameters.end.js
 //         ^  meta.brace.curly.js
     var {email, question} = this.state;
+//  ^^^ ^^^^^^^ ^^^^^^^^^ ^ ^^^^^^^^^^^  meta.function-call.static.with-arguments.js
 //  ^^^                                  storage.type.js
 //      ^               ^                meta.brace.curly.js
 //       ^^^^^  ^^^^^^^^                 variable.other.readwrite.js
@@ -112,25 +113,27 @@ export default React.createClass({
 // ^  meta.delimiter.comma.js
 
   'key//1': function() {},
-//^^^^^^^^                  constant.other.object.key.js
-//^^^^^^^^                  string.quoted.single.js
+//^^^^^^^^^ ^^^^^^^^^^ ^^^  meta.function-call.static.with-arguments.js
+//^^^^^^^^^ ^^^^^^^^^^      meta.function.json.js
+//^^^^^^^^                  string.quoted.js
 //^                         punctuation.definition.string.begin.js
+// ^^^^^^                   entity.name.function.js
 //       ^                  punctuation.definition.string.end.js
 //        ^                 punctuation.separator.key-value.js
-//          ^^^^^^^^^^      meta.function.method.js
-//          ^^^^^^^^        entity.name.function.method.js
+//          ^^^^^^^^        storage.type.function.js
 //                  ^       punctuation.definition.parameters.begin.js
 //                   ^      punctuation.definition.parameters.end.js
 //                     ^^   meta.brace.curly.js
 //                       ^  meta.delimiter.comma.js
   'key/***/1': function() {},
-//^^^^^^^^^^^                  constant.other.object.key.js
-//^^^^^^^^^^^                  string.quoted.single.js
+//^^^^^^^^^^^^ ^^^^^^^^^^ ^^^  meta.function-call.static.with-arguments.js
+//^^^^^^^^^^^^ ^^^^^^^^^^      meta.function.json.js
+//^^^^^^^^^^^                  string.quoted.js
 //^                            punctuation.definition.string.begin.js
+// ^^^^^^^^^                   entity.name.function.js
 //          ^                  punctuation.definition.string.end.js
 //           ^                 punctuation.separator.key-value.js
-//             ^^^^^^^^^^      meta.function.method.js
-//             ^^^^^^^^        entity.name.function.method.js
+//             ^^^^^^^^        storage.type.function.js
 //                     ^       punctuation.definition.parameters.begin.js
 //                      ^      punctuation.definition.parameters.end.js
 //                        ^^   meta.brace.curly.js
@@ -143,6 +146,7 @@ export default React.createClass({
 //       ^    punctuation.definition.parameters.end.js
 //         ^  meta.brace.curly.js
     var {email} = this.state;
+//  ^^^ ^^^^^^^ ^ ^^^^^^^^^^^  meta.function-call.static.with-arguments.js
 //  ^^^                        storage.type.js
 //      ^     ^                meta.brace.curly.js
 //       ^^^^^                 variable.other.readwrite.js
@@ -331,8 +335,7 @@ class Sound extends Model {
 //  ^^^^^^^^  meta.class.body.js
 //  ^^^^^^^   meta.function-call.without-arguments.js
 //  ^^^^^     entity.name.function.js
-//       ^    punctuation.definition.parameters.begin.js
-//        ^   punctuation.definition.parameters.end.js
+//       ^^   meta.brace.round.js
 //         ^  punctuation.terminator.statement.js
     this.id = id;
 //  ^^^^^^^ ^ ^^^  meta.class.body.js
@@ -349,13 +352,12 @@ class Sound extends Model {
   [Private.getDebugSymbol()](opts: Object) {}
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^ ^^  meta.class.body.js
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^     meta.function.method.js
-//^                                            meta.brace.square.open.flowtype
+//^                        ^                   meta.brace.square.js
 // ^^^^^^^^^^^^^^^^^^^^^^^^                    meta.function-call.static.without-arguments.js
 // ^^^^^^^                                     variable.other.class.js
 //        ^                                    keyword.operator.accessor.js
 //         ^^^^^^^^^^^^^^                      entity.name.function.js
 //                       ^^                    meta.group.braces.round.function.arguments.js
-//                         ^                   meta.brace.square.end.flowtype
 //                          ^                  punctuation.definition.parameters.begin.js
 //                           ^^^^              variable.other.readwrite.js
 //                               ^             punctuation.type.flowtype

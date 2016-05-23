@@ -1,3 +1,13 @@
+## 1.6.5
+* Use typeof instead instanceof where possible
+
+## 1.6.4
+* AHS bump
+* AHS bump
+
+## 1.6.3
+* Handle non-zero exit code in prettify
+
 ## 1.6.2
 * Use general algo to get root dir for prettify
 

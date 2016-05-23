@@ -1,3 +1,11 @@
+## 1.7.15
+* Another stab at Windows postinstall
+
+## 1.7.14
+* Update postinstall hook to hopefully make it work in windows
+* Spec update
+* Various tweaks to word anchoring, symbol provider
+
 ## 1.7.13
 * Fix runaway module name
 

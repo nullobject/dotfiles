@@ -1,3 +1,49 @@
+### 2.21.1
+  - Allow flowtyped arrow function returns to have intersection (&) and array ([]) notation.
+
+### 2.21.0
+  - Allow $ chars to be treated as a word character by Atoms work skip keyboard shortcuts
+  - Simplify Regex for trivial arrow functions with no argument parens.
+
+### 2.20.10
+  - Fix flow declare class methods named static being parsed as storage modifiers.
+  - Fix flow declare class methods with no name being parsed incorrectly.
+
+### 2.20.9
+  - Fix class properties with flow keyword names - type, declare & interface being ignored.
+  - Fix class property issues when used with ASI and flow.
+
+### 2.20.8
+  - Fix handling of let/var/const creation of arrow functions. [Fixes #181](https://github.com/gandm/language-babel/issues/181)
+  - Fix function labels not allowing all possible characters. [Fixes #184](https://github.com/gandm/language-babel/issues/184)
+
+### 2.20.7
+  - Fix bad destructuring scopes in grammar.
+
+### 2.20.6
+  - Object literal prop:func-call mistakenly treated as prop:method-call.
+
+### 2.20.5
+  - Change JSX tag autocomplete snippet to only have a single anchor. [Fixes #180](https://github.com/gandm/language-babel/issues/180)
+
+### 2.20.4
+  - Fix Flow $JSXIntrinsics properties object being ignored in grammar.
+
+### 2.20.3
+  - Fix incorrect handling of case statement used as a return flow type [Fixes #179](https://github.com/gandm/language-babel/issues/179)
+
+### 2.20.2
+  - Refactored grammar regex reverted in 2.20.1
+
+### 2.20.1
+  - Revert small commit
+
+### 2.20.0
+  - Improve Flow and ASI support.
+
+### 2.19.4
+  - Regression JSX ignoring '-' chars as being valid in custom element names.
+
 ### 2.19.3
   - Added more cases as per 2.19.2 for function/arrow labels.
 

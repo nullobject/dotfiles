@@ -48,6 +48,7 @@ export default React.createClass({
 //       ^    punctuation.definition.parameters.end.js
 //         ^  meta.brace.curly.js
     var {email, question} = this.state;
+//  ^^^ ^^^^^^^ ^^^^^^^^^ ^ ^^^^^^^^^^^  meta.function-call.static.with-arguments.js
 //  ^^^                                  storage.type.js
 //      ^               ^                meta.brace.curly.js
 //       ^^^^^  ^^^^^^^^                 variable.other.readwrite.js
@@ -116,6 +117,7 @@ export default React.createClass({
 //       ^    punctuation.definition.parameters.end.js
 //         ^  meta.brace.curly.js
     var {email} = this.state;
+//  ^^^ ^^^^^^^ ^ ^^^^^^^^^^^  meta.function-call.static.with-arguments.js
 //  ^^^                        storage.type.js
 //      ^     ^                meta.brace.curly.js
 //       ^^^^^                 variable.other.readwrite.js
@@ -279,10 +281,9 @@ export class Counter extends React.Component {
 //^^^^^^^^^^^^^^^ ^ ^^^^^^^^^^^^^^^^^^^^^^  meta.class.body.js
 //^^^^^^^^^^^^^^^                           variable.other.readwrite.js
 //                ^                         keyword.operator.assignment.js
-//                  ^^^^^^^^^^^^^^^^^^^^^   meta.function.method.js
-//                  ^^^^^^^^^^^^^^^^^^^     entity.name.function.method.js
-//                                     ^    punctuation.definition.parameters.begin.js
-//                                      ^   punctuation.definition.parameters.end.js
+//                  ^^^^^^^^^^^^^^^^^^^^^   meta.function-call.without-arguments.js
+//                  ^^^^^^^^^^^^^^^^^^^     entity.name.function.js
+//                                     ^^   meta.brace.round.js
 //                                       ^  punctuation.terminator.statement.js
   state = { count: this.props.initialCount };
 //^^^^^ ^ ^ ^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^ ^^  meta.class.body.js
