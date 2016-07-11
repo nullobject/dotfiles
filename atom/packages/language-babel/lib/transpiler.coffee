@@ -39,11 +39,18 @@ class Transpiler
     if @getConfig().transpileOnSave or @getConfig().allowLocalOverride
       @disposables.add atom.contextMenu.add {
         '.tree-view .directory > .header > .name': [
-          {label: 'Babel Transpile', command: 'language-babel:transpile-directory'}
-          {'type': 'separator'}
-        ]
-      }
+            {
+              label: 'Language-Babel'
+              submenu: [
+                {label: 'Transpile Directory ', command: 'language-babel:transpile-directory'}
+                {label: 'Transpile Directories', command: 'language-babel:transpile-directories'}
+              ]
+            }
+            {'type': 'separator' }
+          ]
+        }
       @disposables.add atom.commands.add '.tree-view .directory > .header > .name', 'language-babel:transpile-directory', @commandTranspileDirectory
+      @disposables.add atom.commands.add '.tree-view .directory > .header > .name', 'language-babel:transpile-directories', @commandTranspileDirectories
 
   # method used by source-preview to see transpiled code
   transform: (code, {filePath, sourceMap}) ->
@@ -53,8 +60,8 @@ class Transpiler
     @createTask pathTo.projectPath
     babelOptions =
       filename: filePath
-      sourceMaps: sourceMap ? false
       ast: false
+    if sourceMap then babelOptions.sourceMaps = sourceMap
     # ok now transpile in the task and wait on the result
     if @babelTranspilerTasks[pathTo.projectPath]
       reqId = @reqId++
@@ -82,16 +89,29 @@ class Transpiler
 
   # called by command
   commandTranspileDirectory: ({target}) =>
-    @transpileDirectory target.dataset.path
+    @transpileDirectory {directory: target.dataset.path }
 
-  # transpile all files in a directory
-  transpileDirectory: (directory) ->
+  # called by command
+  commandTranspileDirectories: ({target}) =>
+    @transpileDirectory {directory: target.dataset.path, recursive: true}
+
+  # transpile all files in a directory or recursive directories
+  # options are { directory: name, recursive: true|false}
+  transpileDirectory: (options) ->
+    directory = options.directory
+    recursive = options.recursive or false
     fs.readdir directory, (err,files) =>
       if not err?
         files.map (file) =>
-          return if /\.min\.[a-z]+$/.test file # no minimized files
-          if /\.(js|jsx|es|es6|babel)$/.test file # only js
-            @transpile file, null, @getConfigAndPathTo path.join(directory, file)
+          fqFileName = path.join(directory, file)
+          fs.stat fqFileName, (err, stats) =>
+            if not err?
+              if stats.isFile()
+                return if /\.min\.[a-z]+$/.test fqFileName # no minimized files
+                if /\.(js|jsx|es|es6|babel)$/.test fqFileName # only js
+                  @transpile file, null, @getConfigAndPathTo fqFileName
+              else if recursive and stats.isDirectory()
+                @transpileDirectory {directory: fqFileName, recursive: true}
 
   # transpile sourceFile edited by the optional textEditor
   transpile: (sourceFile, textEditor, configAndPathTo) ->
@@ -158,7 +178,7 @@ class Transpiler
                 dismissable: true
                 detail: "#{msgRet.err.message}\n \n#{msgRet.babelCoreUsed}\n \n#{msgRet.err.codeFrame}"
             # if we have a line/col syntax error jump to the position
-            if msgRet.err.loc?.line? and textEditor?
+            if msgRet.err.loc?.line? and textEditor?.alive
               textEditor.setCursorBufferPosition [msgRet.err.loc.line-1, msgRet.err.loc.column]
         else
           if not config.suppressTranspileOnSaveMessages
@@ -258,8 +278,9 @@ class Transpiler
   getBabelOptions: (config)->
     # set transpiler options from package configuration.
     babelOptions =
-      sourceMaps: config.createMap
       code: true
+    if config.createMap  then babelOptions.sourceMaps = config.createMap
+    babelOptions
 
   #get configuration and paths
   getConfigAndPathTo: (sourceFile) ->
@@ -336,7 +357,9 @@ class Transpiler
     else if projectContainingSource[0] is null
       absProjectPath = path.parse(sourceFile).root
     else
-      absProjectPath = path.normalize(projectContainingSource[0])
+      # Atom 1.8 returning drive as project root on windows e.g. c: not c:\
+      # using path.join to '.' fixes it.
+      absProjectPath = path.normalize(path.join(projectContainingSource[0],'.'))
     relSourcePath = path.normalize(config.babelSourcePath)
     relTranspilePath = path.normalize(config.babelTranspilePath)
     relMapsPath = path.normalize(config.babelMapsPath)

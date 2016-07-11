@@ -15,6 +15,8 @@ module.exports =
     @textEditors = {}
     @fileSaveTimes = {}
 
+    @disposable.add atom.packages.onDidActivatePackage @isPackageCompatible
+
     @disposable.add atom.project.onDidChangePaths =>
       @transpiler.stopUnusedTasks()
 
@@ -24,8 +26,7 @@ module.exports =
       @textEditors[textEditor.id].add textEditor.observeGrammar (grammar) =>
         # Instantiate indentor for language-babel files
         if textEditor.getGrammar().packageName is LB
-          if atom.config.get(LB).autoIndentJSX
-            @textEditors[textEditor.id].autoIndent = new AutoIndent(textEditor)
+          @textEditors[textEditor.id].autoIndent = new AutoIndent(textEditor)
         else
           @textEditors[textEditor.id]?.autoIndent?.destroy()
           delete @textEditors[textEditor.id]?.autoIndent?
@@ -46,7 +47,6 @@ module.exports =
         @textEditors[textEditor.id].dispose()
         delete @textEditors[textEditor.id]
 
-
   deactivate: ->
     @disposable.dispose()
     for id, disposeable of @textEditors
@@ -56,6 +56,16 @@ module.exports =
       disposeable.dispose()
     @transpiler.stopAllTranspilerTask()
     @transpiler.disposables.dispose()
+
+  # warns if an activated package is on the incompatible list
+  isPackageCompatible: (activatedPackage) ->
+    incompatiblePackages = ['source-preview-babel', 'source-preview-react', 'react']
+    if activatedPackage.name in incompatiblePackages
+      atom.notifications.addInfo 'Incompatible Package Detected',
+        dismissable: true
+        detail: "language-babel has detected the presence of an
+                incompatible Atom package named '#{activatedPackage.name}'.
+                \n \nIt is recommended that you disable either '#{activatedPackage.name}' or language-babel"
 
   JSXCompleteProvider: ->
     autoCompleteJSX

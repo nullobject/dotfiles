@@ -1,8 +1,133 @@
 // SYNTAX TEST "source.js.jsx"
 
+// Support flow typing in comments
+
+function foo(bar /*:: ?*/) {}
+// <- meta.function.js storage.type.function.js
+ // <- meta.function.js storage.type.function.js
+//^^^^^^ ^^^^^^^ ^^^^ ^^^^     meta.function.js
+//^^^^^^                       storage.type.function.js
+//       ^^^                   entity.name.function.js
+//          ^                  punctuation.definition.parameters.begin.js
+//           ^^^               variable.other.readwrite.js
+//               ^^    ^^      punctuation.definition.comment.js
+//                 ^^          punctuation.type.flowtype
+//                    ^        keyword.operator.optional.parameter.flowtype
+//                       ^     punctuation.definition.parameters.end.js
+//                         ^^  meta.brace.curly.js
+function foo2(bar /*:: ?: string*/) {}
+// <- meta.function.js storage.type.function.js
+ // <- meta.function.js storage.type.function.js
+//^^^^^^ ^^^^^^^^ ^^^^ ^^ ^^^^^^^^^     meta.function.js
+//^^^^^^                                storage.type.function.js
+//       ^^^^                           entity.name.function.js
+//           ^                          punctuation.definition.parameters.begin.js
+//            ^^^                       variable.other.readwrite.js
+//                ^^            ^^      punctuation.definition.comment.js
+//                  ^^  ^               punctuation.type.flowtype
+//                     ^                keyword.operator.optional.parameter.flowtype
+//                        ^^^^^^        support.type.builtin.primitive.flowtype
+//                                ^     punctuation.definition.parameters.end.js
+//                                  ^^  meta.brace.curly.js
+function foo(x /*: number*/) /*: string*/ {}
+// <- meta.function.js storage.type.function.js
+ // <- meta.function.js storage.type.function.js
+//^^^^^^ ^^^^^ ^^^ ^^^^^^^^^ ^^^ ^^^^^^^^     meta.function.js
+//^^^^^^                                      storage.type.function.js
+//       ^^^                                  entity.name.function.js
+//          ^                                 punctuation.definition.parameters.begin.js
+//           ^                                variable.other.readwrite.js
+//             ^^        ^^  ^^        ^^     punctuation.definition.comment.js
+//               ^             ^              punctuation.type.flowtype
+//                 ^^^^^^        ^^^^^^       support.type.builtin.primitive.flowtype
+//                         ^                  punctuation.definition.parameters.end.js
+//                                        ^^  meta.brace.curly.js
+/*:: type B = {
+// <- punctuation.definition.comment.js
+ // <- punctuation.definition.comment.js
+//^^             punctuation.type.flowtype
+//   ^^^^        keyword.other.typedef.flowtype
+//        ^      support.type.class.flowtype
+//            ^  meta.brace.curly.js
+  name: string;
+//^^^^           variable.other.readwrite.js
+//    ^          punctuation.type.flowtype
+//      ^^^^^^   support.type.builtin.primitive.flowtype
+};*/
+// <- meta.brace.curly.js
+ // <- punctuation.object.end.flowtype
+//^^  punctuation.definition.comment.js
+/*:: export type GraphQLFormattedError = number;*/
+// <- punctuation.definition.comment.js
+ // <- punctuation.definition.comment.js
+//                                              ^^  punctuation.definition.comment.js
+//^^                                                punctuation.type.flowtype
+//   ^^^^^^                                         keyword.control.module.js
+//          ^^^^                                    keyword.other.typedef.flowtype
+//               ^^^^^^^^^^^^^^^^^^^^^              support.type.class.flowtype
+//                                       ^^^^^^     support.type.builtin.primitive.flowtype
+//                                             ^    punctuation.object.end.flowtype
+/*:: import type A, { B, C } from './types';*/
+// <- punctuation.definition.comment.js
+ // <- punctuation.definition.comment.js
+//                                          ^^  punctuation.definition.comment.js
+//^^                                            punctuation.type.flowtype
+//   ^^^^^^                  ^^^^               keyword.control.module.js
+//          ^^^^                                keyword.other.typedef.flowtype
+//               ^    ^  ^                      variable.other.constant.js
+//                ^    ^                        meta.delimiter.comma.js
+//                  ^      ^                    meta.brace.curly.js
+//                                ^       ^     punctuation.definition.string.begin.js
+//                                 ^^^^^^^      string.quoted.module.js
+/*:: import typeof D, { E, F } from './types';*/
+// <- punctuation.definition.comment.js
+ // <- punctuation.definition.comment.js
+//                                            ^^  punctuation.definition.comment.js
+//^^                                              punctuation.type.flowtype
+//   ^^^^^^                    ^^^^               keyword.control.module.js
+//          ^^^^^^                                keyword.other.typedef.flowtype
+//                 ^    ^  ^                      variable.other.constant.js
+//                  ^    ^                        meta.delimiter.comma.js
+//                    ^      ^                    meta.brace.curly.js
+//                                  ^       ^     punctuation.definition.string.begin.js
+//                                   ^^^^^^^      string.quoted.module.js
+
+// Calls language-mustache & language-html from a object template: backtick
+
+a.component('randomComponent', {
+// <- variable.other.object.js
+ // <- keyword.operator.accessor.js
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^  meta.function-call.method.with-arguments.js
+//^^^^^^^^^                       entity.name.function.js
+//         ^                      meta.brace.round.js
+//          ^^^^^^^^^^^^^^^^^     string.quoted.single.js
+//          ^                     punctuation.definition.string.begin.js
+//                          ^     punctuation.definition.string.end.js
+//                           ^    meta.delimiter.comma.js
+//                             ^  meta.brace.curly.js
+  template: `<div class="test">test</div>`,
+//^^^^^^^^^ ^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^  meta.function-call.method.with-arguments.js
+//^^^^^^^^                                   constant.other.object.key.js
+//^^^^^^^^                                   string.unquoted.js
+//        ^                                  punctuation.separator.key-value.js
+//          ^                                punctuation.definition.quasi.begin.js
+//           ^^^^ ^^^^^^^^^^^^^    ^^^^^^    meta.tag.block.any.html
+//           ^                     ^^        punctuation.definition.tag.begin.html
+//            ^^^                    ^^^     entity.name.tag.block.any.html
+//                ^^^^^                      entity.other.attribute-name.html
+//                      ^^^^^^               string.quoted.double.html
+//                      ^                    punctuation.definition.string.begin.html
+//                           ^               punctuation.definition.string.end.html
+//                            ^         ^    punctuation.definition.tag.end.html
+//                                       ^   punctuation.definition.quasi.end.js
+//                                        ^  meta.delimiter.comma.js
+})
+// <- meta.function-call.method.with-arguments.js meta.brace.curly.js
+ // <- meta.function-call.method.with-arguments.js meta.brace.round.js
+
 // class fields, statics and methods
 class SomeClass {
-  myProperty: string = 'some value'           
+  myProperty: string = 'some value'
 //^^^^^^^^^^^ ^^^^^^ ^ ^^^^^ ^^^^^^             meta.class.body.js
 //^^^^^^^^^^                                    variable.other.readwrite.js
 //          ^                                   punctuation.type.flowtype
@@ -158,3 +283,37 @@ type $JSXIntrinsics = {
 //^^^^  meta.tag.jsx
 //   ^  punctuation.definition.tag.jsx
 //^^^   entity.name.tag.close.jsx
+
+// Some snippets from function-bind syntax proposal
+
+getPlayers()
+// <- meta.function-call.without-arguments.js entity.name.function.js
+ // <- meta.function-call.without-arguments.js entity.name.function.js
+//^^^^^^^^^^  meta.function-call.without-arguments.js
+//^^^^^^^^    entity.name.function.js
+//        ^^  meta.brace.round.js
+  ::map(x => x.character());
+//^^          ^               keyword.operator.accessor.js
+//  ^^^^^ ^^ ^^^^^^^^^^^^^^   meta.function-call.with-arguments.js
+//  ^^^        ^^^^^^^^^      entity.name.function.js
+//     ^                  ^   meta.brace.round.js
+//      ^ ^^                  meta.function.arrow.js
+//      ^                     variable.other.readwrite.js
+//        ^^                  storage.type.function.arrow.js
+//           ^                variable.other.object.js
+//             ^^^^^^^^^^^    meta.function-call.method.without-arguments.js
+//                      ^^    meta.group.braces.round.function.arguments.js
+//                         ^  punctuation.terminator.statement.js
+
+Promise.resolve(123).then(::console.log);
+// <- support.class.builtin.js
+ // <- support.class.builtin.js
+//^^^^^                                    support.class.builtin.js
+//     ^            ^     ^^       ^       keyword.operator.accessor.js
+//      ^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^   meta.function-call.method.with-arguments.js
+//      ^^^^^^^      ^^^^                  entity.name.function.js
+//             ^   ^     ^             ^   meta.brace.round.js
+//              ^^^                        constant.numeric.js
+//                          ^^^^^^^        support.type.object.console.js
+//                                  ^^^    support.function.console.js
+//                                      ^  punctuation.terminator.statement.js

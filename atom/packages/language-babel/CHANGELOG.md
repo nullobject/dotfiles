@@ -1,3 +1,93 @@
+### 2.31.0
+  - Allow JSX to be indented when a whole file is indented using the Atom Edit->Lines->Auto Indent command.
+  - Modify arrow function grammar regex to allow for the Flow Comments style of typed notation.
+
+### 2.30.1
+  - Fix 2.23.0 not parsing flow keywords in flow comments.
+
+### 2.30.0
+  - Add support for highlighting flow typing inside comments starting `/*:`, `/*::` and `/*flow-include`. Read the [Flow blog](https://flowtype.org/blog/2015/02/20/Flow-Comments.html) for further information.
+
+### 2.29.2
+  - Fix type property detected as flow type alias. Fixes #211
+
+### 2.29.1
+  - Rephrase incompatible notification message.
+
+### 2.29.0
+  - Warn when potential incompatible packages are activated.
+  - Additional check on textEditor is alive before positioning cursor on transpile failure.
+
+### 2.28.0
+  - Improve JSX commenting to allow nested objects that require // commenting. e.g. Attributes.
+
+### 2.27.1
+  - Tweak template regex
+
+### 2.27.0
+  - Patch issue where Atom 1.8 now returns a root project folder on Windows as c: and not c:\
+  - Add scope support for tc39 stage 0 function bind syntax `::` Thanks @HyeonuPark
+  - Treat object properties named `template` followed by a template literal as html.
+
+  e.g. The template string below will be highlighted by Atom's `language-mustache` and `language-html`
+  ```
+  a.component('randomComponent', {
+    template: `<div class="test">asdf</div>`,
+  })
+  ```
+
+### 2.26.3
+  - Fix for stack trace on missing argument on TextEditor close.
+
+### 2.26.2
+  - Fix transpile on save ignored .babelrc sourceMaps option.
+
+### 2.26.1
+  - Fix specs for 2.26.0
+
+### 2.26.0
+  - Add option to allow recursive directories to be transpiled.
+
+### 2.25.1
+  - Fix Automatic insertion between JSX tags when auto-indent is turned off
+
+### 2.25.0
+  - Automatic insertion of additional newline between JSX open/close tags.
+  - Grammar support for TC39 proposal for  - export indentifier from "module"
+  - JSX Auto-indent uses eslint "indent" rule, if found, to set defaults for "react/jsx-indent" and "react/jsx-indent-props"
+  - Instantiates auto-indent for all language-babel text editor instances even if Auto Ident JSX is turned off in package settings. This allows the commands to turn on auto indent for individual files as required.
+
+### 2.24.4
+  - Remove white space from blank lines when moving out of JSX.
+  - Supress auto-indent on a open tag's > to allow auto complete end tag to pop up.
+
+### 2.24.3
+  - Fix no suggestions for html JSX attributes when on separate lines. Again!
+  - Remove possibility of repeated firing of onDidStopChanging.
+
+### 2.24.2
+  - Fix no suggestions for html JSX attributes when on separate lines.
+
+### 2.24.1
+  - Make JSX indent cursor move changes non-transactional.
+
+### 2.24.0
+  - Remove 're' filetype from Regex Grammar.
+
+### 2.23.2
+  - Fixes AutoIndentJSX which left blank lines with white space in JSX as an indentation. [Fixes #193](https://github.com/gandm/language-babel/issues/193)
+
+### 2.23.0
+  - Improve grammar for ES import & export.
+  - Small readme changes.
+
+### 2.22.0
+  - Flow declare support for:
+    - class extends and mixins keywords
+    - module.exports: type keywords
+    - declare type and declare interface
+    - module names that may be quoted.
+
 ### 2.21.1
   - Allow flowtyped arrow function returns to have intersection (&) and array ([]) notation.
 
