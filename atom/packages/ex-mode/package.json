@@ -1,7 +1,7 @@
 {
   "name": "ex-mode",
   "main": "./lib/ex-mode",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Ex for Atom's vim-mode",
   "activationCommands": {
     "atom-workspace": "ex-mode:open"
@@ -45,10 +45,10 @@
     "url": "https://github.com/lloeki/ex-mode/issues"
   },
   "homepage": "https://github.com/lloeki/ex-mode#readme",
-  "_id": "ex-mode@0.10.0",
-  "_shasum": "317209753b6d50306e3158a6075ef6c6dee59eaf",
-  "_resolved": "file:../d-116521-78905-1ep2rps/package.tgz",
-  "_from": "../d-116521-78905-1ep2rps/package.tgz",
+  "_id": "ex-mode@0.11.0",
+  "_shasum": "854670ceaae850fdb0c8eeea8ff2dccab1b55ff2",
+  "_resolved": "file:../d-11674-72162-4w43qf/package.tgz",
+  "_from": "../d-11674-72162-4w43qf/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -89,7 +89,7 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.11",
+        "version": "0.10.12",
         "path": "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
       },
       {
@@ -99,7 +99,7 @@
       },
       {
         "name": "es6-symbol",
-        "version": "3.0.2",
+        "version": "3.1.0",
         "path": "node_modules/event-kit/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
@@ -169,7 +169,7 @@
       },
       {
         "name": "es5-ext",
-        "version": "0.10.11",
+        "version": "0.10.12",
         "path": "node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/index.js"
       },
       {
@@ -179,7 +179,7 @@
       },
       {
         "name": "es6-symbol",
-        "version": "3.0.2",
+        "version": "3.1.0",
         "path": "node_modules/space-pen/node_modules/grim/node_modules/emissary/node_modules/es6-weak-map/node_modules/es5-ext/node_modules/es6-symbol/index.js"
       },
       {
@@ -1480,7 +1480,7 @@
         ],
         "dependencies": {
           "es6-iterator": "2",
-          "es6-symbol": "~3.0.2"
+          "es6-symbol": "~3.1"
         }
       },
       {
@@ -1503,7 +1503,7 @@
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.10"
+          "es5-ext": "~0.10.11"
         }
       },
       {
@@ -1761,7 +1761,7 @@
         ],
         "dependencies": {
           "es6-iterator": "2",
-          "es6-symbol": "~3.0.2"
+          "es6-symbol": "~3.1"
         }
       },
       {
@@ -1784,7 +1784,7 @@
         ],
         "dependencies": {
           "d": "~0.1.1",
-          "es5-ext": "~0.10.10"
+          "es5-ext": "~0.10.11"
         }
       },
       {
