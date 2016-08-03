@@ -1,8 +1,8 @@
 module IdePurescript.Atom.Psci where
 
 import Prelude
+import Ansi.Codes (Color(..))
 import Atom.Atom (getAtom)
-import Data.Foldable (traverse_)
 import Atom.CommandRegistry (addCommand', COMMAND, addCommand)
 import Atom.Config (CONFIG, getConfig)
 import Atom.Editor (setText, getText, TextEditor, EDITOR, getSelectedText, moveToBeginningOfLine, moveDown, getTextInRange, getCursorBufferPosition)
@@ -29,24 +29,26 @@ import DOM.Node.Element (setClassName, setAttribute)
 import DOM.Node.Node (setTextContent, firstChild, removeChild, hasChildNodes, appendChild)
 import DOM.Node.ParentNode (querySelector)
 import DOM.Node.Types (elementToParentNode, elementToNode, Element)
-import DOM.Util (setScrollTop, getScrollHeight)
+import DOM.Util (setTimeout, setScrollTop, getScrollHeight)
 import Data.Array (uncons, (!!), cons, drop)
-import Data.Either (either)
-import Data.Int (fromNumber)
+import Data.Either (either, Either(..))
+import Data.Foldable (traverse_)
 import Data.Foreign (readString)
+import Data.Int (fromNumber)
 import Data.Maybe (maybe, Maybe(Nothing, Just), isJust, fromMaybe)
 import Data.Nullable (toNullable, Nullable, toMaybe)
 import Data.String (indexOf, trim)
+import Data.String.Regex (split, noFlags, regex)
 import Global (readInt)
-import Data.String.Regex (noFlags, regex, split, replace, match)
 import IdePurescript.Atom.Imports (launchAffAndRaise)
 import IdePurescript.Atom.LinterBuild (getProjectRoot)
+import IdePurescript.Atom.PromptPanel (focus)
+import IdePurescript.Regex (match')
 import Node.ChildProcess (Exit(Normally), onClose, onError, stdin, ChildProcess, CHILD_PROCESS, stderr, stdout, defaultSpawnOptions, spawn)
 import Node.Encoding (Encoding(UTF8))
 import Node.FS (FS)
 import Node.Stream (end, writeString, onDataString)
 import Unsafe.Coerce (unsafeCoerce)
-import Ansi.Codes (Color(..))
 
 foreign import init :: forall eff. Eff eff Unit
 
@@ -59,15 +61,23 @@ createElement' elt = do
 
 foreign import getModel :: forall eff. Element -> Eff (dom :: DOM | eff) (Nullable TextEditor)
 
+foreign import copy :: forall eff. Eff (dom :: DOM | eff) Unit
+
 paneUri :: String
 paneUri = "purescript://psci"
 
-opener :: forall eff. String -> Eff (dom :: DOM | eff) (Nullable PscPane)
+registerCommands :: forall eff. Eff (command :: COMMAND, dom :: DOM | eff) Unit
+registerCommands = do
+  atom <- getAtom
+  addCommand atom.commands ".psci-pane" "ide-purescript:psci-copy" $ const copy
+
+opener :: forall eff. String -> Eff (dom :: DOM, console :: CONSOLE | eff) (Nullable PscPane)
 opener s =
   case indexOf paneUri s of
     Just 0 -> do
       div <- createElement' "div"
       setClassName "psci-pane" div
+      setAttribute "tabindex" "0" div
       topDiv <- createElement' "div"
       setClassName "psci-lines" topDiv
       appendChild (elementToNode topDiv) (elementToNode div)
@@ -79,6 +89,9 @@ opener s =
       appendChild (elementToNode editorElt) (elementToNode bottomDiv)
 
       appendChild (elementToNode bottomDiv) (elementToNode div)
+
+      setTimeout 10 $ focus editorElt
+
       pure $ toNullable $ Just { getTitle: \_ -> "PSCI", element: div }
     _ -> pure $ toNullable Nothing
 
@@ -154,10 +167,10 @@ replaceAnsiColor :: forall eff. String -> Eff (PsciEff eff) (Array Element)
 replaceAnsiColor text = toNodes parts
   where
     parts :: Array String
-    parts = split (regex """(\x1b\[[0-9;]+m)""" noFlags) text
+    parts = either (const []) (\r -> split r text) (regex """(\x1b\[[0-9;]+m)""" noFlags)
 
     colEscape :: String -> Maybe Int
-    colEscape text = case match (regex """\x1b\[([0-9]+)m""" noFlags) text of
+    colEscape text = case match' (regex """\x1b\[([0-9]+)m""" noFlags) text of
       Just [_, Just num] -> fromNumber (readInt 10 num)
       _ -> Nothing
 
@@ -183,8 +196,7 @@ replaceAnsiColor text = toNodes parts
       pure $ cons span rest
 
 appendText :: forall eff. PscPane  -> String -> Eff (PsciEff eff) Unit
-appendText {element} text =
-do
+appendText {element} text = do
   div <- createElement' "div"
   setClassName "psci-line" div
   replaceAnsiColor text >>= traverse_ \node -> appendChild (elementToNode node) (elementToNode div)
@@ -203,7 +215,7 @@ clearText {element} = do
 
 sendText :: forall eff. PscPane -> ChildProcess -> String -> Eff (PsciEff eff) Unit
 sendText pane proc text = do
-  let text' = trim text ++ "\n"
+  let text' = trim text <> "\n"
   appendText pane text'
   void $ writeString (stdin proc) UTF8 text' (pure unit)
 
@@ -247,8 +259,10 @@ startRepl paneRef psciRef = do
     )
 
   cmd <- liftEff'' $ readString <$> getConfig atom.config "ide-purescript.psciCommand"
-  rootPath <- liftEff'' getProjectRoot
-  let command = either (const []) (split (regex "\\s+" noFlags) <<< trim) $ cmd
+  rootPath <- liftEff'' $ getProjectRoot false
+  let command = case cmd, regex "\\s+" noFlags of
+                  Right cmd', Right r -> split r cmd'
+                  _, _ -> []
   psciProcess <- liftEff'' $ case rootPath, uncons command of
     Just _, Just { head: bin, tail: args } ->
        Just <$> spawn bin args (defaultSpawnOptions { cwd = rootPath })
@@ -318,7 +332,7 @@ activate = do
         maybe (pure unit) clearText ed
         open
 
-  let cmd isEditor name action = addCommand atom.commands "atom-workspace" ("psci:"++name) (const action)
+  let cmd isEditor name action = addCommand atom.commands "atom-workspace" ("ide-purescript:psci-"<>name) (const action)
         where scope = if isEditor then "atom-text-editor" else "atom-workspace"
   cmd false "open" $ reset
   cmd true  "send-line" $ launchAffAndRaise $ runCmd sendLine

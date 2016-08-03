@@ -33,7 +33,7 @@ purescriptGrammar =
     className: /{classNameOne}(?:\.{classNameOne})*/
     operatorChar: /[\p{S}\p{P}&&[^(),;\[\]`{}_"']]/
     ###
-    In case this regex seems overly general, note that Haskell
+    In case this regex seems overly general, note that PureScript
     permits the definition of new operators which can be nearly any string
     of punctuation characters, such as $%^&*.
     ###
@@ -60,7 +60,7 @@ purescriptGrammar =
     classConstraint: concat /({className})\s+/,
       list('classConstraint',/{className}|{functionName}/,/\s+/)
     functionTypeDeclaration:
-      concat list('functionTypeDeclaration',/{functionName}|{operatorFun}/,/,/),
+      concat list('functionTypeDeclaration',/{functionName}/,/,/),
         /\s*(::|∷ )/
     ctorArgs: ///
       (?:
@@ -84,23 +84,12 @@ purescriptGrammar =
         2: name: 'punctuation.definition.entity'
       ###
       In case this regex seems unusual for an infix operator, note
-      that Haskell allows any ordinary function application (elem 4 [1..10])
-      to be rewritten as an infix expression (4 `elem` [1..10]).
+      that PureScript allows any ordinary function application (elem 4 (1..10))
+      to be rewritten as an infix expression (4 `elem` (1..10)).
       ###
     ,
-      begin: /(\[)({functionNameOne})(\|)/
-      end: /(\|)(\])/
-      beginCaptures:
-        1: name: 'punctuation.definition.quasiquotes.begin'
-        2: name: 'entity.name.tag'
-        3: name: 'string.quoted.quasiquotes'
-      endCaptures:
-        1: name: 'string.quoted.quasiquotes'
-        2: name: 'punctuation.definition.quasiquotes.end'
-      contentName: 'string.quoted.quasiquotes'
-    ,
       name: 'meta.declaration.module'
-      begin: /\b(module)\b/
+      begin: /\b(module)(?!')\b/
       end: /(where)/
       beginCaptures:
         1: name: 'keyword.other'
@@ -118,7 +107,7 @@ purescriptGrammar =
       ]
     ,
       name: 'meta.declaration.typeclass'
-      begin: /\b(class)\b/
+      begin: /\b(class)(?!')\b/
       end: /\b(where)\b|$/
       beginCaptures:
         1: name: 'storage.type.class'
@@ -129,7 +118,7 @@ purescriptGrammar =
       ]
     ,
       name: 'meta.declaration.instance'
-      begin: /\b(instance)\b/
+      begin: /\b(instance)(?!')\b/
       end: /\b(where)\b|$/
       contentName: 'meta.type-signature'
       beginCaptures:
@@ -140,9 +129,23 @@ purescriptGrammar =
           include: '#type_signature'
       ]
     ,
+      name: 'meta.foreign.data'
+      begin: /^(\s*)(foreign)\s+(import)\s+(data)\s+({classNameOne})\s*(::|∷)/
+      end: /{indentBlockEnd}/
+      contentName: 'meta.kind-signature'
+      beginCaptures:
+        2: name: 'keyword.other'
+        3: name: 'keyword.other'
+        4: name: 'keyword.other'
+        5: name: 'entity.name.type'
+        6: name: 'keyword.other.double-colon'
+      patterns:[
+          include: '#kind_signature'
+      ]
+    ,
       name: 'meta.foreign'
       # functionTypeDeclaration so it can be wrapped to the next line without losing most highlighting
-      begin: /{maybeBirdTrack}(\s*)(foreign)\s+(import)\s+{functionTypeDeclaration}?/
+      begin: /^(\s*)(foreign)\s+(import)\s+{functionTypeDeclaration}?/
       end: /{indentBlockEnd}/
       contentName: 'meta.type-signature'
       beginCaptures:
@@ -159,8 +162,8 @@ purescriptGrammar =
       ]
     ,
       name: 'meta.import'
-      begin: /\b(import)\b/
-      end: /($|;|(?=--))/
+      begin: /\b(import)(?!')\b/
+      end: /($|(?=--))/
       beginCaptures:
         1: name: 'keyword.other'
       patterns: [
@@ -168,7 +171,7 @@ purescriptGrammar =
         ,
           include: '#module_exports'
         ,
-          match: /\b(qualified|as|hiding)\b/
+          match: /\b(as|hiding)\b/
           captures:
             1: name: 'keyword.other'
       ]
@@ -234,20 +237,20 @@ purescriptGrammar =
       ]
     ,
       name: 'keyword.other'
-      match: /\b(derive|where|data|type|newtype)\b/
+      match: /\b(derive|where|data|type|newtype|infix[lr]?|foreign)(?!')\b/
     ,
       name: 'storage.type'
-      match: /\b(data|type|newtype)\b/
-    ,
-      name: 'keyword.operator'
-      match: /\binfix[lr]?\b/
+      match: /\b(data|type|newtype)(?!')\b/
     ,
       name: 'keyword.control'
-      match: /\b(do|if|then|else|case|of|let|in)\b/
+      match: /\b(do|if|then|else|case|of|let|in)(?!')\b/
     ,
       name: 'constant.numeric.float'
       match: /\b([0-9]+\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+)\b/
       # Floats are always decimal
+    ,
+      name: 'constant.language.boolean'
+      match: /\b(true|false)\b/
     ,
       name: 'constant.numeric'
       match: /\b([0-9]+|0([xX][0-9a-fA-F]+|[oO][0-7]+))\b/
@@ -328,20 +331,20 @@ purescriptGrammar =
   repository:
     block_comment:
       patterns: [
-          name: 'comment.block.haddock'
-          begin: /\{-\s*[|^]/
+          name: 'comment.block.documentation'
+          begin: /\{-\s*\|/
           end: /-\}/
           applyEndPatternLast: 1
           beginCaptures:
-            0: name: 'punctuation.definition.comment.haddock'
+            0: name: 'punctuation.definition.comment.documentation'
           endCaptures:
-            0: name: 'punctuation.definition.comment.haddock'
+            0: name: 'punctuation.definition.comment.documentation'
           patterns: [
               include: '#block_comment'
           ]
         ,
           name: 'comment.block'
-          begin: /\{-(?!#)/
+          begin: /\{-/
           end: /-\}/
           applyEndPatternLast: 1
           beginCaptures:
@@ -352,17 +355,17 @@ purescriptGrammar =
       ]
     comments:
       patterns: [
-          begin: /({maybeBirdTrack}[ \t]+)?(?=--+\s+[|^])/
+          begin: /({maybeBirdTrack}[ \t]+)?(?=--+\s+\|)/
           end: /(?!\G)/
           beginCaptures:
             1: name: 'punctuation.whitespace.comment.leading'
           patterns: [
-              name: 'comment.line.double-dash.haddock'
-              begin: /(--+)\s+([|^])/
+              name: 'comment.line.double-dash.documentation'
+              begin: /(--+)\s+(\|)/
               end: /\n/
               beginCaptures:
                 1: name: 'punctuation.definition.comment'
-                2: name: 'punctuation.definition.comment.haddock'
+                2: name: 'punctuation.definition.comment.documentation'
           ]
         ,
           ###
@@ -427,8 +430,6 @@ purescriptGrammar =
           patterns: [
               name: 'entity.name.function'
               match: /{functionName}/
-            ,
-              include: '#infix_op'
           ]
         3: name: 'keyword.other.double-colon'
       patterns: [
@@ -444,26 +445,38 @@ purescriptGrammar =
           patterns: [
               name: 'entity.other.attribute-name'
               match: /{functionName}/
-            ,
-              include: '#infix_op'
           ]
         2: name: 'keyword.other.double-colon'
       patterns: [
           include: '#type_signature'
+      ]
+    kind_signature:
+      patterns: [
+          name: 'keyword.other.star'
+          match: /\*/
+        ,
+          name: 'keyword.other.exclaimation-point'
+          match: /!/
+        ,
+          name: 'keyword.other.pound-sign'
+          match: /#/
+        ,
+          name: 'keyword.other.arrow'
+          match: /->|→/
       ]
     type_signature:
       patterns: [
           name: 'meta.class-constraints'
           match: concat /\(/,
             list('classConstraints',/{classConstraint}/,/,/),
-            /\)/, /\s*(=>|<=|⇒)/
+            /\)/, /\s*(=>|<=|⇐|⇒)/
           captures:
             1: patterns: [{include: '#class_constraint'}]
             #2,3 are from classConstraint
             4: name: 'keyword.other.big-arrow'
         ,
           name: 'meta.class-constraints'
-          match: /({classConstraint})\s*(=>|<=|⇒)/
+          match: /({classConstraint})\s*(=>|<=|⇐|⇒)/
           captures:
             1: patterns: [{include: '#class_constraint'}]
             #2,3 are from classConstraint
@@ -476,10 +489,10 @@ purescriptGrammar =
           match: /=>|⇒/
         ,
           name: 'keyword.other.big-arrow-left'
-          match: /<=/
+          match: /<=|⇐/
         ,
           name: 'keyword.other.forall'
-          match: /forall/
+          match: /forall|∀/
         ,
           include: '#generic_type'
         ,
@@ -489,20 +502,20 @@ purescriptGrammar =
       ]
     type_name:
       name: 'entity.name.type'
-      match: /\b{className}\b/
+      match: /\b{className}/
     data_ctor:
       name: 'entity.name.tag'
-      match: /\b{className}\b/
+      match: /\b{className}/
     generic_type:
       name: 'variable.other.generic-type'
-      match: /\b{functionName}\b/
+      match: /\b{functionName}/
     class_constraint:
       name: 'meta.class-constraint'
       match: /{classConstraint}/
       captures:
         1: patterns: [
           name: 'entity.name.type'
-          match: /\b{className}\b/
+          match: /\b{className}/
         ]
         2: patterns: [
             include: '#type_name'

@@ -1,31 +1,47 @@
-module IdePurescript.Atom.Config (config, getPscIdePort) where
+module IdePurescript.Atom.Config (config, getSrcGlob, getFastRebuild) where
 
 import Prelude
 import Node.Process as P
 import Atom.Atom (getAtom)
-import Atom.Config (getConfig, CONFIG)
+import Atom.Config (CONFIG, getConfig)
 import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Class (liftEff)
+import Data.Array (mapMaybe)
+import Data.Bifunctor (rmap)
 import Data.Either (either)
-import Data.Foreign (readInt, toForeign, Foreign)
+import Data.Foreign (readString, readArray, readBoolean, Foreign, toForeign)
+import Data.Maybe (Maybe(..))
 import Node.Platform (Platform(Win32))
+
+defaultSrcGlob :: Array String
+defaultSrcGlob = ["src/**/*.purs", "bower_components/**/*.purs"]
+
+getSrcGlob :: forall eff. Eff (config :: CONFIG | eff) (Array String)
+getSrcGlob = do
+  atom <- getAtom
+  srcGlob <- liftEff $ readArray <$> getConfig atom.config "ide-purescript.pscSourceGlob"
+  let srcGlob' = rmap (mapMaybe $ (either (const Nothing) Just) <<< readString) srcGlob
+  pure $ either (const defaultSrcGlob) id srcGlob'
+
+getFastRebuild :: forall eff. Eff (config :: CONFIG | eff) Boolean
+getFastRebuild = do
+  atom <- getAtom
+  fastRebuild <- readBoolean <$> getConfig atom.config "ide-purescript.fastRebuild"
+  pure $ either (const true) id $ fastRebuild
 
 pulpCmd :: String
 pulpCmd = if P.platform == Win32 then "pulp.cmd" else "pulp"
 
-getPscIdePort :: forall eff. Eff (config :: CONFIG | eff) Int
-getPscIdePort = do
-  atom <- getAtom
-  port' <- readInt <$> getConfig atom.config "ide-purescript.pscIdePort"
-  pure $ either (const 4242) id port'
-
 config :: Foreign
 config = toForeign
-  { pscIdePort:
-    { title: "psc-ide port number"
-    , description: "The port to use to communicate with `psc-ide-server`, also to launch the server with if required. "
-        ++ "The default port is 4242 and this only need be changed if you've explicitly chosen to use another port."
-    , type: "integer"
-    , default: 4242
+  { pscSourceGlob:
+    { title: "PureScript source glob"
+    , description: "Source glob to use to find .purs source files. Currently used for psc-ide-server to power goto-definition."
+    , type: "array"
+    , default: defaultSrcGlob
+    , items:
+      { type: "string"
+      }
     }
   , pscIdeServerExe:
     { title: "psc-ide-server executable location"
@@ -36,12 +52,12 @@ config = toForeign
   , buildCommand:
     { title: "Build command"
     , description: "Command line to build the project. "
-        ++ "Could be pulp (default), psc or a gulpfile, so long as it passes through errors from psc. "
-        ++ "Should output json errors (`--json-errors` flag). "
-        ++ "This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path."
-        ++ "See [examples on the README](https://github.com/nwolverson/atom-ide-purescript/#build-configuration-hints)"
+        <> "Could be pulp (default), psc or a gulpfile, so long as it passes through errors from psc. "
+        <> "Should output json errors (`--json-errors` flag). "
+        <> "This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path."
+        <> "See [examples on the README](https://github.com/nwolverson/atom-ide-purescript/#build-configuration-hints)"
     , type: "string"
-    , default: pulpCmd ++ " build --no-psa --json-errors"
+    , default: pulpCmd <> " build --no-psa --json-errors"
     }
   , buildOnSave:
     { title: "Build on save"
@@ -53,14 +69,14 @@ config = toForeign
     { title: "Use fast rebuild"
     , description: "Use psc-ide-server rebuild function to build the current file only on save"
     , type: "boolean"
-    , default: false
+    , default: true
     }
   , psciCommand:
     { title: "psci command (eg 'psci' or 'pulp psci' or full path)"
     , description: "Command line to use to launch PSCI for the repl buffer. "
-        ++ "This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path."
+        <> "This is not interpreted via a shell, arguments can be specified but don't use shell features or a command with spaces in its path."
     , type: "string"
-    , default: pulpCmd ++ " psci"
+    , default: pulpCmd <> " psci"
     }
   , autocomplete:
     { type: "object"

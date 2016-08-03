@@ -1,6 +1,6 @@
 {
   "name": "language-purescript",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "PureScript language support for the Atom editor",
   "license": "MIT",
   "repository": {
@@ -23,10 +23,10 @@
   "readme": "# PureScript language support in Atom\n\nAdds syntax highlighting to [PureScript](http://www.purescript.org) files in Atom.\n\nContributions are greatly appreciated. Please fork this repository and open a pull request to add snippets, make grammar tweaks, etc.\n",
   "readmeFilename": "README.md",
   "homepage": "https://github.com/darinmorrison/atom-language-purescript#readme",
-  "_id": "language-purescript@0.7.0",
-  "_shasum": "a48f9e3c6defd04f611a1b3e46f2ffd52bc2477e",
-  "_resolved": "file:../d-11634-21895-19ieg4p/package.tgz",
-  "_from": "../d-11634-21895-19ieg4p/package.tgz",
+  "_id": "language-purescript@0.8.0",
+  "_shasum": "4e8fadd68fe9cb6d6e2af61de46ca84518a69ac5",
+  "_resolved": "file:../d-11671-94319-oenyzd/package.tgz",
+  "_from": "../d-11671-94319-oenyzd/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [],

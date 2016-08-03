@@ -1,7 +1,7 @@
 {
   "name": "ide-purescript",
   "main": "./lib/main",
-  "version": "0.13.6",
+  "version": "0.14.6",
   "description": "PureScript support for completion, build and maybe more",
   "keywords": [],
   "activationHooks": [
@@ -9,21 +9,22 @@
   ],
   "activationCommands": {
     "atom-workspace": [
-      "purescript:build",
-      "purescript:search",
-      "purescript:build",
-      "purescript:show-quick-fixes",
-      "purescript:pursuit-search",
-      "purescript:pursuit-search-modules",
-      "purescript:add-module-import",
-      "purescript:add-explicit-import",
-      "purescript:search",
-      "purescript:case-split",
-      "purescript:add-clause",
-      "purescript:fix-typo",
-      "psci:open",
-      "psci:send-line",
-      "psci:send-selection"
+      "ide-purescript:build",
+      "ide-purescript:search",
+      "ide-purescript:build",
+      "ide-purescript:show-quick-fixes",
+      "ide-purescript:pursuit-search",
+      "ide-purescript:pursuit-search-modules",
+      "ide-purescript:add-module-import",
+      "ide-purescript:add-explicit-import",
+      "ide-purescript:search",
+      "ide-purescript:case-split",
+      "ide-purescript:add-clause",
+      "ide-purescript:fix-typo",
+      "ide-purescript:goto-definition",
+      "ide-purescript:psci-open",
+      "ide-purescript:psci-send-line",
+      "ide-purescript:psci-send-selection"
     ]
   },
   "repository": {
@@ -56,6 +57,11 @@
       "versions": {
         "2.0.0": "provideAutocomplete"
       }
+    },
+    "hyperclick.provider": {
+      "versions": {
+        "0.0.0": "provideHyperclick"
+      }
     }
   },
   "consumedServices": {
@@ -75,16 +81,16 @@
       }
     }
   },
-  "readme": "# ide-purescript package for Atom\n\nThis package provides editor support for PureScript projects in Atom. Dependency [language-purescript](https://atom.io/packages/language-purescript) provides syntax highlighting.\n\nThis package provides:\n  * Build and error reporting\n  * Autocompletion\n  * Type info tooltips\n\nPackage should trigger on opening a `.purs` file or running any PureScript/PSCI command from the menu bar or command palette.\n\n## Installation and General Use\n\nAtom packages [language-purescript](https://atom.io/packages/language-purescript) and [Linter](https://github.com/atom-community/linter) are required, these should be auto-installed by starting the package, eg by running any PureScript command.\n\nFor best results (and default settings) install dependencies:\n\n  * `psc` >= 0.8.0\n  * `pulp` >= 8.0.0\n\nFor use with older versions of pulp, or for alternative build tools and configuration tips, [see below](#build). In brief\nthe build command is configurable, but should output JSON errors.\n\n## psc-ide\n\nThis package runs a server process, `psc-ide-server`, to provide type information, completions,\netc. This package will automatically start `psc-ide-server` in your project\ndirectory (port is configurable) and kill it when closing, if for some reason\nyou want a longer running server process you should be able to start that before\nstarting atom. Multiple projects currently not supported, but you should be able\nto use the [project-manager](https://atom.io/packages/project-manager) package.\n\nNote `psc-ide-client` is not used.\n\nFor all functions provided by `psc-ide` you will need to build your project first!\n\n## Autocomplete\n\nProvided from `psc-ide`. Make sure your project is built first.\n\nCompletions will be sourced from all available modules by default; this is configurable to just those imported in the current file, in which case explicitly (re-)triggering the completion will expand to show all modules.\n\nImports will be inserted automatically for completions! Again this is configurable.\n\n## Tooltips\n\nHovering over an identifier will show a tooltip with its type:\n\n![Type tooltip](http://nwolverson.github.io/atom-ide-purescript/assets/type-tooltip.png)\n\nThis is really stupid, and only cares that you hover over a word regardless of context, you will get some false positives.\n\n## Pursuit lookup\n\n![Pursuit lookup](http://nwolverson.github.io/atom-ide-purescript/assets/pursuit.png)\n\nCommand available from the command palette:\n  * PureScript search - search for identifiers, by identifier or type\n  * PureScript search modules - find package by module\n  * PureScript search - a local search of identifiers from built modules\n\n## PSCI\n\n![PSCI window](http://nwolverson.github.io/atom-ide-purescript/assets/psci.png)\n\nBasic PSCI REPL integration (runs `pulp psci`). Comprises a read-only pane which displays\nPSCI output, and an input field to send expressions to the REPL (just hitting enter). Input \ncan be sent from the current buffer by line or selection.\n\nCommand from the command palette:\n  * PSCI: Open - open a PSCI buffer\n  * PSCI: Send Line\n  * PSCI: Send Selection\n\n## Build\n\nBuild support is provided via `pulp build` by default, configurable to any command which\nwill output psc errors. This can be configured to run on save, alternatively there\nis a 'PureScript Build' command.\n\n### Build configuration hints\n\nThe default build command is\n```\npulp build --no-psa --json-errors\n```\n(on windows `pulp.cmd` is called instead). This is configurable: the command should be\non your PATH (or could be an explicit absolute path) with arguments, such that it will\noutput JSON errors as per `psc`, on stderr. This is *not* interpreted via shell, simply\npulled apart as a list of string separated arguments.\n\nSome alternatives:\n  * Direct `psc` use: `psc bower_components/*/src/**/*.purs bower_components/*/src/**/*.js src/**/*.purs src/**/*.js --json-errors`\n  * Run a `purescript-gulp` based build: `gulp` - again need to ensure this outputs JSON errors, you probably want a specific task for this.\n  * Pulp passing through `psa`: `pulp build --stash --json-errors`\n\n    This will pass through `psc` errors as JSON but also integrate to any external `psa` stash,\n    e.g. if you're running `psa` on a terminal somewhere. Right now the stashed warnings are not exposed in the JSON.\n  * Ensure tests are compiled in the build: `pulp build --include test --json-errors`\n  * Via npm run script: `npm run -s build`. Or if the run script does not output json errors you might be able to pass\n    an extra flag: `npm run -s build -- --json-errors` - more information [on this issue](https://github.com/nwolverson/atom-ide-purescript/issues/53#issuecomment-198621810).\n\nSince atom unfortunately does not support per-project configuration, the npm run script approach may be particularly\nuseful where you have different projects that build differently. Alternatively you can look into\nthe [project-manager](https://atom.io/packages/project-manager) package.\n\nYou may be able to get away without thinking about all this if your project specific setup is only required for a \"full\" build\n(e.g. browserify step) and not just for the basic compilation stage.\n\n\n## Error Suggestions\n\n![Error suggestions](https://cloud.githubusercontent.com/assets/2770891/12066635/d6b14964-afe2-11e5-8584-44d291044614.gif)\n\nError suggestions may be triggered from some underlined compiler warnings. There\nis no visual indication, currently this will basically be for 'import' warnings,\nand can be triggered by 'alt-enter' (PureScript: Show Quick Fixes).\n\n## Case split / add clause\n\n*EXPERIMENTAL*\n\nAdd clause - use psc-ide to add a clause to the current top-level function (from cursor on its type definition).\nCase split - with cursor on an function argument identifier, add clauses to the definition to case-split on that argument.\n\n\n## Hacking on atom-ide-purescript\n\nAfter cloning, install dependencies\n  • `bower install`\n  • `npm install`\n\nBundle for Atom: `npm run bundle`\n_Alternatively `npm run -s bundle` if you want cleaner output_\n\nYou can use the regular `pulp build` as part of your tooling or to see compile errors, but bundling is required for the plugin to be usable by Atom and will build the project as part of the task.\n\nTo use your local development version, you will first need to uninstall any current version you have installed. Then from within the atom-ide-purescript directory run `apm link`. This will create a symlink from the Atom plugins directory to your development directory.\n",
+  "readme": "# ide-purescript package for Atom\n\nThis package provides editor support for PureScript projects in Atom. Dependency [language-purescript](https://atom.io/packages/language-purescript) provides syntax highlighting.\n\nThis package provides:\n  * [Autocomplete](#autocomplete)\n  * [Tooltips](#tooltips)\n  * [Go-to-definition](#go-to-definition)\n  * [Pursuit lookup](#pursuit-lookup) and local search\n  * [PSCI](#psci)\n  * [Build](#build) and error reporting\n  * [Quick-Fix](#error-suggetsions--quick-fix)\n  * [Case-Split](#case-split--add-clause)\n\nPackage should trigger on opening a `.purs` file or running any PureScript/PSCI command from the menu bar or command palette.\n\n## Installation and General Use\n\nFor best results (and default settings) install dependencies:\n\n  * `psc` 0.8.5 or >= 0.9.1 (includes `psc-ide-server` as standard)\n    * 0.9.2 required for go-to definition, 0.9.x for some compiler suggestions\n  * `pulp` >= 8.0.0 (appropriate for your `psc` version)\n\nRequired atom packages - these should be auto-installed by starting the package, eg by running any PureScript command.\n  * [language-purescript](https://atom.io/packages/language-purescript)\n  * [Linter](https://github.com/atom-community/linter) are required,\n\nOptional atom packages:\n\n  * [hyperclick](https://atom.io/packages/hyperclick) - click to go to definition (this package contains a hyperclick provider)\n\nFor use with older versions of pulp, or for alternative build tools and configuration tips, [see below](#build). In brief\nthe build command is configurable, but should output JSON errors.\n\n## psc-ide\n\nThis package runs a server process, `psc-ide-server`, to provide type information, completions,\netc. This package will automatically start `psc-ide-server` in your project\ndirectory (port is configurable) and kill it when closing, if for some reason\nyou want a longer running server process you should be able to start that before\nstarting atom.\n\nMultiple PureScript projects are now supported, whether in one or multiple Atom windows, see [release notes](https://github.com/nwolverson/atom-ide-purescript/releases/tag/v0.14.0) for details.\n\nNote `psc-ide-client` is not used.\n\nFor all functions provided by `psc-ide` you will need to build your project first! In particular a full build,\nnot a \"fast-build\" on save, is required first time or after upgrading psc, afterwards saving individual files\nwill update tooltips etc.\n\n## Autocomplete\n\nProvided from `psc-ide`. Make sure your project is built first. Only for top level definitions.\n\nCompletions will be sourced from all available modules by default; this is configurable to just those imported in the current file, in which case explicitly (re-)triggering the completion will expand to show all modules.\n\nImports will be inserted automatically for completions! Again this is configurable.\n\n## Tooltips\n\nHovering over an identifier will show a tooltip with its type (only for top level definitions):\n\n![Type tooltip](http://nwolverson.github.io/atom-ide-purescript/assets/type-tooltip.png)\n\nThis is really stupid, and only cares that you hover over a word regardless of context, you will get some false positives.\n\n## Go to definitions\n\nThe command _Ide PureScript: Goto Definition_ is available (default binding `ctrl-o g`). This is available with psc-ide version\n0.9.2 and above, and like tooltips/autocomplete works on identifiers bound at the top level. Placing the cursor on the identifier\nand executing the command should open the appropriate file at the correct place. In case source positions are not up to date (they\n  may not be updated on rebuild, try rebuilding or restarting psc-ide server).\n\nIf the package [hyperclick](https://atom.io/packages/hyperclick) is installed, goto definition will be availble on alt/cmd-click also.\n\n## Pursuit lookup\n\n![Pursuit lookup](http://nwolverson.github.io/atom-ide-purescript/assets/pursuit.png)\n\nCommand available from the command palette:\n  * PureScript search - search for identifiers, by identifier or type\n  * PureScript search modules - find package by module\n  * PureScript search - a local search of identifiers from built modules\n\n## PSCI\n\n![PSCI window](http://nwolverson.github.io/atom-ide-purescript/assets/psci.png)\n\nBasic PSCI REPL integration (runs `pulp psci`). Comprises a read-only pane which displays\nPSCI output, and an input field to send expressions to the REPL (just hitting enter). Input\ncan be sent from the current buffer by line or selection.\n\nCommand from the command palette:\n  * PSCI: Open - open a PSCI buffer\n  * PSCI: Send Line\n  * PSCI: Send Selection\n\n## Build\n\nBuild support is provided via `pulp build` by default, configurable to any command which\nwill output psc errors. This can be configured to run on save, alternatively there\nis a 'PureScript Build' command.\n\nAs well as this there is \"fast rebuild\" via `psc-ide-server` on save (by default), this will\nbuild an individual file. The recommended approach is to run a full build initially and\nafter any dependency upgrades, compiler updates, etc. or when producing build artifacts, and\notherwise quick build for continuous error feedback.\n\n### Build configuration hints\n\nThe default build command is\n```\npulp build --no-psa --json-errors\n```\n(on windows `pulp.cmd` is called instead). This is configurable: the command should be\non your PATH (or could be an explicit absolute path) with arguments, such that it will\noutput JSON errors as per `psc`, on stderr. This is *not* interpreted via shell, simply\npulled apart as a list of string separated arguments.\n\nSome alternatives:\n  * Direct `psc` use: `psc bower_components/*/src/**/*.purs bower_components/*/src/**/*.js src/**/*.purs src/**/*.js --json-errors`\n  * Run a `purescript-gulp` based build: `gulp` - again need to ensure this outputs JSON errors, you probably want a specific task for this.\n  * Pulp passing through `psa`: `pulp build --stash --json-errors`\n\n    This will pass through `psc` errors as JSON but also integrate to any external `psa` stash,\n    e.g. if you're running `psa` on a terminal somewhere. Right now the stashed warnings are not exposed in the JSON.\n  * Ensure tests are compiled in the build: `pulp build --include test --json-errors`\n  * Via npm run script: `npm run -s build`. Or if the run script does not output json errors you might be able to pass\n    an extra flag: `npm run -s build -- --json-errors` - more information [on this issue](https://github.com/nwolverson/atom-ide-purescript/issues/53#issuecomment-198621810).\n\nSince atom unfortunately does not support per-project configuration, the npm run script approach may be particularly\nuseful where you have different projects that build differently. Alternatively you can look into\nthe [project-manager](https://atom.io/packages/project-manager) package.\n\nYou may be able to get away without thinking about all this if your project specific setup is only required for a \"full\" build\n(e.g. browserify step) and not just for the basic compilation stage.\n\n## Error Suggestions / Quick-Fix\n\n![Error suggestions](https://cloud.githubusercontent.com/assets/2770891/12066635/d6b14964-afe2-11e5-8584-44d291044614.gif)\n\nError suggestions may be triggered from some underlined compiler warnings. There\nis no additional visual indication. A context menu can be triggered by 'alt-enter' (PureScript: Show Quick Fixes)\nwhen the cursor is on an eligible warning. Currently fixable warnings:\n\n  * Unused or duplicate import (`UnusedImport`, `DuplicateImport`)\n  * Extraneous identifiers in explicit import list (`UnusedExplicitImport`)\n  * Implicit imports that should be made explicit - this will apply to all but remember that 1 open import is allowed without warning (`ImplicitImport`, `ImplicitQualifiedImport`, `HidingImport`)\n  * Missing top level type declaration - add type signature. Note you will need to quantify any type variables that appear,\n  and maybe re-qualify identifiers (`MissingTypeDeclaration`)\n  * Inferred type for wildcard `_` - fill in type signature. Notes as above. (`WildcardInferredType`)\n\n## Case split / add clause\n\n![Case split/add clause](https://cloud.githubusercontent.com/assets/2770891/17080720/2c5391d8-5132-11e6-8bf3-0a7e0714da24.gif)\n\n  * **Add clause** (default binding: `^O c`) - use psc-ide to add a clause to the current top-level function (from cursor on its type definition).\n  * **Case split** (default binding: `^O s`) - with cursor on an function argument identifier, add clauses to the definition to case-split on that argument.\n\nCurrently the type of the arguments must be provided by the user.\n\n## Hacking on atom-ide-purescript\n\nAfter cloning, install dependencies\n  • `bower install`\n  • `npm install`\n\nBundle for Atom: `npm run bundle`\n_Alternatively `npm run -s bundle` if you want cleaner output_\n\nYou can use the regular `pulp build` as part of your tooling or to see compile errors, but bundling is required for the plugin to be usable by Atom and will build the project as part of the task.\n\nTo use your local development version, you will first need to uninstall any current version you have installed. Then from within the atom-ide-purescript directory run `apm link`. This will create a symlink from the Atom plugins directory to your development directory.\n",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/nwolverson/atom-ide-purescript/issues"
   },
   "homepage": "https://github.com/nwolverson/atom-ide-purescript#readme",
-  "_id": "ide-purescript@0.13.6",
-  "_shasum": "c179b9a51197ece719e2b9f2a50c13ffff9d2768",
-  "_resolved": "file:../d-116611-28821-ws0089/package.tgz",
-  "_from": "../d-116611-28821-ws0089/package.tgz",
+  "_id": "ide-purescript@0.14.6",
+  "_shasum": "fea44c631954bc0d88dbfddbb9043f9a2479dcd3",
+  "_resolved": "file:../d-116625-62012-v9w54o/package.tgz",
+  "_from": "../d-116625-62012-v9w54o/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -235,12 +241,12 @@
       },
       {
         "name": "brace-expansion",
-        "version": "1.1.5",
+        "version": "1.1.6",
         "path": "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/index.js"
       },
       {
         "name": "balanced-match",
-        "version": "0.4.1",
+        "version": "0.4.2",
         "path": "node_modules/glob/node_modules/minimatch/node_modules/brace-expansion/node_modules/balanced-match/index.js"
       },
       {

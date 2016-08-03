@@ -1,13 +1,15 @@
 "*":
   "aligner-css": {}
   core:
+    disabledPackages: [
+      "language-babel"
+    ]
     projectHome: "/Users/josh/src"
     themes: [
       "one-dark-ui"
       "solarized-dark-syntax"
     ]
   editor:
-    fontSize: 12
     invisibles: {}
   "exception-reporting":
     userId: "9430f7e2-77e0-0672-11f7-43e8a2a1f9dc"
