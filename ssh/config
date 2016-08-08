@@ -27,3 +27,7 @@ Host vcc
   Hostname vanya.vicclimb.org.au
   Port 443
   User tlucas
+
+Host app01
+  Hostname app01.ferocia.com.au
+  User apache

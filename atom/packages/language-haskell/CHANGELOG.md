@@ -1,3 +1,18 @@
+## 1.8.2
+* Some fixes to class constraints
+
+## 1.8.1
+* Fix multiparam class constraints, forall
+
+## 1.8.0
+* Better highlighting for type families
+* GADTs unified with `data` definitons
+* Simplified many regexes to avoid unexpected backtracking-related hangs
+* Most haskell grammar patterns moved to repository
+* Fix GADT ctor scope to `tag`
+* Grammar files are distributed instead of being generated now
+* Remove hack used for grammar hooks
+
 ## 1.7.17
 * Prelude typeclasses
 * Merge branch 'master' of github.com:atom-haskell/language-haskell
