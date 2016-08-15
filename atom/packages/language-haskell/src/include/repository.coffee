@@ -16,6 +16,11 @@ pragmas = [
   'SOURCE'
 ]
 
+instance_pragmas = [
+  'INCOHERENT'
+  'OVERLAP(PABLE|PING|S)'
+]
+
 module.exports=
   block_comment:
     patterns: [
@@ -92,21 +97,26 @@ module.exports=
     patterns: [
         include: '#comments'
       ,
-        name: 'entity.name.function.haskell'
-        match: /{lb}{functionName}{rb}/
+        include: '#function_name'
       ,
         include: '#type_name'
       ,
         include: '#comma'
       ,
-        include: '#infix_op'
-      ,
         name: 'meta.other.constructor-list.haskell'
-        begin: /\(/
+        begin: /{rb}\s*\(/
         end: /\)/
         patterns: [
-          include: '#type_ctor'
+          { include: '#type_ctor' }
+          { include: '#attribute_name' }
+          { include: '#comma' }
+          {
+            match: /\.\./
+            name: 'keyword.operator.wildcard.haskell'
+          }
         ]
+      ,
+        include: '#infix_op'
     ]
   module_name:
     name: 'support.other.module.haskell'
@@ -130,10 +140,8 @@ module.exports=
     beginCaptures:
       2:
         patterns: [
-            name: 'entity.name.function.haskell'
-            match: /{functionName}/
-          ,
-            include: '#infix_op'
+            {include: '#function_name'}
+            {include: '#infix_op'}
         ]
       3: name: 'keyword.other.double-colon.haskell'
     patterns: [
@@ -147,8 +155,7 @@ module.exports=
     beginCaptures:
       2:
         patterns: [
-            name: 'entity.name.tag.haskell'
-            match: /{className}/
+            include: '#type_ctor'
           ,
             include: '#infix_op'
         ]
@@ -164,8 +171,7 @@ module.exports=
     beginCaptures:
       1:
         patterns: [
-            name: 'entity.other.attribute-name.haskell'
-            match: /{lb}{functionName}{rb}/
+            include: '#attribute_name'
           ,
             include: '#infix_op'
         ]
@@ -175,36 +181,36 @@ module.exports=
     ]
   type_signature:
     patterns: [
-        name: 'meta.class-constraints.haskell'
-        match: '(?<paren>(?:[^()]|\\(\\g<paren>\\))*)\\s*(=>|⇒)'
-        captures:
-          1: patterns: [
-            {include: '#class_constraint'}
-            {include: '#forall'}
-            {include: '#comments'}
-            {include: '#big_arrow'}
-          ]
-          2: name: 'keyword.other.big-arrow.haskell'
-      ,
-        include: '#forall'
-      ,
+      #TODO: Type operators, type-level integers etc
         include: '#pragma'
       ,
-        name: 'keyword.other.arrow.haskell'
-        match: /->|→/
+        include: '#comments'
       ,
-        include: '#big_arrow'
+        name: 'keyword.other.forall.haskell'
+        match: '{lb}forall{rb}'
+      ,
+        include: '#unit'
+      ,
+        include: '#empty_list'
+      ,
+        name: 'entity.other.inherited-class.haskell'
+        match: "{lb}(#{prelude.classes.join('|')}){rb}"
+      ,
+        name: 'keyword.other.arrow.haskell'
+        match: '(?<!{operatorChar})(->|→)(?!{operatorChar})'
+      ,
+        name: 'keyword.other.big-arrow.haskell'
+        match: '(?<!{operatorChar})(=>|⇒)(?!{operatorChar})'
+      ,
+        include: '#operator'
       ,
         name: 'support.class.prelude.haskell'
         match: "{lb}(#{prelude.types.join('|')}){rb}"
       ,
-        include: '#generic_type'
+        name: 'variable.other.generic-type.haskell'
+        match: /{lb}{functionName}{rb}/
       ,
         include: '#type_name'
-      ,
-        include: '#unit'
-      ,
-        include: '#comments'
     ]
   unit:
     name: 'constant.language.unit.haskell'
@@ -212,27 +218,11 @@ module.exports=
   empty_list:
     name: 'constant.language.empty-list.haskell'
     match: /\[\]/
-  generic_type:
-    name: 'variable.other.generic-type.haskell'
-    match: /{lb}{functionName}{rb}/
-  class_constraint:
-    name: 'meta.class-constraint.haskell'
-    begin:  /{lb}({className}){rb}/
-    end: /(,|(=>|⇒)|$)/
-    beginCaptures:
-      1: name: 'entity.other.inherited-class.haskell'
-    patterns: [
-        include: '#type_name'
-      ,
-        include: '#generic_type'
-    ]
   deriving:
     patterns: [
-        include: '#deriving_list'
-      ,
-        include: '#deriving_simple'
-      ,
-        include: '#deriving_keyword'
+        {include: '#deriving_list'}
+        {include: '#deriving_simple'}
+        {include: '#deriving_keyword'}
     ]
   deriving_keyword:
     name: 'meta.deriving.haskell'
@@ -280,14 +270,10 @@ module.exports=
     endCaptures:
       1: name: 'keyword.other.haskell'
     patterns: [
-        include: '#comments'
-      ,
-        include: '#module_name'
-      ,
-        include: '#module_exports'
-      ,
-        name: 'invalid'
-        match: /[a-z]+/
+        {include: '#comments'}
+        {include: '#module_name'}
+        {include: '#module_exports'}
+        {include: '#invalid'}
     ]
   class_decl:
     name: 'meta.declaration.class.haskell'
@@ -310,7 +296,16 @@ module.exports=
     endCaptures:
       1: name: 'keyword.other.haskell'
     patterns: [
-        include: '#type_signature'
+        {
+          name: 'meta.preprocessor.haskell'
+          begin: /\{-#/
+          end: /#-\}/
+          patterns: [
+              match: "{lb}(#{instance_pragmas.join('|')}){rb}"
+              name: 'keyword.other.preprocessor.haskell'
+          ]
+        }
+        {include: '#type_signature'}
     ]
   foreign_import:
     name: 'meta.foreign.haskell'
@@ -360,9 +355,7 @@ module.exports=
       ,
         include: '#deriving'
       ,
-        match: /=/
-        captures:
-          0: name: 'keyword.operator.assignment.haskell'
+        include: '#assignment_op'
       ,
         match: /{ctor}/
         captures:
@@ -383,9 +376,9 @@ module.exports=
         endCaptures:
           0: name: 'keyword.operator.record.end.haskell'
         patterns: [
-            include: '#comma'
-          ,
-            include: '#record_field_declaration'
+            {include: '#comments'}
+            {include: '#comma'}
+            {include: '#record_field_declaration'}
         ]
       ,
         include: '#ctor_type_declaration' #GADT
@@ -398,17 +391,11 @@ module.exports=
     beginCaptures:
       2: name: 'storage.type.data.haskell'
     patterns: [
-        include: '#comments'
-      ,
-        include: '#family_and_instance'
-      ,
-        include: '#where'
-      ,
-        match: /=/
-        captures:
-          0: name: 'keyword.operator.assignment.haskell'
-      ,
-        include: '#type_signature'
+        {include: '#comments'}
+        {include: '#family_and_instance'}
+        {include: '#where'}
+        {include: '#assignment_op'}
+        {include: '#type_signature'}
     ]
   keywords: [
     name: 'keyword.other.haskell'
@@ -448,8 +435,7 @@ module.exports=
         endCaptures:
           0: name: 'markup.other.escape.newline.end.haskell'
         patterns: [
-            match: /\S+/
-            name: 'invalid.illegal.character-not-allowed-here.haskell'
+            {include: '#invalid'}
         ]
     ]
   newline_escape:
@@ -472,12 +458,25 @@ module.exports=
       2: name: 'keyword.other.double-colon.haskell'
       3: {name: 'meta.type-signature.haskell', patterns: [include: '#type_signature']}
   ,
-    # match: '(::|∷)((?:(?:{className}|{functionName}|->|=>|[→⇒()\\[\\]]|\\s)(?!:<-|=))*)'
-    match: '(::|∷)((?:{className}|{functionName}|\\->|=>|[→⇒()\\[\\]]|\\s)*)'
+    match: '(::|∷)(.*?)(?:(?<!{operatorChar})(<-|=)(?!{operatorChar})|$)'
     captures:
       1: name: 'keyword.other.double-colon.haskell'
       2: {name: 'meta.type-signature.haskell', patterns: [include: '#type_signature']}
+      3: patterns: [
+          {include: '#assignment_op'}
+          {include: '#operator'}
+      ]
   ]
+  scoped_type_override:
+    match: '{indentBlockStart}{functionTypeDeclaration}(.*)(?<!{operatorChar})(<-|=)(?!{operatorChar})'
+    captures:
+      2: patterns: [include: '#identifier']
+      3: name: 'keyword.other.double-colon.haskell'
+      4: {name: 'meta.type-signature.haskell', patterns: [include: '#type_signature']}
+      5: patterns: [
+          {include: '#assignment_op'}
+          {include: '#operator'}
+      ]
   prelude:[
     name: 'support.tag.haskell'
     match: "{lb}(#{prelude.constr.join('|')}){rb}"
@@ -522,13 +521,16 @@ module.exports=
   family_and_instance:
     match: '{lb}(family|instance){rb}'
     name: 'keyword.other.haskell'
-  forall:
-    name: 'meta.type-signature.forall.haskell'
-    begin: '{lb}(forall){rb}'
-    end: /\./
-    beginCaptures:
-      1: name: 'keyword.other.haskell'
-    patterns: [ include: '#generic_type' ]
-  big_arrow:
-    name: 'keyword.other.big-arrow.haskell'
-    match: /=>|⇒/
+  invalid:
+    match: /\S+/
+    name: 'invalid.illegal.character-not-allowed-here.haskell'
+  function_name:
+    name: 'entity.name.function.haskell'
+    match: /{lb}{functionName}{rb}/
+  assignment_op:
+    match: /=/
+    captures:
+      0: name: 'keyword.operator.assignment.haskell'
+  attribute_name:
+    name: 'entity.other.attribute-name.haskell'
+    match: /{lb}{functionName}{rb}/

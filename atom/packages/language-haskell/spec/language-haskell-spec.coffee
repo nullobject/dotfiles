@@ -214,3 +214,146 @@ describe "Language-Haskell", ->
         { value : 'Bar', scopes : [ 'source.haskell', 'meta.declaration.type.data.haskell', 'meta.declaration.type.data.record.block.haskell', 'meta.record-field.type-declaration.haskell', 'meta.type-signature.haskell', 'entity.name.type.haskell' ] }
         { value : '}', scopes : [ 'source.haskell', 'meta.declaration.type.data.haskell', 'meta.declaration.type.data.record.block.haskell', 'keyword.operator.record.end.haskell' ] }
       ]
+
+  it "properly highlights data declarations", ->
+    data = 'data Foo = Foo Bar'
+    {tokens} = grammar.tokenizeLine(data)
+    # console.log JSON.stringify(tokens, undefined, 2)
+    expect(tokens).toEqual [
+        {
+          "value": "data",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell",
+            "storage.type.data.haskell"
+          ]
+        }
+        {
+          "value": " ",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell"
+          ]
+        },
+        {
+          "value": "Foo",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell",
+            "meta.type-signature.haskell",
+            "entity.name.type.haskell"
+          ]
+        },
+        {
+          "value": " ",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell",
+            "meta.type-signature.haskell"
+          ]
+        },
+        {
+          "value": "=",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell",
+            "keyword.operator.assignment.haskell"
+          ]
+        },
+        {
+          "value": " ",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell"
+          ]
+        },
+        {
+          "value": "Foo",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell",
+            "entity.name.tag.haskell"
+          ]
+        },
+        {
+          "value": " ",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell"
+          ]
+        },
+        {
+          "value": "Bar",
+          "scopes": [
+            "source.haskell",
+            "meta.declaration.type.data.haskell",
+            "meta.type-signature.haskell"
+            "entity.name.type.haskell"
+          ]
+        }
+      ]
+  describe "regression test for 71", ->
+    it "<-", ->
+      data = "x :: String <- undefined"
+      {tokens} = grammar.tokenizeLine(data)
+      console.log JSON.stringify(tokens, undefined, 2)
+      expect(tokens).toEqual [
+        { value : 'x', scopes : [ 'source.haskell', 'identifier.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell' ] }
+        { value : '::', scopes : [ 'source.haskell', 'keyword.other.double-colon.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.type-signature.haskell' ] }
+        { value : 'String', scopes : [ 'source.haskell', 'meta.type-signature.haskell', 'support.class.prelude.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.type-signature.haskell' ] }
+        { value : '<-', scopes : [ 'source.haskell', 'keyword.operator.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell' ] }
+        { value : 'undefined', scopes : [ 'source.haskell', 'support.function.prelude.haskell' ] }
+        ]
+    it "=", ->
+      data = "x :: String = undefined"
+      {tokens} = grammar.tokenizeLine(data)
+      console.log JSON.stringify(tokens, undefined, 2)
+      expect(tokens).toEqual [
+        { value : 'x', scopes : [ 'source.haskell', 'identifier.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell' ] }
+        { value : '::', scopes : [ 'source.haskell', 'keyword.other.double-colon.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.type-signature.haskell' ] }
+        { value : 'String', scopes : [ 'source.haskell', 'meta.type-signature.haskell', 'support.class.prelude.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.type-signature.haskell' ] }
+        { value : '=', scopes : [ 'source.haskell', 'keyword.operator.assignment.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell' ] }
+        { value : 'undefined', scopes : [ 'source.haskell', 'support.function.prelude.haskell' ] }
+        ]
+    it "still works for type-op signatures", ->
+      data = "smth :: a <-- b"
+      {tokens} = grammar.tokenizeLine(data)
+      expect(tokens).toEqual [
+        { value : 'smth', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'entity.name.function.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell' ] }
+        { value : '::', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'keyword.other.double-colon.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'meta.type-signature.haskell' ] }
+        { value : 'a', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'meta.type-signature.haskell', 'variable.other.generic-type.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'meta.type-signature.haskell' ] }
+        { value : '<--', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'meta.type-signature.haskell', 'keyword.operator.haskell' ] }
+        { value : ' ', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'meta.type-signature.haskell' ] }
+        { value : 'b', scopes : [ 'source.haskell', 'meta.function.type-declaration.haskell', 'meta.type-signature.haskell', 'variable.other.generic-type.haskell' ] }
+        ]
+
+  describe "type operators", ->
+    it "parses type operators", ->
+      data = ":: a *** b"
+      {tokens} = grammar.tokenizeLine(data)
+      expect(tokens[4].value).toEqual '***'
+      expect(tokens[4].scopes).toContain 'keyword.operator.haskell'
+    it "doesn't confuse arrows and type operators", ->
+      {tokens} = grammar.tokenizeLine(":: a --> b")
+      expect(tokens[4].value).toEqual '-->'
+      expect(tokens[4].scopes).toContain 'keyword.operator.haskell'
+      {tokens} = grammar.tokenizeLine(":: a ->- b")
+      expect(tokens[4].value).toEqual '->-'
+      expect(tokens[4].scopes).toContain 'keyword.operator.haskell'
+      {tokens} = grammar.tokenizeLine(":: a =>- b")
+      expect(tokens[4].value).toEqual '=>-'
+      expect(tokens[4].scopes).toContain 'keyword.operator.haskell'
+      {tokens} = grammar.tokenizeLine(":: a ==> b")
+      expect(tokens[4].value).toEqual '==>'
+      expect(tokens[4].scopes).toContain 'keyword.operator.haskell'

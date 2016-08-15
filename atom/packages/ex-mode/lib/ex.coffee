@@ -118,6 +118,11 @@ class Ex
   @registerAlias: (alias, name) =>
     @singleton()[alias] = (args) => @singleton()[name](args)
 
+  @getCommands: () =>
+    Object.keys(Ex.singleton()).concat(Object.keys(Ex.prototype)).filter((cmd, index, list) ->
+      list.indexOf(cmd) == index
+    )
+
   quit: ->
     atom.workspace.getActivePane().destroyActiveItem()
 
@@ -222,7 +227,7 @@ class Ex
     if not saved and fullPath?
       if not force and fs.existsSync(fullPath)
         throw new CommandError("File exists (add ! to override)")
-      if saveas
+      if saveas or editor.getFileName() == null
         editor = atom.workspace.getActiveTextEditor()
         trySave(-> editor.saveAs(fullPath, editor)).then(deferred.resolve)
       else

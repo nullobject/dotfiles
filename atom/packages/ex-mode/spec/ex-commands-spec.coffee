@@ -79,6 +79,7 @@ describe "the commands", ->
         submitNormalModeInputText('write')
         expect(fs.existsSync(filePath)).toBe(true)
         expect(fs.readFileSync(filePath, 'utf-8')).toEqual('abc\ndef')
+        expect(editor.isModified()).toBe(false)
 
       it "saves when a path is specified in the save dialog", ->
         spyOn(atom, 'showSaveDialogSync').andReturn(undefined)
@@ -801,6 +802,34 @@ describe "the commands", ->
         atom.commands.dispatch(editorElement, 'ex-mode:open')
         submitNormalModeInputText(':set nonumber')
         expect(atom.config.get('editor.showLineNumbers')).toBe(false)
+
+      it "sets (no)sp(lit)r(ight)", ->
+        keydown(':')
+        submitNormalModeInputText(':set spr')
+        expect(atom.config.get('ex-mode.splitright')).toBe(true)
+        atom.commands.dispatch(editorElement, 'ex-mode:open')
+        submitNormalModeInputText(':set nospr')
+        expect(atom.config.get('ex-mode.splitright')).toBe(false)
+        atom.commands.dispatch(editorElement, 'ex-mode:open')
+        submitNormalModeInputText(':set splitright')
+        expect(atom.config.get('ex-mode.splitright')).toBe(true)
+        atom.commands.dispatch(editorElement, 'ex-mode:open')
+        submitNormalModeInputText(':set nosplitright')
+        expect(atom.config.get('ex-mode.splitright')).toBe(false)
+
+      it "sets (no)s(plit)b(elow)", ->
+        keydown(':')
+        submitNormalModeInputText(':set sb')
+        expect(atom.config.get('ex-mode.splitbelow')).toBe(true)
+        atom.commands.dispatch(editorElement, 'ex-mode:open')
+        submitNormalModeInputText(':set nosb')
+        expect(atom.config.get('ex-mode.splitbelow')).toBe(false)
+        atom.commands.dispatch(editorElement, 'ex-mode:open')
+        submitNormalModeInputText(':set splitbelow')
+        expect(atom.config.get('ex-mode.splitbelow')).toBe(true)
+        atom.commands.dispatch(editorElement, 'ex-mode:open')
+        submitNormalModeInputText(':set nosplitbelow')
+        expect(atom.config.get('ex-mode.splitbelow')).toBe(false)
 
   describe "aliases", ->
     it "calls the aliased function without arguments", ->
