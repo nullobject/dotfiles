@@ -1,3 +1,22 @@
+## 1.9.7
+* Add prelude scope to support.tag
+* Readme update
+
+## 1.9.6
+* Move prelude rules to related scopes
+* Use proper right boundary for type alias
+* Add most (hopefully all) recognized GHC pragmas
+* instance spec
+
+## 1.9.5
+* Fix for #84
+* Specs for #84
+
+## 1.9.4
+* Fix for #82
+* Tests for #82
+* Custom jasmine matchers
+
 ## 1.9.3
 * Tweaks and fixes to scoped operators
 * Fix type operators/arrows conflict

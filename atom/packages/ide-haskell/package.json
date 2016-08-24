@@ -1,7 +1,7 @@
 {
   "name": "ide-haskell",
   "main": "./lib/ide-haskell",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "Haskell IDE",
   "keywords": [
     "ide-haskell",
@@ -38,16 +38,16 @@
     "url": "https://github.com/atom-haskell/ide-haskell/issues"
   },
   "homepage": "https://github.com/atom-haskell/ide-haskell#readme",
-  "_id": "ide-haskell@1.6.6",
-  "_shasum": "4aaa2071230e3d3af0cb76b2c1f8c75395aec202",
-  "_resolved": "file:../d-11671-94312-123u1ra/package.tgz",
-  "_from": "../d-11671-94312-123u1ra/package.tgz",
+  "_id": "ide-haskell@1.6.7",
+  "_shasum": "139f70079f3ea45651aafc3f5970fe5b9f625bae",
+  "_resolved": "file:../d-116723-42763-181mh6k/package.tgz",
+  "_from": "../d-116723-42763-181mh6k/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
       {
         "name": "atom-haskell-utils",
-        "version": "0.7.8",
+        "version": "0.7.9",
         "path": "node_modules/atom-haskell-utils/lib/util.js"
       },
       {

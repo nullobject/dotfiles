@@ -1,7 +1,7 @@
 {
   "name": "ex-mode",
   "main": "./lib/ex-mode",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Ex for Atom's vim-mode",
   "activationCommands": {
     "atom-workspace": "ex-mode:open"
@@ -45,10 +45,10 @@
     "url": "https://github.com/lloeki/ex-mode/issues"
   },
   "homepage": "https://github.com/lloeki/ex-mode#readme",
-  "_id": "ex-mode@0.12.0",
-  "_shasum": "5740e4ba3284d45d7a538db20844db9f8c7b60bb",
-  "_resolved": "file:../d-116715-51356-1nrrg3c/package.tgz",
-  "_from": "../d-116715-51356-1nrrg3c/package.tgz",
+  "_id": "ex-mode@0.13.0",
+  "_shasum": "9dce4f2697546327c4f34f8e0286c0aa20ac33ad",
+  "_resolved": "file:../d-116718-7918-82cs8s/package.tgz",
+  "_from": "../d-116718-7918-82cs8s/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
