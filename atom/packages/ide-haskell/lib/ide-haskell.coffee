@@ -1,9 +1,3 @@
-{PluginManager} = require './plugin-manager'
-{MainMenuLabel, getEventType} = require './utils'
-{CompositeDisposable} = require 'atom'
-{prettifyFile} = require './binutils/prettify'
-UPI = require './upi'
-
 module.exports = IdeHaskell =
   pluginManager: null
   disposables: null
@@ -35,7 +29,13 @@ module.exports = IdeHaskell =
     stylishHaskellPath:
       type: "string"
       default: 'stylish-haskell'
-      description: "Path to `stylish-haskell` utility"
+      description: "Path to `stylish-haskell` utility or other prettifier"
+    stylishHaskellArguments:
+      type: 'array'
+      default: []
+      description: 'Additional arguments to pass to prettifier; comma-separated'
+      items:
+        type: 'string'
     cabalPath:
       type: "string"
       default: 'cabal'
@@ -142,14 +142,18 @@ module.exports = IdeHaskell =
           dismissable: true
         ), 5000
 
+    {CompositeDisposable} = require 'atom'
     @disposables = new CompositeDisposable
 
+    PluginManager = require './plugin-manager'
     @pluginManager = new PluginManager state
 
     # global commands
     @disposables.add atom.commands.add 'atom-workspace',
       'ide-haskell:toggle-output': =>
         @pluginManager.togglePanel()
+
+    {prettifyFile} = require './binutils/prettify'
 
     @disposables.add \
       atom.commands.add 'atom-text-editor[data-grammar~="haskell"]',
@@ -174,6 +178,7 @@ module.exports = IdeHaskell =
       'atom-text-editor[data-grammar~="haskell"]':
         'escape': 'ide-haskell:close-tooltip'
 
+    {MainMenuLabel} = require './utils'
     @menu = new CompositeDisposable
     @menu.add atom.menu.add [
       label: MainMenuLabel
@@ -202,4 +207,5 @@ module.exports = IdeHaskell =
 
   provideUpi: ->
     @upiProvided = true
+    UPI = require './upi'
     new UPI(@pluginManager)

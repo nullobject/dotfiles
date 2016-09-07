@@ -1,16 +1,15 @@
-OutputPanel = require './output-panel/output-panel'
-{EditorControl} = require './editor-control'
-{TooltipMessage} = require './views/tooltip-view'
-ResultsDB = require './results-db'
-ResultItem = require './result-item'
-{CompositeDisposable, Emitter} = require 'atom'
-{dirname} = require 'path'
-{statSync} = require 'fs'
+mkError = (name, message) ->
+  e = new Error(message)
+  e.name = name
+  return e
 
+module.exports =
 class PluginManager
   constructor: (state) ->
+    ResultsDB = require './results-db'
     @checkResults = new ResultsDB
 
+    {CompositeDisposable, Emitter} = require 'atom'
     @disposables = new CompositeDisposable
     @controllers = new WeakMap
     @disposables.add @emitter = new Emitter
@@ -19,6 +18,9 @@ class PluginManager
 
     @createOutputViewPanel(state)
     @subscribeEditorController()
+
+    @changeParamFs = {}
+    @configParams = state.configParams ? {}
 
   deactivate: ->
     @checkResults.destroy()
@@ -30,6 +32,7 @@ class PluginManager
 
   serialize: ->
     outputView: @outputView?.serialize()
+    configParams: @configParams
 
   onShouldShowTooltip: (callback) ->
     @emitter.on 'should-show-tooltip', callback
@@ -58,6 +61,7 @@ class PluginManager
 
   # Create and delete output view panel.
   createOutputViewPanel: (state) ->
+    OutputPanel = require './output-panel/output-panel'
     @outputView = new OutputPanel(state.outputView, @checkResults)
 
   deleteOutputViewPanel: ->
@@ -66,6 +70,7 @@ class PluginManager
 
   addController: (editor) ->
     unless @controllers.get(editor)?
+      EditorControl = require './editor-control'
       @controllers.set editor, controller = new EditorControl(editor)
       controller.disposables.add editor.onDidDestroy =>
         @removeController editor
@@ -77,8 +82,6 @@ class PluginManager
         @emitter.emit 'did-save-buffer', buffer
       controller.disposables.add controller.onDidStopChanging (editor) =>
         @emitter.emit 'did-stop-changing', editor.getBuffer()
-      controller.disposables.add controller.onDidInvalidateResult (resItem) =>
-        @checkResults.removeResult resItem
       controller.updateResults @checkResults.filter uri: editor.getPath()
 
   removeController: (editor) ->
@@ -108,7 +111,72 @@ class PluginManager
   prevError: ->
     @outputView?.showPrevError()
 
+  addConfigParam: (pluginName, specs) ->
+    {CompositeDisposable} = require 'atom'
+    disp = new CompositeDisposable
+    @changeParamFs[pluginName] ?= {}
+    @configParams[pluginName] ?= {}
+    for name, spec of specs
+      do (name, spec) =>
+        @configParams[pluginName][name] ?= spec.default
+        elem = document.createElement "ide-haskell-param"
+        elem.classList.add "ide-haskell-#{pluginName}-#{name}"
+        spec.displayName ?= name.charAt(0).toUpperCase() + name.slice(1)
+        show = =>
+          elem.innerText = "#{spec.displayName}: " + spec.displayTemplate(@configParams[pluginName][name])
+          spec.onChanged?(@configParams[pluginName][name])
+        show()
+        @changeParamFs[pluginName][name] = change = (resolve, reject) =>
+          ParamSelectView = require './output-panel/views/param-select-view'
+          new ParamSelectView
+            items: if typeof spec.items is 'function' then spec.items() else spec.items
+            heading: spec.description
+            itemTemplate: spec.itemTemplate
+            itemFilterName: spec.itemFilterName
+            onConfirmed: (value) =>
+              @configParams[pluginName][name] = value
+              show()
+              resolve?(value)
+            onCancelled: ->
+              reject?()
+        disp.add @outputView.addPanelControl elem,
+          events:
+            click: -> change()
+          before: '#progressBar'
+    return disp
 
-module.exports = {
-  PluginManager
-}
+  getConfigParam: (pluginName, name) ->
+    unless atom.packages.isPackageActive(pluginName)
+      return Promise.reject(
+        mkError('PackageInactiveError',
+          "Ide-haskell cannot get parameter #{pluginName}:#{name}
+           of inactive package #{pluginName}"))
+    if @configParams[pluginName]?[name]?
+      return Promise.resolve(@configParams[pluginName][name])
+    else if @changeParamFs[pluginName]?[name]?
+      new Promise (resolve, reject) =>
+        @changeParamFs[pluginName][name](resolve, reject)
+    else
+      return Promise.reject(
+        mkError('ParamUndefinedError',
+          "Ide-haskell cannot get parameter #{pluginName}:#{name}
+           before it is defined"))
+
+  setConfigParam: (pluginName, name, value) ->
+    unless atom.packages.isPackageActive(pluginName)
+      return Promise.reject(
+        mkError('PackageInactiveError',
+          "Ide-haskell cannot set parameter #{pluginName}:#{name}
+           of inactive package #{pluginName}"))
+    if value?
+      @configParams[pluginName] ?= {}
+      @configParams[pluginName][name] = value
+      Promise.resolve(value)
+    else if @changeParamFs[pluginName]?[name]?
+      new Promise (resolve, reject) =>
+        @changeParamFs[pluginName][name](resolve, reject)
+    else
+      return Promise.reject(
+        mkError('ParamUndefinedError',
+          "Ide-haskell cannot set parameter #{pluginName}:#{name}
+           before it is defined"))

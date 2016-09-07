@@ -1,3 +1,22 @@
+## 1.8.1
+* Add custom prettifier options
+
+## 1.8.0
+* UPI 0.2: get/setConfigParam only promises
+
+## 1.7.2
+* Throw error if package isn't active
+* Add aspv to deps
+
+## 1.7.1
+* Possibly undefined argument
+
+## 1.7.0
+* UPI 0.1.0: keep per-project plugin configuration
+* Cleanup result-item destruction
+* Requires cleanup
+* Remove unneeded require
+
 ## 1.6.7
 * Destroy check-result markers on invalidation
 
