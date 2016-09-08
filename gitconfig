@@ -6,14 +6,9 @@
   default = tracking
 
 [alias]
-  st = status
-  ci = commit
-  br = branch
-  co = checkout
-  df = diff
-  lg = log -p
   conflicts = diff --name-only --diff-filter=U
   report = log --author=Josh --since='2 sunday ago' --until='1 sunday ago' --format='%Cgreen%ci%Creset %s%Creset'
+  push-upstream = !git push --set-upstream origin `git symbolic-ref --short HEAD`
 
 [color]
   ui = auto
@@ -38,7 +33,6 @@
 [core]
   editor = vim
   whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
-  excludesfile = /opt/boxen/config/git/gitignore
 
 [apply]
   whitespace = nowarn
@@ -54,8 +48,6 @@
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
 
-[credential]
-helper = /opt/boxen/bin/boxen-git-credential
 [filter "lfs"]
 	clean = git-lfs clean %f
 	smudge = git-lfs smudge %f
