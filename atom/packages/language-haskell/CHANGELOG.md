@@ -1,3 +1,9 @@
+## 1.9.9
+* Now really fix #64
+
+## 1.9.8
+* Fix #64... again
+
 ## 1.9.7
 * Add prelude scope to support.tag
 * Readme update
