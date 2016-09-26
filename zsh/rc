@@ -15,12 +15,9 @@ setopt append_history
 setopt inc_append_history
 setopt prompt_subst
 setopt hist_ignore_dups
-unsetopt autocd
 bindkey -v
 
 autoload -Uz compinit
 compinit
 
 export EDITOR=vi
-
-export BRAND=ferocia

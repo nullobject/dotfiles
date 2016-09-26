@@ -1,6 +1,6 @@
 export PATH="./bin:$HOME/.local/bin:$HOME/.bin:$PATH"
 export MANPATH="/usr/local/share/man:$MANPATH"
-export CDPATH=".:$HOME/src/nullobject:$HOME/src/ferocia:$CDPATH"
+export CDPATH=".:$HOME/src/nullobject:$HOME/src/climatehistory:$CDPATH$HOME/src/tc:$CDPATH"
 
 # Haskell
 export PATH="$HOME/.cabal/bin:$PATH"
