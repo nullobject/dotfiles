@@ -114,4 +114,5 @@ alias d='gd $argv'
 alias reload=". ~/.zshrc"
 alias be="bundle exec"
 alias fs="foreman start"
+alias zs="zeus start"
 alias fig="docker-compose"
