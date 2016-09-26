@@ -26,8 +26,8 @@ Plugin 'nelstrom/vim-textobj-rubyblock'
 " Power status line
 Plugin 'bling/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
-let g:airline_theme = 'solarized'
-let g:airline_powerline_fonts = 1
+let g:airline_theme = 'molokai'
+" let g:airline_powerline_fonts = 1
 
 " Multiple cursors
 " Plugin 'terryma/vim-multiple-cursors'
@@ -76,8 +76,9 @@ set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/t
 " NERDTree
 Plugin 'scrooloose/nerdtree'
 
-" Solarized colour scheme
+" Colour schemes
 Plugin 'altercation/vim-colors-solarized'
+Plugin 'tomasr/molokai'
 
 " Power tab key
 Plugin 'ervandew/supertab'
@@ -346,5 +347,5 @@ map <Leader>sa :call RunAllSpecs()<CR>
 " Colors
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set background=dark
-color solarized
+color molokai
 syntax on
