@@ -110,6 +110,10 @@ alias lt="tree"
 alias s='git status -sb $argv; return 0'
 alias d='gd $argv'
 
+# vim
+alias vi='mvim -v'
+alias vim='mvim -v'
+
 # misc
 alias reload=". ~/.zshrc"
 alias be="bundle exec"
