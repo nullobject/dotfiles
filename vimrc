@@ -125,6 +125,8 @@ Plugin 'derekwyatt/vim-scala'
 " Argument shifting
 Plugin 'PeterRincker/vim-argumentative'
 
+Plugin 'Tabmerge'
+
 filetype plugin indent on
 
 set mouse=a
@@ -269,13 +271,6 @@ nmap <Tab> :cnext<CR>
 nmap <S-Tab> :cprevious<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Git
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>gc :Gcommit -m ""<Left>
-map <Leader>gac :Gcommit -a -m ""<Left>
-map <Leader>gs :Gstatus<CR>
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 augroup less
@@ -306,6 +301,7 @@ augroup END
 
 autocmd FileType coffee,ruby setlocal tw=80
 autocmd FileType coffee,ruby setlocal fo=croq
+autocmd FileType gitcommit setlocal tw=0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Paths
