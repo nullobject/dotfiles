@@ -1,14 +1,2 @@
 .DS_Store
-.svn
-*~
-*.tmproj
-.swo
-.swp
-.*.swp
-*.perspectivev3
 .ruby-version
-tags
-public/assets
-vim/.netrwhist
-vim/tmp
-.agignore
