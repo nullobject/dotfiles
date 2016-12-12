@@ -127,6 +127,8 @@ Plugin 'PeterRincker/vim-argumentative'
 
 Plugin 'Tabmerge'
 
+Plugin 'rust-lang/rust.vim'
+
 filetype plugin indent on
 
 set mouse=a
