@@ -43,6 +43,7 @@ alias gst='git stash'
 alias gstp='git stash pop'
 alias gup='git smart-pull'
 alias gur='git pull-request'
+alias gupl='gup && gcl'
 
 gdbr() {
   ref="$1"
