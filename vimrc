@@ -122,6 +122,8 @@ Plug 'Tabmerge'
 
 Plug 'rust-lang/rust.vim'
 
+Plug 'Cognoscan/vim-vhdl'
+
 " Initialize plugin system
 call plug#end()
 
@@ -295,6 +297,10 @@ augroup END
 augroup purescript
   " Add comment format for commentary plugin.
   autocmd FileType purescript set commentstring=--\ %s
+augroup END
+
+augroup vhdl
+  autocmd FileType vhdl setlocal commentstring=--\ %s
 augroup END
 
 autocmd FileType coffee,ruby setlocal tw=80
