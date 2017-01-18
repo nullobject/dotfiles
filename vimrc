@@ -1,133 +1,129 @@
-set nocompatible
-filetype off
-
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+call plug#begin('~/.vim/plugged')
 
 " Sensible defaults.
-Plugin 'tpope/vim-sensible'
-
-" Vundle plugin manager
-Plugin 'gmarik/vundle'
+Plug 'tpope/vim-sensible'
 
 " Git wrapper
-Plugin 'tpope/vim-fugitive'
+Plug 'tpope/vim-fugitive'
 
 " Power substitution
-Plugin 'tpope/vim-abolish'
+Plug 'tpope/vim-abolish'
 
 " Power matching with % key
-Plugin 'matchit.zip'
+Plug 'matchit.zip'
 
 " Ruby block selecting
-Plugin 'kana/vim-textobj-user'
-Plugin 'nelstrom/vim-textobj-rubyblock'
+Plug 'kana/vim-textobj-user'
+Plug 'nelstrom/vim-textobj-rubyblock'
 
 " Power status line
-Plugin 'bling/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
+Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 let g:airline_theme = 'molokai'
 " let g:airline_powerline_fonts = 1
 
 " Multiple cursors
-" Plugin 'terryma/vim-multiple-cursors'
+" Plug 'terryma/vim-multiple-cursors'
 
 " Pair key mappings
-Plugin 'tpope/vim-unimpaired'
+Plug 'tpope/vim-unimpaired'
 
 " Rails
-Plugin 'tpope/vim-rails'
+Plug 'tpope/vim-rails'
 
 " Autocomplete ruby blocks
-Plugin 'tpope/vim-endwise'
+Plug 'tpope/vim-endwise'
 
 " Cucumber
-Plugin 'tpope/vim-cucumber'
+Plug 'tpope/vim-cucumber'
 
 " Markdown
-Plugin 'tpope/vim-markdown'
+Plug 'tpope/vim-markdown'
 
 " CoffeeScript
-Plugin 'kchmck/vim-coffee-script'
+Plug 'kchmck/vim-coffee-script'
 
 " LESS
-Plugin 'lunaru/vim-less'
+Plug 'lunaru/vim-less'
 
 " RSpec
-Plugin 'thoughtbot/vim-rspec'
+Plug 'thoughtbot/vim-rspec'
 
 " Power surrounding
-Plugin 'tpope/vim-surround'
+Plug 'tpope/vim-surround'
 
 " Power HTML tags
-Plugin 'tpope/vim-ragtag'
+Plug 'tpope/vim-ragtag'
 let g:ragtag_global_maps = 1
 
 " Power repeating
-Plugin 'tpope/vim-repeat'
+Plug 'tpope/vim-repeat'
 
 " Power commenting
-Plugin 'tpope/vim-commentary'
+Plug 'tpope/vim-commentary'
 
 " Finder
-Plugin 'ctrlpvim/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*
 
 " NERDTree
-Plugin 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree'
 
 " Colour schemes
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'tomasr/molokai'
+Plug 'altercation/vim-colors-solarized'
+Plug 'tomasr/molokai'
 
 " Power tab key
-Plugin 'ervandew/supertab'
+Plug 'ervandew/supertab'
 
 " Power text alignment
-" Plugin 'godlygeek/tabular'
-Plugin 'junegunn/vim-easy-align'
+" Plug 'godlygeek/tabular'
+Plug 'junegunn/vim-easy-align'
 
 " Silver Searcher wrapper
-Plugin 'rking/ag.vim'
+Plug 'rking/ag.vim'
 
 " Async tasks
-Plugin 'tpope/vim-dispatch'
+Plug 'tpope/vim-dispatch'
 
 " Puppet
-Plugin 'rodjek/vim-puppet'
+Plug 'rodjek/vim-puppet'
 
 " Objective-C
-" Plugin 'msanders/cocoa.vim'
+" Plug 'msanders/cocoa.vim'
 
 " Action Script
-" Plugin 'jeroenbourgois/vim-actionscript'
+" Plug 'jeroenbourgois/vim-actionscript'
 
 " Haskell
-Plugin 'raichoo/haskell-vim'
+Plug 'raichoo/haskell-vim'
 
 " Syntax checking
-" Plugin 'scrooloose/syntastic'
+" Plug 'scrooloose/syntastic'
 
 " PureScript
-Plugin 'raichoo/purescript-vim'
+Plug 'raichoo/purescript-vim'
 
 " Swift
-" Plugin 'Keithbsmiley/swift.vim'
+" Plug 'Keithbsmiley/swift.vim'
 
 " HTML + JS
-" Plugin 'othree/yajs.vim'
-" Plugin 'othree/html5.vim'
-Plugin 'pangloss/vim-javascript'
+" Plug 'othree/yajs.vim'
+" Plug 'othree/html5.vim'
+Plug 'pangloss/vim-javascript'
 
 " Scala
-Plugin 'derekwyatt/vim-scala'
+Plug 'derekwyatt/vim-scala'
 
 " Argument shifting
-Plugin 'PeterRincker/vim-argumentative'
+Plug 'PeterRincker/vim-argumentative'
 
-Plugin 'Tabmerge'
+Plug 'Tabmerge'
 
-Plugin 'rust-lang/rust.vim'
+Plug 'rust-lang/rust.vim'
+
+" Initialize plugin system
+call plug#end()
 
 filetype plugin indent on
 
