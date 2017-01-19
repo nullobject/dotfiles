@@ -1,46 +1,37 @@
 [user]
 	name = Josh Bassett
 	email = josh.bassett@gmail.com
-
+	signingkey = 5D71737D
 [push]
   default = tracking
-
 [alias]
   conflicts = diff --name-only --diff-filter=U
   report = log --author=Josh --since='2 sunday ago' --until='1 sunday ago' --format='%Cgreen%ci%Creset %s%Creset'
   push-upstream = !git push --set-upstream origin `git symbolic-ref --short HEAD`
-
 [color]
   ui = auto
-
 [color "branch"]
   current = yellow reverse
   local = yellow
   remote = green
-
 [color "diff"]
   meta = yellow bold
   frag = magenta bold
   old = red bold
   new = green bold
   whitespace = red reverse
-
 [color "status"]
   added = yellow
   changed = green
   untracked = cyan
-
 [core]
   editor = vim
   whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
   excludesfile = ~/.gitignore
-
 [apply]
   whitespace = nowarn
-
 [hub]
   protocol = https
-
 [mergetool]
 	keepBackup = true
 [github]
@@ -48,8 +39,11 @@
 [filter "media"]
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
-
 [filter "lfs"]
 	clean = git-lfs clean %f
 	smudge = git-lfs smudge %f
 	required = true
+[gpg]
+	program = /usr/local/bin/gpg2
+[commit]
+	gpgsign = true
