@@ -5,5 +5,8 @@ export CDPATH=".:$HOME/src/nullobject:$HOME/src/climatehistory:$CDPATH$HOME/src/
 # Haskell
 export PATH="$HOME/.cabal/bin:$PATH"
 
+# Rust
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # Scala
 export SCALA_HOME="/usr/local/Cellar/scala/2.9.2/libexec"
