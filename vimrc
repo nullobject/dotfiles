@@ -120,7 +120,9 @@ Plug 'PeterRincker/vim-argumentative'
 
 Plug 'Tabmerge'
 
+" Rust
 Plug 'rust-lang/rust.vim'
+Plug 'cespare/vim-toml'
 
 Plug 'Cognoscan/vim-vhdl'
 
