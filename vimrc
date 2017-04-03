@@ -17,10 +17,9 @@ Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
 
 " Power status line
-Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 let g:airline_theme = 'molokai'
-" let g:airline_powerline_fonts = 1
 
 " Multiple cursors
 " Plug 'terryma/vim-multiple-cursors'
@@ -64,7 +63,7 @@ Plug 'tpope/vim-commentary'
 
 " Finder
 Plug 'ctrlpvim/ctrlp.vim'
-set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*
+set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*,*/tmp/*,*/log/*
 
 " NERDTree
 Plug 'scrooloose/nerdtree'
@@ -149,8 +148,8 @@ set showmatch
 
 set incsearch  " Highlight while searching
 set hlsearch   " Highlight search results
-set ignorecase " Search should be case-insensitive by default
-set smartcase  " Search should be case-sensitive only if it contains upper-case characters
+" set ignorecase " Search should be case-insensitive by default
+" set smartcase  " Search should be case-sensitive only if it contains upper-case characters
 
 set wildmode=longest,list
 set pastetoggle=<F2>
@@ -235,7 +234,7 @@ nmap ga <Plug>(EasyAlign)
 cnoremap %% <C-R>=expand('%:h').'/'<CR>
 
 " Stop highlighting the search.
-" nnoremap <CR> :nohlsearch<CR>
+nnoremap <CR> :nohlsearch<CR>
 
 " Toggle between files.
 nnoremap <Leader><Leader> <C-^>
@@ -269,8 +268,6 @@ vmap <Leader>ff yy:Ag ""<Left><C-R>"<CR>
 
 nmap <Leader>fc :cclose<CR>
 nmap <Leader>fo :copen<CR>
-nmap <Tab> :cnext<CR>
-nmap <S-Tab> :cprevious<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
@@ -292,16 +289,13 @@ augroup ruby
   autocmd BufRead *.thor,Thorfile set ft=ruby
 augroup END
 
-augroup coffee
-  autocmd BufRead,BufNewFile *.cjsx set ft=coffee
-augroup END
-
 augroup purescript
   " Add comment format for commentary plugin.
   autocmd FileType purescript set commentstring=--\ %s
 augroup END
 
 augroup vhdl
+  " Add comment format for commentary plugin.
   autocmd FileType vhdl setlocal commentstring=--\ %s
 augroup END
 
@@ -329,7 +323,7 @@ augroup END
 " Whitespace
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Nuke tabs.
-autocmd FileType coffee,ruby autocmd BufWritePre * :%s/\t/  /eg
+autocmd FileType coffee,md,ruby autocmd BufWritePre * :%s/\t/  /eg
 
 " Nuke lines containing only whitespace.
 autocmd BufWritePre * :%s/\s\+$//eg
