@@ -79,8 +79,12 @@ Plug 'ervandew/supertab'
 " Plug 'godlygeek/tabular'
 Plug 'junegunn/vim-easy-align'
 
-" Silver Searcher wrapper
-Plug 'rking/ag.vim'
+" Ack
+" Plug 'rking/ag.vim'
+Plug 'mileszs/ack.vim'
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
 
 " Async tasks
 Plug 'tpope/vim-dispatch'
@@ -257,14 +261,14 @@ vmap <Leader>y "*y
 map <Leader>r :!sort<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Ag
+" Ack
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Open the command-line with an empty search string.
-nmap <Leader>ff :Ag ""<Left>
+nmap <Leader>ff :Ack ""<Left>
 
 " Search for the selected text.
-vmap <Leader>ff yy:Ag ""<Left><C-R>"<CR>
+vmap <Leader>ff yy:Ack ""<Left><C-R>"<CR>
 
 nmap <Leader>fc :cclose<CR>
 nmap <Leader>fo :copen<CR>
