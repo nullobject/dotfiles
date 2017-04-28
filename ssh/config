@@ -1,6 +1,7 @@
 Host *
   IdentityFile ~/.ssh/id_rsa
   ServerAliveInterval 60
+  XAuthLocation /usr/X11/bin/xauth
 
 Host joellegergis
   Hostname joellegergis.com
