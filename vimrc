@@ -89,9 +89,6 @@ endif
 " Async tasks
 Plug 'tpope/vim-dispatch'
 
-" Puppet
-Plug 'rodjek/vim-puppet'
-
 " Objective-C
 " Plug 'msanders/cocoa.vim'
 
@@ -130,6 +127,10 @@ Plug 'cespare/vim-toml'
 Plug 'Cognoscan/vim-vhdl'
 
 Plug 'hashivim/vim-terraform'
+
+Plug 'ekalinin/Dockerfile.vim'
+
+Plug 'pearofducks/ansible-vim'
 
 " Initialize plugin system
 call plug#end()
@@ -305,6 +306,11 @@ augroup vhdl
   autocmd FileType vhdl setlocal commentstring=--\ %s
 augroup END
 
+augroup terraform
+  " Add comment format for commentary plugin.
+  autocmd FileType terraform setlocal commentstring=#\ %s
+augroup END
+
 autocmd FileType coffee,ruby setlocal tw=80
 autocmd FileType coffee,ruby setlocal fo=croq
 autocmd FileType gitcommit setlocal tw=0
@@ -329,7 +335,7 @@ augroup END
 " Whitespace
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Nuke tabs.
-autocmd FileType coffee,md,ruby autocmd BufWritePre * :%s/\t/  /eg
+autocmd FileType coffee,md,ruby,terraform autocmd BufWritePre * :%s/\t/  /eg
 
 " Nuke lines containing only whitespace.
 autocmd BufWritePre * :%s/\s\+$//eg
