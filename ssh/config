@@ -1,7 +1,15 @@
 Host *
+  AddKeysToAgent yes
   IdentityFile ~/.ssh/id_rsa
+
+Host freeshell
+  Hostname sdf.lonestar.org
+  User jmba096
   ServerAliveInterval 60
-  XAuthLocation /usr/X11/bin/xauth
+
+################################################################################
+# Climate History
+################################################################################
 
 Host joellegergis
   Hostname joellegergis.com
@@ -11,24 +19,69 @@ Host climatehistory
   Hostname climatehistory.com.au
   User climateh
 
-Host tellingwords
-  Hostname tellingwords.com.au
-  User julie
-
-Host freeshell
-  Hostname sdf.lonestar.org
-  User jmba096
-
 Host pandora
   Hostname pandora.earthsci.unimelb.edu.au
   LocalForward 13283 localhost:3283
   LocalForward 15900 localhost:5900
 
-Host vcc
-  Hostname vanya.vicclimb.org.au
-  Port 443
-  User tlucas
+################################################################################
+# TC Hosts
+################################################################################
 
-Host app01
-  Hostname app01.ferocia.com.au
-  User apache
+Host tank1
+  Hostname tank1.tc-dev.net
+  ProxyJump tank2
+  User root
+
+Host tank2
+  Hostname tank2.tc-dev.net
+  User root
+
+Host tank3
+  Hostname tank3.tc-dev.net
+  ProxyJump tank2
+  User root
+
+Host prod-master
+  Hostname prod-master.tc-dev.net
+  User root
+
+Host prod-standby
+  Hostname prod-standby.tc-dev.net
+  User root
+
+Host staging
+  Hostname staging.tc-dev.net
+  User root
+
+################################################################################
+# TC Swarm
+################################################################################
+
+Host prod-bastion
+  Hostname 52.70.215.138
+  User ubuntu
+
+Host prod-manager-*
+  ProxyJump prod-bastion
+  User ubuntu
+
+Host prod-manager-1
+  Hostname 10.30.20.77
+
+Host prod-manager-2
+  Hostname 10.30.146.85
+
+Host prod-manager-3
+  Hostname 10.30.94.55
+
+Host staging-bastion
+  Hostname 34.228.99.242
+  User ubuntu
+
+Host staging-manager-*
+  ProxyJump staging-bastion
+  User ubuntu
+
+Host staging-manager-1
+  Hostname 10.30.142.60
