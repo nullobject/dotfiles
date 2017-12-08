@@ -12,11 +12,11 @@ Host freeshell
 ################################################################################
 
 Host joellegergis
-  Hostname joellegergis.com
+  Hostname 174.136.12.180
   User joelle
 
 Host climatehistory
-  Hostname climatehistory.com.au
+  Hostname 174.136.12.180
   User climateh
 
 Host pandora
@@ -28,30 +28,52 @@ Host pandora
 # TC Hosts
 ################################################################################
 
+Host prod-*
+  # Red
+  LocalCommand echo -ne "\033]6;1;bg;red;brightness;255\a\033]6;1;bg;green;brightness;100\a\033]6;1;bg;blue;brightness;150\a\033]0;%r@%n\a"
+  # PermitLocalCommand yes
+
+Host staging-*
+  # Green
+  LocalCommand echo -ne "\033]6;1;bg;red;brightness;100\a\033]6;1;bg;green;brightness;255\a\033]6;1;bg;blue;brightness;150\a\033]0;%r@%n\a"
+  # PermitLocalCommand yes
+
+Host tank*
+  User root
+
 Host tank1
   Hostname tank1.tc-dev.net
   ProxyJump tank2
-  User root
 
 Host tank2
   Hostname tank2.tc-dev.net
-  User root
 
 Host tank3
   Hostname tank3.tc-dev.net
   ProxyJump tank2
+
+Host staging-old
+  Hostname 206.51.240.238
   User root
 
-Host prod-master
-  Hostname prod-master.tc-dev.net
+Host staging-bhs
+  Hostname staging-bhs.tc-dev.net
   User root
 
-Host prod-standby
-  Hostname prod-standby.tc-dev.net
+Host prod-bhs
+  Hostname prod-bhs.tc-dev.net
   User root
 
-Host staging
-  Hostname staging.tc-dev.net
+Host prod-dal
+  Hostname prod-dal.tc-dev.net
+  User root
+
+Host prod-lon
+  Hostname prod-lon.tc-dev.net
+  User root
+
+Host prod-rbx
+  Hostname prod-rbx.tc-dev.net
   User root
 
 ################################################################################
@@ -59,7 +81,7 @@ Host staging
 ################################################################################
 
 Host prod-bastion
-  Hostname 52.70.215.138
+  Hostname bastion.production.tc-dev.net
   User ubuntu
 
 Host prod-manager-*
@@ -67,16 +89,16 @@ Host prod-manager-*
   User ubuntu
 
 Host prod-manager-1
-  Hostname 10.30.20.77
+  Hostname 10.30.8.75
 
 Host prod-manager-2
-  Hostname 10.30.146.85
+  Hostname 10.30.130.37
 
 Host prod-manager-3
-  Hostname 10.30.94.55
+  Hostname 10.30.78.51
 
 Host staging-bastion
-  Hostname 34.228.99.242
+  Hostname bastion.staging.tc-dev.net
   User ubuntu
 
 Host staging-manager-*
@@ -84,4 +106,4 @@ Host staging-manager-*
   User ubuntu
 
 Host staging-manager-1
-  Hostname 10.30.142.60
+  Hostname 10.31.72.69
