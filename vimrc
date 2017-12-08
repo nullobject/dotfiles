@@ -86,6 +86,9 @@ if executable('ag')
   let g:ackprg = 'ag --vimgrep'
 endif
 
+" Find and replace
+Plug 'brooth/far.vim'
+
 " Async tasks
 Plug 'tpope/vim-dispatch'
 
@@ -108,8 +111,6 @@ Plug 'raichoo/purescript-vim'
 " Plug 'Keithbsmiley/swift.vim'
 
 " HTML + JS
-" Plug 'othree/yajs.vim'
-" Plug 'othree/html5.vim'
 Plug 'pangloss/vim-javascript'
 
 " Scala
@@ -131,6 +132,9 @@ Plug 'hashivim/vim-terraform'
 Plug 'ekalinin/Dockerfile.vim'
 
 Plug 'pearofducks/ansible-vim'
+
+" Varnish
+Plug 'smerrill/vcl-vim-plugin'
 
 " Initialize plugin system
 call plug#end()
