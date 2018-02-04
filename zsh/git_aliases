@@ -1,5 +1,6 @@
 eval "$(hub alias -s)"
 
+alias d='gd $argv'
 alias ga='git add -A'
 alias gap='ga -p'
 alias gau='git add -u'
@@ -8,7 +9,7 @@ alias gc='git commit -v'
 alias gca='git commit -v -a'
 alias gcam='gca --amend'
 alias gch='git cherry-pick'
-alias gcl='git fetch --prune && git branch --merged master | grep -v master | xargs git branch -d'
+alias gcl='git branch --merged master | grep -v master | xargs git branch -d'
 alias gcm='git commit -v --amend'
 alias gco='git checkout'
 alias gcop='gco -p'
@@ -44,6 +45,7 @@ alias gstp='git stash pop'
 alias gup='git smart-pull'
 alias gur='git pull-request'
 alias gupl='gup && gcl'
+alias s='git status -sb $argv; return 0'
 
 gdbr() {
   ref="$1"

@@ -101,15 +101,10 @@ alias yes="$brew_prefix/bin/gyes"
 alias '['="$brew_prefix/bin/g\["
 
 # ls
-alias ls="gls --color=auto"
-alias l="ls -lAh"
-alias ll="ls -lh"
-alias la="ls -A"
+alias ls="exa --git"
+alias ll="ls -l"
+alias la="ls -la"
 alias lt="tree"
-
-# git
-alias s='git status -sb $argv; return 0'
-alias d='gd $argv'
 
 # vim
 alias v='nvim'
@@ -119,6 +114,5 @@ alias vim='nvim'
 # misc
 alias reload=". ~/.zshrc"
 alias be="bundle exec"
-alias fs="foreman start"
 alias zs="zeus start"
 alias fig="docker-compose"
