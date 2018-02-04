@@ -10,7 +10,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-abolish'
 
 " Power matching with % key
-Plug 'matchit.zip'
+Plug 'vim-scripts/matchit.zip'
 
 " Ruby block selecting
 Plug 'kana/vim-textobj-user'
@@ -63,7 +63,7 @@ Plug 'tpope/vim-commentary'
 
 " Finder
 Plug 'ctrlpvim/ctrlp.vim'
-set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,*/public/*,*/target/*,*/tmp/*,*/log/*
+set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*
 
 " NERDTree
 Plug 'scrooloose/nerdtree'
@@ -82,8 +82,8 @@ Plug 'junegunn/vim-easy-align'
 " Ack
 " Plug 'rking/ag.vim'
 Plug 'mileszs/ack.vim'
-if executable('ag')
-  let g:ackprg = 'ag --vimgrep'
+if executable('rg')
+  let g:ackprg = 'rg --vimgrep'
 endif
 
 " Find and replace
@@ -119,7 +119,7 @@ Plug 'derekwyatt/vim-scala'
 " Argument shifting
 Plug 'PeterRincker/vim-argumentative'
 
-Plug 'Tabmerge'
+Plug 'vim-scripts/Tabmerge'
 
 " Rust
 Plug 'rust-lang/rust.vim'
@@ -135,6 +135,20 @@ Plug 'pearofducks/ansible-vim'
 
 " Varnish
 Plug 'smerrill/vcl-vim-plugin'
+
+" Linting
+Plug 'w0rp/ale'
+let g:ale_linters = {
+\  'javascript': ['standard'],
+\  'ruby': ['rubocop']
+\}
+let g:ale_fixers = {
+\  'javascript': ['standard'],
+\  'ruby': ['rubocop']
+\}
+nmap <F8> <Plug>(ale_fix)
+nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
 " Initialize plugin system
 call plug#end()
@@ -266,6 +280,41 @@ nmap <Leader>y ggVG"*y
 vmap <Leader>y "*y
 
 map <Leader>r :!sort<CR>
+
+" Select the pasted text.
+nnoremap gp `[v`]
+
+" Terminal mappings.
+if has('nvim')
+  set shell=zsh
+
+  tnoremap <Esc> <C-\><C-n>
+  tnoremap <C-v><Esc> <Esc>
+
+  " Terminal mode:
+  tnoremap <M-h> <c-\><c-n><c-w>h
+  tnoremap <M-j> <c-\><c-n><c-w>j
+  tnoremap <M-k> <c-\><c-n><c-w>k
+  tnoremap <M-l> <c-\><c-n><c-w>l
+
+  " Insert mode:
+  inoremap <M-h> <Esc><c-w>h
+  inoremap <M-j> <Esc><c-w>j
+  inoremap <M-k> <Esc><c-w>k
+  inoremap <M-l> <Esc><c-w>l
+
+  " Visual mode:
+  vnoremap <M-h> <Esc><c-w>h
+  vnoremap <M-j> <Esc><c-w>j
+  vnoremap <M-k> <Esc><c-w>k
+  vnoremap <M-l> <Esc><c-w>l
+
+  " Normal mode:
+  nnoremap <M-h> <c-w>h
+  nnoremap <M-j> <c-w>j
+  nnoremap <M-k> <c-w>k
+  nnoremap <M-l> <c-w>l
+endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Ack
