@@ -1,5 +1,8 @@
 call plug#begin('~/.vim/plugged')
 
+" editorconfig.org
+Plug 'editorconfig/editorconfig-vim'
+
 " Sensible defaults.
 Plug 'tpope/vim-sensible'
 
@@ -271,7 +274,7 @@ map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclud
 map <Leader>i mmgg=G`m<CR>
 
 " Put the text in the * register in paste mode.
-map <Leader>p :set paste<CR>o<Esc>"*]p:set nopaste<CR>
+map <Leader>p :set paste<CR>"*p:set nopaste<CR>
 
 " Yank the entire buffer to the * register.
 nmap <Leader>y ggVG"*y
