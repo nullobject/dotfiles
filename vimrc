@@ -129,6 +129,7 @@ Plug 'rust-lang/rust.vim'
 Plug 'cespare/vim-toml'
 
 Plug 'Cognoscan/vim-vhdl'
+Plug 'vhda/verilog_systemverilog.vim'
 
 Plug 'hashivim/vim-terraform'
 
