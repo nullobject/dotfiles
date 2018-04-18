@@ -66,7 +66,7 @@ Plug 'tpope/vim-commentary'
 
 " Finder
 Plug 'ctrlpvim/ctrlp.vim'
-set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*
+set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,public
 
 " NERDTree
 Plug 'scrooloose/nerdtree'
