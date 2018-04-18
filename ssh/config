@@ -77,33 +77,16 @@ Host prod-rbx
   User root
 
 ################################################################################
-# TC Swarm
+# Vagrant
 ################################################################################
 
-Host prod-bastion
-  Hostname bastion.production.tc-dev.net
-  User ubuntu
-
-Host prod-manager-*
-  ProxyJump prod-bastion
-  User ubuntu
-
-Host prod-manager-1
-  Hostname 10.30.8.75
-
-Host prod-manager-2
-  Hostname 10.30.130.37
-
-Host prod-manager-3
-  Hostname 10.30.78.51
-
-Host staging-bastion
-  Hostname bastion.staging.tc-dev.net
-  User ubuntu
-
-Host staging-manager-*
-  ProxyJump staging-bastion
-  User ubuntu
-
-Host staging-manager-1
-  Hostname 10.31.72.69
+Host provisioning
+  HostName 127.0.0.1
+  User vagrant
+  Port 2222
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile /Users/josh/tmp/provisioning/.vagrant/machines/default/virtualbox/private_key
+  IdentitiesOnly yes
+  LogLevel FATAL
