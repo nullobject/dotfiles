@@ -150,6 +150,10 @@ let g:ale_fixers = {
 \  'javascript': ['standard'],
 \  'ruby': ['rubocop']
 \}
+let g:ale_pattern_options = {
+\ 'node_modules': {'ale_linters': [], 'ale_fixers': []}
+\}
+let g:ale_pattern_options_enabled = 1
 nmap <F8> <Plug>(ale_fix)
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
