@@ -1,12 +1,20 @@
-export PATH="./bin:$HOME/.local/bin:$HOME/.bin:$PATH"
-export MANPATH="/usr/local/share/man:$MANPATH"
-export CDPATH=".:$HOME/src/nullobject:$HOME/src/climatehistory:$CDPATH$HOME/src/tc:$CDPATH"
+PATH="./bin:$HOME/.local/bin:$HOME/.bin:$PATH"
+MANPATH="/usr/local/share/man:$MANPATH"
+CDPATH=".:$HOME/src/nullobject:$HOME/src/climatehistory:$CDPATH$HOME/src/tc:$CDPATH"
+
+# Override brew coreutils.
+PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
+MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:$MANPATH"
+MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:$MANPATH"
 
 # Haskell
-export PATH="$HOME/.cabal/bin:$PATH"
+PATH="$HOME/.cabal/bin:$PATH"
 
 # Rust
-export PATH="$HOME/.cargo/bin:$PATH"
+PATH="$HOME/.cargo/bin:$PATH"
 
 # Scala
-export SCALA_HOME="/usr/local/Cellar/scala/2.9.2/libexec"
+SCALA_HOME="/usr/local/Cellar/scala/2.9.2/libexec"
