@@ -38,38 +38,22 @@ Host staging-*
   LocalCommand echo -ne "\033]6;1;bg;red;brightness;100\a\033]6;1;bg;green;brightness;255\a\033]6;1;bg;blue;brightness;150\a\033]0;%r@%n\a"
   # PermitLocalCommand yes
 
-Host tank*
-  User root
-
-Host tank1
+Host tank1 tank1.tc-dev.net
   Hostname tank1.tc-dev.net
   ProxyJump tank2
 
 Host tank2
   Hostname tank2.tc-dev.net
 
-Host tank3
+Host tank3 tank3.tc-dev.net
   Hostname tank3.tc-dev.net
   ProxyJump tank2
 
-Host staging-old
-  Hostname 206.51.240.238
-  User root
-
 Host staging-bhs
   Hostname staging-bhs.tc-dev.net
-  User root
 
 Host prod-bhs
   Hostname prod-bhs.tc-dev.net
-  User root
-
-Host prod-dal
-  Hostname prod-dal.tc-dev.net
-  User root
-
-Host prod-lon
-  Hostname prod-lon.tc-dev.net
   User root
 
 Host prod-rbx
