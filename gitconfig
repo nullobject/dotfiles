@@ -1,7 +1,7 @@
 [user]
-	name = Josh Bassett
-	email = josh.bassett@gmail.com
-	signingkey = 5D71737D
+  name = Josh Bassett
+  email = josh.bassett@gmail.com
+  signingkey = 5D71737D
 [push]
   default = tracking
 [alias]
@@ -33,17 +33,17 @@
 [hub]
   protocol = https
 [mergetool]
-	keepBackup = true
+  keepBackup = true
 [github]
-	user = josh
+  user = josh
 [filter "media"]
-	clean = git-media-clean %f
-	smudge = git-media-smudge %f
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f
 [filter "lfs"]
-	clean = git-lfs clean %f
-	smudge = git-lfs smudge %f
-	required = true
+  clean = git-lfs clean %f
+  smudge = git-lfs smudge %f
+  required = true
 [gpg]
-	program = /usr/local/bin/gpg2
+  program = /usr/local/MacGPG2/bin/gpg
 [commit]
-	gpgsign = true
+  gpgsign = true
