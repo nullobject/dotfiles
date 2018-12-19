@@ -54,11 +54,9 @@ Host staging-bhs
 
 Host prod-bhs
   Hostname prod-bhs.tc-dev.net
-  User root
 
 Host prod-rbx
   Hostname prod-rbx.tc-dev.net
-  User root
 
 ################################################################################
 # Vagrant
