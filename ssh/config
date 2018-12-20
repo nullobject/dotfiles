@@ -49,6 +49,10 @@ Host tank3 tank3.tc-dev.net
   Hostname tank3.tc-dev.net
   ProxyJump tank2
 
+Host tank4 tank4.tc-dev.net
+  Hostname tank4.tc-dev.net
+  ProxyJump tank2
+
 Host staging-bhs
   Hostname staging-bhs.tc-dev.net
 
