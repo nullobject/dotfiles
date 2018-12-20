@@ -12,5 +12,4 @@ alias vim='nvim'
 # misc
 alias reload=". ~/.zshrc"
 alias be="bundle exec"
-alias zs="zeus start"
 alias fig="docker-compose"

@@ -1,6 +1,6 @@
 PATH="./bin:$HOME/.local/bin:$HOME/.bin:$PATH"
 MANPATH="/usr/local/share/man:$MANPATH"
-CDPATH=".:$HOME/src/nullobject:$HOME/src/climatehistory:$CDPATH$HOME/src/tc:$CDPATH"
+CDPATH=".:$HOME/src/personal:$HOME/src/climatehistory:$CDPATH$HOME/src/tc:$CDPATH"
 
 # Override brew coreutils.
 PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
