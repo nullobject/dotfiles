@@ -1,5 +1,6 @@
 eval "$(rbenv init -)"
 eval "$(nodenv init -)"
+[ -f /Users/josh/.travis/travis.sh ] && source /Users/josh/.travis/travis.sh
 
 . ~/.zsh/paths
 . ~/.zsh/prompt
