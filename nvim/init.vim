@@ -12,75 +12,38 @@ Plug 'tpope/vim-fugitive'
 " Power substitution
 Plug 'tpope/vim-abolish'
 
-" Power matching with % key
-Plug 'vim-scripts/matchit.zip'
-
-" Ruby block selecting
-Plug 'kana/vim-textobj-user'
-Plug 'nelstrom/vim-textobj-rubyblock'
+" Argument shifting
+Plug 'PeterRincker/vim-argumentative'
 
 " Power status line
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-let g:airline_theme = 'molokai'
-
-" Multiple cursors
-" Plug 'terryma/vim-multiple-cursors'
+let g:airline_theme = 'gruvbox'
 
 " Pair key mappings
 Plug 'tpope/vim-unimpaired'
 
-" Rails
+" Ruby
 Plug 'tpope/vim-rails'
-
-" Autocomplete ruby blocks
 Plug 'tpope/vim-endwise'
-
-" Cucumber
-Plug 'tpope/vim-cucumber'
-
-" Markdown
-Plug 'tpope/vim-markdown'
-
-" CoffeeScript
-Plug 'kchmck/vim-coffee-script'
-
-" LESS
-Plug 'lunaru/vim-less'
-
-" RSpec
-Plug 'thoughtbot/vim-rspec'
+" Plug 'kana/vim-textobj-user'
+" Plug 'nelstrom/vim-textobj-rubyblock'
 
 " Power surrounding
 Plug 'tpope/vim-surround'
 
-" Power HTML tags
-Plug 'tpope/vim-ragtag'
-let g:ragtag_global_maps = 1
-
-" Power repeating
-Plug 'tpope/vim-repeat'
-
 " Power commenting
 Plug 'tpope/vim-commentary'
+
+" Merging tabs
+Plug 'vim-scripts/Tabmerge'
+
+" Find and replace
+Plug 'brooth/far.vim'
 
 " Finder
 Plug 'ctrlpvim/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,public
-
-" NERDTree
-Plug 'scrooloose/nerdtree'
-
-" Colour schemes
-Plug 'altercation/vim-colors-solarized'
-Plug 'tomasr/molokai'
-
-" Power tab key
-Plug 'ervandew/supertab'
-
-" Power text alignment
-" Plug 'godlygeek/tabular'
-Plug 'junegunn/vim-easy-align'
 
 " Ack
 " Plug 'rking/ag.vim'
@@ -89,101 +52,71 @@ if executable('rg')
   let g:ackprg = 'rg --vimgrep'
 endif
 
-" Find and replace
-Plug 'brooth/far.vim'
-
 " Async tasks
 Plug 'tpope/vim-dispatch'
 
-" Objective-C
-" Plug 'msanders/cocoa.vim'
+" NERDTree
+" Plug 'scrooloose/nerdtree'
 
-" Action Script
-" Plug 'jeroenbourgois/vim-actionscript'
+" Power tab key
+" Plug 'ervandew/supertab'
 
-" Haskell
-Plug 'raichoo/haskell-vim'
+" Power text alignment
+Plug 'junegunn/vim-easy-align'
 
-" Syntax checking
-" Plug 'scrooloose/syntastic'
+" Colour schemes
+Plug 'tomasr/molokai'
+Plug 'morhetz/gruvbox'
+Plug 'dracula/vim', { 'as': 'dracula' }
 
-" PureScript
-Plug 'raichoo/purescript-vim'
-
-" Swift
-" Plug 'Keithbsmiley/swift.vim'
-
-" HTML + JS
-Plug 'pangloss/vim-javascript'
-
-" Scala
-Plug 'derekwyatt/vim-scala'
-
-" Argument shifting
-Plug 'PeterRincker/vim-argumentative'
-
-Plug 'vim-scripts/Tabmerge'
-
-" Rust
-Plug 'rust-lang/rust.vim'
-Plug 'cespare/vim-toml'
-
+" Syntax
 Plug 'Cognoscan/vim-vhdl'
-Plug 'vhda/verilog_systemverilog.vim'
-
-Plug 'hashivim/vim-terraform'
-
+Plug 'cespare/vim-toml'
+Plug 'derekwyatt/vim-scala'
 Plug 'ekalinin/Dockerfile.vim'
-
+Plug 'frigoeu/psc-ide-vim'
+Plug 'hashivim/vim-terraform'
+Plug 'lunaru/vim-less'
+Plug 'pangloss/vim-javascript'
 Plug 'pearofducks/ansible-vim'
-
-" Varnish
+Plug 'raichoo/haskell-vim'
+Plug 'raichoo/purescript-vim'
+Plug 'rust-lang/rust.vim'
 Plug 'smerrill/vcl-vim-plugin'
-
-" Linting
-Plug 'w0rp/ale'
-let g:ale_linters = {
-\  'javascript': ['standard'],
-\  'ruby': ['rubocop']
-\}
-let g:ale_fixers = {
-\  'javascript': ['standard'],
-\  'ruby': ['rubocop']
-\}
-let g:ale_pattern_options = {
-\ 'node_modules': {'ale_linters': [], 'ale_fixers': []}
-\}
-let g:ale_pattern_options_enabled = 1
-nmap <F8> <Plug>(ale_fix)
-nmap <silent> <C-k> <Plug>(ale_previous_wrap)
-nmap <silent> <C-j> <Plug>(ale_next_wrap)
+Plug 'tpope/vim-cucumber'
+Plug 'tpope/vim-markdown'
+Plug 'vhda/verilog_systemverilog.vim'
+Plug 'wizicer/vim-jison'
 
 " Initialize plugin system
 call plug#end()
 
 filetype plugin indent on
 
-set mouse=a
-set visualbell
-set title
-set tabstop=2
-set backspace=indent,eol,start
-set shiftwidth=2
-set scrolloff=3
+set history=1000
+set mouse=a " Enable mouse for scrolling and resizing
+set visualbell " Flash screen instead of beeping on errors
+set title " Set window's title to reflect the current file
+set tabstop=2 " Show existing tab with 2 spaces
+set shiftwidth=2 " Use 2 spaces when indenting
 set expandtab
+set smarttab
+set autoindent " Newlines inherit indentation of previous lines
+set backspace=indent,eol,start
+set scrolloff=3 " Number of lines to keep above/below cursor
 set number " Show line numbers
+set relativenumber " Show relative line numbers
 set laststatus=2 " Show the status line
 set ruler " Show the cursor position
 set autoread " Re-read files if they change outside vim
-set smarttab
-set autoindent
 set showmatch
 
-set incsearch  " Highlight while searching
-set hlsearch   " Highlight search results
-" set ignorecase " Search should be case-insensitive by default
-" set smartcase  " Search should be case-sensitive only if it contains upper-case characters
+set incsearch " Highlight while searching
+set hlsearch " Highlight search results
+set ignorecase " Search should be case-insensitive by default
+set smartcase " Search should be case-sensitive only if it contains upper-case characters
 
+set wildmenu
 set wildmode=longest,list
 set pastetoggle=<F2>
 set cursorline " Highlight current line
@@ -192,7 +125,8 @@ set hidden " Prevents losing undo history after save
 set backupdir=~/tmp
 set directory=~/tmp
 set noswapfile
-set shortmess=atI
+set nobackup
+" set shortmess=atI
 set shell=bash
 
 " Ensure new splits are opened below the current window.
@@ -210,16 +144,20 @@ let mapleader = ","
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Explore
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map - :Explore<CR>
+
+noremap - :Vex<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>c :Commentary<CR>
+
+" Toggle comment for current line.
+noremap <Leader>c :Commentary<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tabularize
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 function! CustomTabularPatterns()
   if exists('g:tabular_loaded')
     AddTabularPattern! colon  /:\zs/l1r0
@@ -236,24 +174,22 @@ autocmd VimEnter * call CustomTabularPatterns()
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NERDTree
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>nn :NERDTreeToggle<CR>
-map <Leader>nf :NERDTreeFind<CR>
+
+" map <Leader>nn :NERDTreeToggle<CR>
+" map <Leader>nf :NERDTreeFind<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tabs
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>tt :tabe<Space>%%
-map <Leader>tc :tabc<CR>
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Rails
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-command! Rroutes :Redit config/routes.rb
-command! RTroutes :RTedit config/routes.rb
+noremap <Leader>tt :tabe<Space>%%<CR>
+noremap <Leader>tc :tabc<CR>
+noremap <Leader>tm :Tabmerge<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Easy Align
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
 "
@@ -263,14 +199,12 @@ nmap ga <Plug>(EasyAlign)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Misc
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 " Expand current directory.
 cnoremap %% <C-R>=expand('%:h').'/'<CR>
 
 " Stop highlighting the search.
-nnoremap <CR> :nohlsearch<CR>
-
-" Toggle between files.
-nnoremap <Leader><Leader> <C-^>
+" nnoremap <CR> :nohlsearch<CR>
 
 " Refresh tags.
 map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclude=vendor *<CR>
@@ -287,7 +221,8 @@ nmap <Leader>y ggVG"*y
 " Yank the selection to the * register.
 vmap <Leader>y "*y
 
-map <Leader>r :!sort<CR>
+" Sort the selection.
+vmap <Leader>r :!sort<CR>
 
 " Select the pasted text.
 nnoremap gp `[v`]
@@ -340,6 +275,7 @@ nmap <Leader>fo :copen<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 augroup less
   autocmd BufRead *.less set ft=less
 augroup END
@@ -372,13 +308,14 @@ augroup terraform
   autocmd FileType terraform setlocal commentstring=#\ %s
 augroup END
 
-autocmd FileType coffee,ruby setlocal tw=80
-autocmd FileType coffee,ruby setlocal fo=croq
+autocmd FileType javascript,ruby setlocal tw=80
+autocmd FileType javascript,ruby setlocal fo=croq
 autocmd FileType gitcommit setlocal tw=0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Paths
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 function s:MkNonExDir(file, buf)
   if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
     let dir=fnamemodify(a:file, ':h')
@@ -395,8 +332,9 @@ augroup END
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Whitespace
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 " Nuke tabs.
-autocmd FileType coffee,md,ruby,terraform autocmd BufWritePre * :%s/\t/  /eg
+autocmd FileType javascript,md,ruby,terraform autocmd BufWritePre * :%s/\t/  /eg
 
 " Nuke lines containing only whitespace.
 autocmd BufWritePre * :%s/\s\+$//eg
@@ -405,16 +343,15 @@ autocmd BufWritePre * :%s/\s\+$//eg
 autocmd FileType make setlocal noexpandtab
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" RSpec
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <Leader>st :call RunCurrentSpecFile()<CR>
-map <Leader>ss :call RunNearestSpec()<CR>
-map <Leader>sl :call RunLastSpec()<CR>
-map <Leader>sa :call RunAllSpecs()<CR>
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Colors
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set background=dark
-color molokai
-syntax on
+
+" Enable true colours.
+set termguicolors
+let g:gruvbox_contrast_dark = 'hard'
+color dracula
+syntax on " Enable syntax highlighting
+
+let g:netrw_liststyle = 3
+" let g:netrw_browse_split = 4
+let g:netrw_winsize = 20
