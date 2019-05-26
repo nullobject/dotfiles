@@ -18,7 +18,7 @@ Plug 'PeterRincker/vim-argumentative'
 " Power status line
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-let g:airline_theme = 'gruvbox'
+let g:airline_theme = 'dracula'
 
 " Pair key mappings
 Plug 'tpope/vim-unimpaired'
