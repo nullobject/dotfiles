@@ -1,8 +1,9 @@
 gnupg
 nvim/.netrwhist
+ssh/id_rsa
+ssh/authorized_keys
+ssh/known_hosts
 vim/.netrwhist
 vim/plugged
-sbt/boot
-sbt/**/target
 weechat/weechat.log
 weechat/logs/*

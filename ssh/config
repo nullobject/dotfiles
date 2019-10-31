@@ -66,13 +66,35 @@ Host prod-rbx
 # Vagrant
 ################################################################################
 
-Host provisioning
+Host vagrant-ci
   HostName 127.0.0.1
   User vagrant
   Port 2222
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile /Users/josh/tmp/provisioning/.vagrant/machines/default/virtualbox/private_key
+  IdentityFile /Users/josh/src/tc/tc-ops/vagrants/vagrant-ci/.vagrant/machines/default/virtualbox/private_key
+  IdentitiesOnly yes
+  LogLevel FATAL
+
+Host vagrant-staging
+  HostName 127.0.0.1
+  User vagrant
+  Port 2222
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile /Users/josh/src/tc/tc-ops/vagrants/vagrant-staging/.vagrant/machines/default/virtualbox/private_key
+  IdentitiesOnly yes
+  LogLevel FATAL
+
+Host vagrant-production
+  HostName 127.0.0.1
+  User vagrant
+  Port 2222
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile /Users/josh/src/tc/tc-ops/vagrants/vagrant-production/.vagrant/machines/default/virtualbox/private_key
   IdentitiesOnly yes
   LogLevel FATAL
