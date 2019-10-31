@@ -46,11 +46,10 @@ Plug 'ctrlpvim/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,public
 
 " Ack
-" Plug 'rking/ag.vim'
-Plug 'mileszs/ack.vim'
-if executable('rg')
-  let g:ackprg = 'rg --vimgrep'
-endif
+" Plug 'mileszs/ack.vim'
+" if executable('rg')
+"   let g:ackprg = 'rg --vimgrep'
+" endif
 
 " Async tasks
 Plug 'tpope/vim-dispatch'
