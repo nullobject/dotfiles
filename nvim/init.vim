@@ -228,8 +228,6 @@ nnoremap gp `[v`]
 
 " Terminal mappings.
 if has('nvim')
-  set shell=zsh
-
   tnoremap <Esc> <C-\><C-n>
   tnoremap <C-v><Esc> <Esc>
 
