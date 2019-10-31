@@ -52,7 +52,7 @@ set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,public
 " endif
 
 " Async tasks
-Plug 'tpope/vim-dispatch'
+" Plug 'tpope/vim-dispatch'
 
 " NERDTree
 " Plug 'scrooloose/nerdtree'
