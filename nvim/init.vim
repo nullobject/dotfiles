@@ -26,8 +26,6 @@ Plug 'tpope/vim-unimpaired'
 " Ruby
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-endwise'
-" Plug 'kana/vim-textobj-user'
-" Plug 'nelstrom/vim-textobj-rubyblock'
 
 " Power surrounding
 Plug 'tpope/vim-surround'
@@ -45,27 +43,13 @@ Plug 'brooth/far.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,public
 
-" Ack
-" Plug 'mileszs/ack.vim'
-" if executable('rg')
-"   let g:ackprg = 'rg --vimgrep'
-" endif
-
-" Async tasks
-" Plug 'tpope/vim-dispatch'
-
 " NERDTree
 " Plug 'scrooloose/nerdtree'
-
-" Power tab key
-" Plug 'ervandew/supertab'
 
 " Power text alignment
 Plug 'junegunn/vim-easy-align'
 
 " Colour schemes
-Plug 'tomasr/molokai'
-Plug 'morhetz/gruvbox'
 Plug 'dracula/vim', { 'as': 'dracula' }
 
 " Syntax
@@ -144,7 +128,8 @@ let mapleader = ","
 " Explore
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-noremap - :Vex<CR>
+noremap <C-e> :Ex<CR>
+" noremap <C-e> :NERDTreeToggle<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
@@ -171,13 +156,6 @@ endfunction
 autocmd VimEnter * call CustomTabularPatterns()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" NERDTree
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" map <Leader>nn :NERDTreeToggle<CR>
-" map <Leader>nf :NERDTreeFind<CR>
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tabs
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -202,9 +180,6 @@ nmap ga <Plug>(EasyAlign)
 " Expand current directory.
 cnoremap %% <C-R>=expand('%:h').'/'<CR>
 
-" Stop highlighting the search.
-" nnoremap <CR> :nohlsearch<CR>
-
 " Refresh tags.
 map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclude=vendor *<CR>
 
@@ -225,49 +200,6 @@ vmap <Leader>r :!sort<CR>
 
 " Select the pasted text.
 nnoremap gp `[v`]
-
-" Terminal mappings.
-if has('nvim')
-  tnoremap <Esc> <C-\><C-n>
-  tnoremap <C-v><Esc> <Esc>
-
-  " Terminal mode:
-  tnoremap <M-h> <c-\><c-n><c-w>h
-  tnoremap <M-j> <c-\><c-n><c-w>j
-  tnoremap <M-k> <c-\><c-n><c-w>k
-  tnoremap <M-l> <c-\><c-n><c-w>l
-
-  " Insert mode:
-  inoremap <M-h> <Esc><c-w>h
-  inoremap <M-j> <Esc><c-w>j
-  inoremap <M-k> <Esc><c-w>k
-  inoremap <M-l> <Esc><c-w>l
-
-  " Visual mode:
-  vnoremap <M-h> <Esc><c-w>h
-  vnoremap <M-j> <Esc><c-w>j
-  vnoremap <M-k> <Esc><c-w>k
-  vnoremap <M-l> <Esc><c-w>l
-
-  " Normal mode:
-  nnoremap <M-h> <c-w>h
-  nnoremap <M-j> <c-w>j
-  nnoremap <M-k> <c-w>k
-  nnoremap <M-l> <c-w>l
-endif
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Ack
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" Open the command-line with an empty search string.
-nmap <Leader>ff :Ack ""<Left>
-
-" Search for the selected text.
-vmap <Leader>ff yy:Ack ""<Left><C-R>"<CR>
-
-nmap <Leader>fc :cclose<CR>
-nmap <Leader>fo :copen<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
@@ -348,7 +280,3 @@ set termguicolors
 let g:gruvbox_contrast_dark = 'hard'
 color dracula
 syntax on " Enable syntax highlighting
-
-let g:netrw_liststyle = 3
-" let g:netrw_browse_split = 4
-let g:netrw_winsize = 20
