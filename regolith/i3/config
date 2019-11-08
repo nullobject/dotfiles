@@ -8,7 +8,7 @@ set $mod Mod4
 set $alt Mod1
 
 # i3xrocks config file
-set $i3xrocks_config /etc/regolith/i3xrocks/config
+set $i3xrocks_config ~/.config/regolith/i3xrocks/config
 
 # compton config file
 set $compton_config /etc/regolith/compton/config
@@ -191,6 +191,10 @@ bindsym $mod+Escape exec gnome-screensaver-command --lock
 
 # put the system to sleep
 bindsym $mod+Shift+s exec systemctl suspend
+
+# take a screenshot
+bindsym Print exec gnome-screenshot -w
+bindsym $mod+Print exec gnome-screenshot -i
 
 # shortcuts for common system configuration tasks
 bindsym $mod+c exec gnome-control-center
