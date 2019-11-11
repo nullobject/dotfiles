@@ -21,4 +21,4 @@ bindkey -v
 autoload -Uz compinit
 compinit
 
-export EDITOR=vi
+export EDITOR=nvim
