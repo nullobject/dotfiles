@@ -1,3 +1,9 @@
+# linux
+[ -f /usr/share/bash-completion/completions/git ] && . /usr/share/bash-completion/completions/git
+
+# macos
+[ -f /usr/local/etc/bash_completion.d/git-completion.bash ] && . /usr/local/etc/bash_completion.d/git-completion.bash
+
 alias be='bundle exec'
 
 alias ga='git add -A'
@@ -21,8 +27,6 @@ alias gs='git status -sb'
 alias gup='git pull'
 alias gupl='gup && gcl'
 alias gur='hub pull-request'
-
-[ -f /usr/share/bash-completion/completions/git ] && . /usr/share/bash-completion/completions/git
 
 __git_complete ga   _git_add
 __git_complete gap  _git_add
