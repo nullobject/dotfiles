@@ -28,16 +28,6 @@ Host pandora
 # TC Hosts
 ################################################################################
 
-Host prod-*
-  # Red
-  LocalCommand echo -ne "\033]6;1;bg;red;brightness;255\a\033]6;1;bg;green;brightness;100\a\033]6;1;bg;blue;brightness;150\a\033]0;%r@%n\a"
-  # PermitLocalCommand yes
-
-Host staging-*
-  # Green
-  LocalCommand echo -ne "\033]6;1;bg;red;brightness;100\a\033]6;1;bg;green;brightness;255\a\033]6;1;bg;blue;brightness;150\a\033]0;%r@%n\a"
-  # PermitLocalCommand yes
-
 Host tank1 tank1.tc-dev.net
   Hostname tank1.tc-dev.net
   ProxyJump tank2
@@ -61,6 +51,9 @@ Host prod-bhs
 
 Host prod-rbx
   Hostname prod-rbx.tc-dev.net
+
+Host db-rbx
+  Hostname db-rbx.tc-dev.net
 
 ################################################################################
 # Vagrant
