@@ -70,6 +70,7 @@ Plug 'tpope/vim-cucumber'
 Plug 'tpope/vim-markdown'
 Plug 'vhda/verilog_systemverilog.vim'
 Plug 'wizicer/vim-jison'
+Plug 'udalov/kotlin-vim'
 
 " Initialize plugin system
 call plug#end()
