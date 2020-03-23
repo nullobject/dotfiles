@@ -1,7 +1,7 @@
 [user]
   name = Joshua Bassett
   email = hello@joshbassett.info
-  signingkey = 5D71737D
+  signingkey = 994FE6FC4512B112FD3A9C10F531E4E35D71737D
 [push]
   default = tracking
 [alias]
