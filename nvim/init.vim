@@ -44,7 +44,10 @@ Plug 'ctrlpvim/ctrlp.vim'
 set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,public
 
 " NERDTree
-" Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree'
+
+" Ack
+Plug 'mileszs/ack.vim'
 
 " Power text alignment
 Plug 'junegunn/vim-easy-align'
@@ -129,8 +132,8 @@ let mapleader = ","
 " Explore
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-noremap <C-e> :Ex<CR>
-" noremap <C-e> :NERDTreeToggle<CR>
+nnoremap <Leader>n :NERDTreeToggle<CR>
+nnoremap <Leader>f :NERDTreeFind<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary

@@ -72,9 +72,6 @@ unset color_prompt force_color_prompt
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
@@ -112,8 +109,9 @@ if ! shopt -oq posix; then
   fi
 fi
 
+export EDITOR=$(which nvim)
 export CDPATH="~/src/nullobject:~/src/tc"
-export PATH="$HOME/.nodenv/bin:$HOME/.rbenv/bin:$PATH"
+export PATH="$PATH:$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:/usr/local/go/bin"
 export QSYS_ROOTDIR="/opt/intelFPGA_lite/19.1/quartus/sopc_builder/bin"
 
 set -o vi
@@ -123,3 +121,7 @@ eval "$(nodenv init -)"
 
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
+
+# This must be at the end of the file for SDKMAN to work.
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
