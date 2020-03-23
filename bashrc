@@ -120,3 +120,6 @@ set -o vi
 
 eval "$(rbenv init -)"
 eval "$(nodenv init -)"
+
+export VITASDK="/usr/local/vitasdk"
+export PATH="$VITASDK/bin:$PATH"
