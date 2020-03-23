@@ -56,6 +56,11 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+if type brew &>/dev/null; then
+  HOMEBREW_PREFIX="$(brew --prefix)"
+  source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+fi
+
 if [ "$color_prompt" = yes ]; then
   PS1='\[\033[01;34m\]\w\[\033[33m\]$(__git_ps1)\[\033[00m\]\$ '
 else
