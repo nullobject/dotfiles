@@ -125,3 +125,6 @@ export PATH="$VITASDK/bin:$PATH"
 # This must be at the end of the file for SDKMAN to work.
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
