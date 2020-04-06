@@ -56,24 +56,8 @@ Plug 'junegunn/vim-easy-align'
 Plug 'dracula/vim', { 'as': 'dracula' }
 
 " Syntax
+Plug 'sheerun/vim-polyglot'
 Plug 'Cognoscan/vim-vhdl'
-Plug 'cespare/vim-toml'
-Plug 'derekwyatt/vim-scala'
-Plug 'ekalinin/Dockerfile.vim'
-Plug 'frigoeu/psc-ide-vim'
-Plug 'hashivim/vim-terraform'
-Plug 'lunaru/vim-less'
-Plug 'pangloss/vim-javascript'
-Plug 'pearofducks/ansible-vim'
-Plug 'raichoo/haskell-vim'
-Plug 'raichoo/purescript-vim'
-Plug 'rust-lang/rust.vim'
-Plug 'smerrill/vcl-vim-plugin'
-Plug 'tpope/vim-cucumber'
-Plug 'tpope/vim-markdown'
-Plug 'vhda/verilog_systemverilog.vim'
-Plug 'wizicer/vim-jison'
-Plug 'udalov/kotlin-vim'
 
 " Initialize plugin system
 call plug#end()
