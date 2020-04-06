@@ -55,9 +55,6 @@ Host prod-bhs
 Host prod-rbx
   Hostname prod-rbx.tc-dev.net
 
-Host db-rbx
-  Hostname db-rbx.tc-dev.net
-
 ################################################################################
 # Vagrant
 ################################################################################
