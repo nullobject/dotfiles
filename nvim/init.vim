@@ -18,7 +18,7 @@ Plug 'PeterRincker/vim-argumentative'
 " Power status line
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-let g:airline_theme = 'dracula'
+let g:airline_theme = 'nord'
 
 " Pair key mappings
 Plug 'tpope/vim-unimpaired'
@@ -54,6 +54,9 @@ Plug 'junegunn/vim-easy-align'
 
 " Colour schemes
 Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'altercation/vim-colors-solarized'
+Plug 'arcticicestudio/nord-vim'
+Plug 'ryanoasis/vim-devicons'
 
 " Syntax
 Plug 'sheerun/vim-polyglot'
@@ -265,6 +268,10 @@ autocmd FileType make setlocal noexpandtab
 
 " Enable true colours.
 set termguicolors
-let g:gruvbox_contrast_dark = 'hard'
-color dracula
 syntax on " Enable syntax highlighting
+" let g:gruvbox_contrast_dark = 'hard'
+set background=dark
+color nord
+hi Normal guibg=NONE ctermbg=NONE
+hi LineNr ctermfg=NONE ctermbg=NONE
+set encoding=UTF-8
