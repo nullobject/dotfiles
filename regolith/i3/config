@@ -90,8 +90,8 @@ bindsym $mod+BackSpace split toggle
 bindsym $mod+f fullscreen toggle
 
 # change gaps interactively
-bindsym $mod+minus gaps inner current minus 6
-bindsym $mod+plus gaps inner current plus 6
+bindsym $mod+minus gaps inner current minus 8
+bindsym $mod+plus gaps inner current plus 8
 
 # show/hide keybindings
 bindsym $mod+Shift+question exec --no-startup-id /usr/bin/conky-toggle
@@ -244,7 +244,7 @@ new_window pixel 1
 new_float pixel 1
 
 # Gaps (i3-gaps)
-gaps inner 5
+gaps inner 32
 gaps outer 0
 
 # Only enable gaps on a workspace when there is at least one container
