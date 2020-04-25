@@ -56,9 +56,13 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-if type brew &>/dev/null; then
-  HOMEBREW_PREFIX="$(brew --prefix)"
-  source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+if [ -f "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+  . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+fi
+
+if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+  __GIT_PROMPT_DIR="$(brew --prefix)/opt/bash-git-prompt/share"
+  . "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh"
 fi
 
 if [ "$color_prompt" = yes ]; then
