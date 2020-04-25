@@ -121,10 +121,10 @@ eval "$(nodenv init -)"
 
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
+export GPG_TTY=$(tty)
 
 # This must be at the end of the file for SDKMAN to work.
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
