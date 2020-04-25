@@ -1,3 +1,13 @@
+"   __   __     __  __     __         __         ______     ______       __     ______     ______     ______
+"  /\ "-.\ \   /\ \/\ \   /\ \       /\ \       /\  __ \   /\  == \     /\ \   /\  ___\   /\  ___\   /\__  _\
+"  \ \ \-.  \  \ \ \_\ \  \ \ \____  \ \ \____  \ \ \/\ \  \ \  __<    _\_\ \  \ \  __\   \ \ \____  \/_/\ \/
+"   \ \_\\"\_\  \ \_____\  \ \_____\  \ \_____\  \ \_____\  \ \_____\ /\_____\  \ \_____\  \ \_____\    \ \_\
+"    \/_/ \/_/   \/_____/   \/_____/   \/_____/   \/_____/   \/_____/ \/_____/   \/_____/   \/_____/     \/_/
+"
+" https://joshbassett.info
+" https://twitter.com/nullobject
+" https://github.com/nullobject
+
 call plug#begin('~/.local/share/nvim/plugged')
 
 " editorconfig.org
@@ -167,6 +177,9 @@ nmap ga <Plug>(EasyAlign)
 
 " Expand current directory.
 cnoremap %% <C-R>=expand('%:h').'/'<CR>
+nmap <Leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
+nmap <Leader>t :tabe <C-R>=expand("%:p:h") . "/" <CR>
+nmap <Leader>s :split <C-R>=expand("%:p:h") . "/" <CR>
 
 " Refresh tags.
 map <F3> :!ctags -R --exclude=.git --exclude=log --exclude=node_modules --exclude=vendor *<CR>
