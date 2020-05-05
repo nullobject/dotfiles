@@ -50,8 +50,7 @@ Plug 'vim-scripts/Tabmerge'
 Plug 'brooth/far.vim'
 
 " Finder
-Plug 'ctrlpvim/ctrlp.vim'
-set wildignore+=.DS_Store,tags,*/.git/*,*/dist/*,*/node_modules/*,public
+Plug 'junegunn/fzf'
 
 " NERDTree
 Plug 'scrooloose/nerdtree'
@@ -130,7 +129,8 @@ let mapleader = ","
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 nnoremap <Leader>n :NERDTreeToggle<CR>
-nnoremap <Leader>f :NERDTreeFind<CR>
+nnoremap <Leader>N :NERDTreeFind<CR>
+nnoremap <Leader>f :FZF<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commentary
