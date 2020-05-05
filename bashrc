@@ -106,26 +106,27 @@ fi
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
+    source /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
+    source /etc/bash_completion
   elif [ -f /usr/local/etc/profile.d/bash_completion.sh ]; then
-    . /usr/local/etc/profile.d/bash_completion.sh
+    source /usr/local/etc/profile.d/bash_completion.sh
   fi
 
   if [ -f /usr/local/opt/bash-git-prompt/share/gitprompt.sh ]; then
     __GIT_PROMPT_DIR=/usr/local/opt/bash-git-prompt/share
-    . /usr/local/opt/bash-git-prompt/share/gitprompt.sh
+    source /usr/local/opt/bash-git-prompt/share/gitprompt.sh
   fi
 fi
 
 export EDITOR=$(which nvim)
 export CDPATH="~/src/nullobject:~/src/tc"
-export PATH="$PATH:$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin"
+export PATH="$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:$PATH"
 export QSYS_ROOTDIR="/opt/intelFPGA_lite/19.1/quartus/sopc_builder/bin"
 
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
+export PATH="/opt/intelFPGA_lite/19.1/quartus/bin:$PATH"
 export GPG_TTY=$(tty)
 
 eval "$(rbenv init -)"
@@ -136,3 +137,4 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
