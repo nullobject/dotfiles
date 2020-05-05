@@ -70,6 +70,7 @@ Plug 'ryanoasis/vim-devicons'
 " Syntax
 Plug 'sheerun/vim-polyglot'
 Plug 'Cognoscan/vim-vhdl'
+Plug 'samsaga2/vim-z80'
 
 " Initialize plugin system
 call plug#end()
@@ -209,21 +210,25 @@ nnoremap gp `[v`]
 " File types
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+augroup asm
+  " Detect z80 assembly source files.
+  autocmd BufRead *.asm set ft=z80
+
+  " Add comment format for commentary plugin.
+  autocmd FileType asm setlocal commentstring=;\ %s
+augroup END
+
 augroup less
+  " Detect less files.
   autocmd BufRead *.less set ft=less
 augroup END
 
 augroup mkd
-  " Set markdown format.
+  " Detect markdown files.
   autocmd BufRead,BufNewFile *.md set ft=markdown
 
   " Enable spellchecking for markdown.
   autocmd BufRead,BufNewFile *.md setlocal spell
-augroup END
-
-augroup ruby
-  autocmd BufRead Gemfile set ft=ruby
-  autocmd BufRead *.thor,Thorfile set ft=ruby
 augroup END
 
 augroup purescript
@@ -231,14 +236,19 @@ augroup purescript
   autocmd FileType purescript set commentstring=--\ %s
 augroup END
 
-augroup vhdl
-  " Add comment format for commentary plugin.
-  autocmd FileType vhdl setlocal commentstring=--\ %s
+augroup ruby
+  " Detect ruby gemfiles.
+  autocmd BufRead Gemfile set ft=ruby
 augroup END
 
 augroup terraform
   " Add comment format for commentary plugin.
   autocmd FileType terraform setlocal commentstring=#\ %s
+augroup END
+
+augroup vhdl
+  " Add comment format for commentary plugin.
+  autocmd FileType vhdl setlocal commentstring=--\ %s
 augroup END
 
 autocmd FileType javascript,ruby setlocal tw=80
