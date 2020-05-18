@@ -136,6 +136,10 @@ export PATH="$VITASDK/bin:$PATH"
 export PATH="/opt/intelFPGA_lite/19.1/quartus/bin:$PATH"
 export QSYS_ROOTDIR="/opt/intelFPGA_lite/19.1/quartus/sopc_builder/bin"
 
+# deno
+export DENO_INSTALL="/home/josh/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
 # ruby and node
 eval "$(rbenv init -)"
 eval "$(nodenv init -)"
