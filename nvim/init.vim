@@ -145,7 +145,6 @@ noremap <Leader>c :Commentary<CR>
 " Tabs
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-noremap <Leader>tt :tabe<Space>%%<CR>
 noremap <Leader>tc :tabc<CR>
 noremap <Leader>tm :Tabmerge<CR>
 
