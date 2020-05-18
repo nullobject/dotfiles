@@ -194,16 +194,11 @@ nnoremap gp `[v`]
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 augroup asm
-  " Detect z80 assembly source files.
-  autocmd BufRead *.asm set ft=z80
+  " Detect Z80 assembly source files.
+  autocmd BufRead,BufNewFile *.asm set ft=z80
 
   " Add comment format for commentary plugin.
-  autocmd FileType asm setlocal commentstring=;\ %s
-augroup END
-
-augroup less
-  " Detect less files.
-  autocmd BufRead *.less set ft=less
+  autocmd FileType z80 setlocal commentstring=;\ %s
 augroup END
 
 augroup mkd
@@ -212,6 +207,13 @@ augroup mkd
 
   " Enable spellchecking for markdown.
   autocmd BufRead,BufNewFile *.md setlocal spell
+
+  autocmd FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
+augroup END
+
+augroup mister
+  " Detect MRA files.
+  autocmd BufRead,BufNewFile *.mra set ft=xml
 augroup END
 
 augroup purescript
@@ -227,6 +229,10 @@ augroup END
 augroup terraform
   " Add comment format for commentary plugin.
   autocmd FileType terraform setlocal commentstring=#\ %s
+augroup END
+
+augroup verilog
+  autocmd BufRead,BufNewFile *.v set ft=verilog
 augroup END
 
 augroup vhdl
