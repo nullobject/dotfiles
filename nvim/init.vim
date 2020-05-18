@@ -142,23 +142,6 @@ nnoremap <Leader>f :FZF<CR>
 noremap <Leader>c :Commentary<CR>
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Tabularize
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! CustomTabularPatterns()
-  if exists('g:tabular_loaded')
-    AddTabularPattern! colon  /:\zs/l1r0
-    AddTabularPattern! equal  /^[^=]*\zs=/
-    AddTabularPattern! rocket /^[^=]*\zs=>/
-
-    vmap <Leader>a: :Tab colon<CR>
-    vmap <Leader>a= :Tab equal<CR>
-    vmap <Leader>a> :Tab rocket<CR>
-  endif
-endfunction
-autocmd VimEnter * call CustomTabularPatterns()
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tabs
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
