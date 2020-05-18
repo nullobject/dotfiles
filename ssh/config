@@ -7,6 +7,8 @@ Host freeshell
   User jmba096
   ServerAliveInterval 60
 
+Host mister
+  User root
 
 ################################################################################
 # TC Hosts
