@@ -7,22 +7,6 @@ Host freeshell
   User jmba096
   ServerAliveInterval 60
 
-################################################################################
-# Climate History
-################################################################################
-
-Host joellegergis
-  Hostname 174.136.12.180
-  User joelle
-
-Host climatehistory
-  Hostname 174.136.12.180
-  User climateh
-
-Host pandora
-  Hostname pandora.earthsci.unimelb.edu.au
-  LocalForward 13283 localhost:3283
-  LocalForward 15900 localhost:5900
 
 ################################################################################
 # TC Hosts
