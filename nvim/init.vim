@@ -71,6 +71,7 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'sheerun/vim-polyglot'
 Plug 'Cognoscan/vim-vhdl'
 Plug 'samsaga2/vim-z80'
+Plug 'vhda/verilog_systemverilog.vim'
 
 " Initialize plugin system
 call plug#end()
