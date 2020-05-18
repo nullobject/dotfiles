@@ -124,21 +124,26 @@ if ! shopt -oq posix; then
 fi
 
 export EDITOR=$(which nvim)
-export CDPATH="~/src/nullobject:~/src/tc"
+export GPG_TTY=$(tty)
+export CDPATH="~/src/nullobject:~/src/tc:~/src/mister:~/src"
 export PATH="$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:$PATH"
-export QSYS_ROOTDIR="/opt/intelFPGA_lite/19.1/quartus/sopc_builder/bin"
 
+# vita SDK
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
-export PATH="/opt/intelFPGA_lite/19.1/quartus/bin:$PATH"
-export GPG_TTY=$(tty)
 
+# quartus
+export PATH="/opt/intelFPGA_lite/19.1/quartus/bin:$PATH"
+export QSYS_ROOTDIR="/opt/intelFPGA_lite/19.1/quartus/sopc_builder/bin"
+
+# ruby and node
 eval "$(rbenv init -)"
 eval "$(nodenv init -)"
 
-# This must be at the end of the file for SDKMAN to work.
+# SDKMAN
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
+# fuzzy finder
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
