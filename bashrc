@@ -125,7 +125,7 @@ fi
 
 export EDITOR=$(which nvim)
 export GPG_TTY=$(tty)
-export CDPATH="~/src/nullobject:~/src/tc:~/src/mister:~/src"
+export CDPATH="~/src/nullobject:~/src/tc:~/src/mister:~/src/chisel:~/src"
 export PATH="$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:$PATH"
 
 # vita SDK
