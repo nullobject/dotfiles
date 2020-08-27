@@ -99,6 +99,10 @@ bindsym $mod+Shift+question exec --no-startup-id $i3-wm.program.help
 set_from_resource $i3-wm.program.file_search i3-wm.program.file_search rofi -show find -modi find:/usr/share/rofi/modi/finder.sh
 bindsym $mod+$alt+space exec $i3-wm.program.file_search
 
+# emoji picker <Ctrl><Shift>+Space
+set_from_resource $i3-wm.program.emoji_picker i3-wm.program.emoji_picker rofi -show emoji -modi emoji -theme $rofiTheme
+bindsym Ctrl+Shift+space exec $i3-wm.program.emoji_picker
+
 ###############################################################################
 # Window and Workspace Navigation
 ###############################################################################
