@@ -339,7 +339,13 @@ floating_maximum_size -1 x -1
 for_window [class="Gnome-calculator"] floating enable
 
 floating_maximum_size -1 x -1
+for_window [title="Rygar"] floating enable
+
+floating_maximum_size -1 x -1
 for_window [class="zoom"] floating enable
+
+floating_maximum_size -1 x -1
+for_window [class="Update-manager"] floating enable
 
 ###############################################################################
 # Window Resize and Gaps
