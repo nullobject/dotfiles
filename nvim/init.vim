@@ -49,8 +49,9 @@ Plug 'vim-scripts/Tabmerge'
 " Find and replace
 Plug 'brooth/far.vim'
 
-" Finder
-Plug 'junegunn/fzf'
+" Fuzzy Finder
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 " NERDTree
 Plug 'scrooloose/nerdtree'

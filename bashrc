@@ -154,6 +154,6 @@ eval "$(nodenv init -)"
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-# fuzzy finder
+# Fuzzy finder
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
