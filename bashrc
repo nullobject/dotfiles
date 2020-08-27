@@ -128,19 +128,25 @@ export GPG_TTY=$(tty)
 export CDPATH="~/src/nullobject:~/src/tc:~/src/mister:~/src/chisel:~/src"
 export PATH="$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:$PATH"
 
-# vita SDK
+# Vita SDK
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
 
-# quartus
+# Quartus
 export PATH="/opt/intelFPGA_lite/19.1/quartus/bin:$PATH"
 export QSYS_ROOTDIR="/opt/intelFPGA_lite/19.1/quartus/sopc_builder/bin"
 
-# deno
+# IDEA
+export PATH="/opt/idea/bin:$PATH"
+
+# RubyMine
+export PATH="/opt/rubymine/bin:$PATH"
+
+# Deno
 export DENO_INSTALL="/home/josh/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 
-# ruby and node
+# Ruby and NodeJS
 eval "$(rbenv init -)"
 eval "$(nodenv init -)"
 
