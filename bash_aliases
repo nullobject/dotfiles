@@ -26,8 +26,6 @@ alias grh='git reset --hard'
 alias grhh='git reset --hard HEAD'
 alias gs='git status -sb'
 alias gup='git pull'
-alias gupl='gup && gcl'
-alias gur='gh pr create'
 
 __git_complete ga   _git_add
 __git_complete gap  _git_add
