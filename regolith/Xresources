@@ -1,4 +1,3 @@
 i3xrocks.weather.location: byron+bay
 i3-wm.gaps.inner.size: 20
-gnome.terminal.font: SauceCodePro Nerd Font 10
-Xft.dpi: 192
+gnome.terminal.font: SauceCodePro Nerd Font 8
