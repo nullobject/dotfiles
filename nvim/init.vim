@@ -66,7 +66,6 @@ Plug 'junegunn/vim-easy-align'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'altercation/vim-colors-solarized'
 Plug 'arcticicestudio/nord-vim'
-Plug 'ryanoasis/vim-devicons'
 
 " Syntax
 Plug 'sheerun/vim-polyglot'
