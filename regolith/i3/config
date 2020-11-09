@@ -347,6 +347,12 @@ for_window [class="zoom"] floating enable
 floating_maximum_size -1 x -1
 for_window [class="Update-manager"] floating enable
 
+floating_maximum_size -1 x -1
+for_window [class="WaveDromEditor"] floating enable
+
+floating_maximum_size -1 x -1
+for_window [class="fs-uae"] floating enable
+
 ###############################################################################
 # Window Resize and Gaps
 ###############################################################################
