@@ -1,0 +1,4 @@
+set rnu " relative line numbers
+set surround " surround plugin
+set commentary " commentary plugin
+set ideajoin " smart line joining
