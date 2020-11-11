@@ -129,6 +129,11 @@ set_from_resource $i3-wm.binding.look_selector i3-wm.binding.look_selector Mod1+
 set_from_resource $i3-wm.program.look_selector i3-wm.program.look_selector rofi -show look -modi look:/usr/share/rofi/modi/look-selector.sh
 bindsym $mod+$i3-wm.binding.look_selector exec $i3-wm.program.look_selector
 
+# Launch // Emoji Picker // <Ctrl><Shift> Space ##
+set_from_resource $i3-wm.binding.launcher.emoji_picker i3-wm.binding.launcher.emoji_picker Ctrl+Shift+space
+set_from_resource $i3-wm.program.emoji i3-wm.program.emoji_picker rofi -show emoji -modi emoji -theme $rofiTheme
+bindsym $i3-wm.binding.launcher.emoji_picker exec $i3-wm.program.emoji_picker
+
 ###############################################################################
 # Window and Workspace Navigation
 ###############################################################################
