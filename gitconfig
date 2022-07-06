@@ -1,13 +1,13 @@
 [user]
   name = Joshua Bassett
   email = hello@joshbassett.info
-  signingkey = 994FE6FC4512B112FD3A9C10F531E4E35D71737D
 [push]
   default = tracking
 [alias]
   conflicts = diff --name-only --diff-filter=U
   report = log --author=Josh --since='2 sunday ago' --until='1 sunday ago' --format='%Cgreen%ci%Creset %s%Creset'
   push-upstream = !git push --set-upstream origin `git symbolic-ref --short HEAD`
+  trello = "!f() { echo $1 | sed -E 's/^(.*\\/([^/]+))$/\\2/' | xargs git checkout -b; }; f"
 [color]
   ui = auto
 [color "branch"]
@@ -31,12 +31,11 @@
 	autocrlf = input
 [apply]
   whitespace = nowarn
-[hub]
-  protocol = https
 [mergetool]
   keepBackup = true
 [github]
   user = josh
+  token = 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
 [filter "media"]
   clean = git-media-clean %f
   smudge = git-media-smudge %f
@@ -45,5 +44,5 @@
   smudge = git-lfs smudge -- %f
   required = true
   process = git-lfs filter-process
-[commit]
-  gpgsign = true
+[init]
+  defaultBranch = main
