@@ -8,7 +8,7 @@
 # https://twitter.com/nullobject
 # https://github.com/nullobject
 
-export PATH="$HOME/.local/bin:$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:/opt/m68k/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:$PATH"
 
 cdpath=($HOME/src/nullobject $HOME/src/mister $HOME/src/tc $HOME/src)
 
