@@ -25,8 +25,8 @@ export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
 
 # Quartus
-export PATH="/opt/intelFPGA_lite/21.1/quartus/bin:$PATH"
-export QSYS_ROOTDIR="/opt/intelFPGA_lite/21.1/quartus/sopc_builder/bin"
+export PATH="/opt/intelFPGA_lite/21.1.1/quartus/bin:$PATH"
+export QSYS_ROOTDIR="/opt/intelFPGA_lite/21.1.1/quartus/sopc_builder/bin"
 
 # IDEA
 export PATH="/opt/idea/bin:$PATH"
