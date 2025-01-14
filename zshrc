@@ -8,9 +8,7 @@
 # https://twitter.com/nullobject
 # https://github.com/nullobject
 
-export PATH="$HOME/.local/bin:$HOME/.nodenv/bin:$HOME/.rbenv/bin:$HOME/.cargo/bin:$PATH"
-
-cdpath=($HOME/src/nullobject $HOME/src/mister $HOME/src/tc $HOME/src)
+export PATH="$HOME/.local/bin:$PATH"
 
 # History
 HISTFILE=~/.zsh_history
@@ -20,6 +18,20 @@ setopt append_history
 setopt inc_append_history
 setopt hist_ignore_dups
 
+# ASDF
+. "$HOME/.asdf/asdf.sh"
+# append completions to fpath
+fpath=(${ASDF_DIR}/completions $fpath)
+# initialise completions with ZSH's compinit
+autoload -Uz compinit && compinit
+
+# Preferred editor for local and remote sessions
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR="vim"
+else
+  export EDITOR="$(which nvim)"
+fi
+
 # Vita SDK
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
@@ -28,22 +40,24 @@ export PATH="$VITASDK/bin:$PATH"
 export PATH="/opt/intelFPGA_lite/21.1.1/quartus/bin:$PATH"
 export QSYS_ROOTDIR="/opt/intelFPGA_lite/21.1.1/quartus/sopc_builder/bin"
 
+# ULX3S
+export PATH="/opt/oss-cad-suite/bin:$PATH"
+
+# Neovim
+export PATH="/opt/nvim-linux64/bin:$PATH"
+
 # IDEA
 export PATH="/opt/idea/bin:$PATH"
 
-# SDKMAN
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+# Coursier
+export PATH="$PATH:/home/josh/.local/share/coursier/bin"
 
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+# Cargo
+export PATH="$HOME/.cargo/bin:$PATH"
 
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR="vim"
-else
-  export EDITOR="$(which nvim)"
-fi
+# Deno
+export DENO_INSTALL="/home/josh/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
 
 # Aliases
 alias be='bundle exec'
@@ -67,23 +81,27 @@ alias grh='git reset --hard'
 alias grhh='git reset --hard HEAD'
 alias gs='git status -sb'
 alias gup='git pull'
-alias l='ls -CF'
-alias la='ls -A'
-alias ll='ls -hl'
-alias open='xdg-open'
+alias ls='lsd'
+alias la='lsd -a'
+alias ll='lsd -hl'
 alias vi='nvim'
 alias vim='nvim'
+alias open='xdg-open'
 alias pbcopy='xclip -selection clipboard'
 alias pbpaste='xclip -selection clipboard -o'
 
-# Ruby and NodeJS
-eval "$(rbenv init -)"
-eval "$(nodenv init -)"
-
+# Starship
 eval "$(starship init zsh)"
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/josh/tmp/google-cloud-sdk/path.zsh.inc' ]; then . '/home/josh/tmp/google-cloud-sdk/path.zsh.inc'; fi
+# Bun
+[ -s "/home/josh/.bun/_bun" ] && source "/home/josh/.bun/_bun"
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
 
-# The next line enables shell command completion for gcloud.
-if [ -f '/home/josh/tmp/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/josh/tmp/google-cloud-sdk/completion.zsh.inc'; fi
+# Google Cloud SDK
+if [ -f '/usr/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/usr/share/google-cloud-sdk/completion.zsh.inc'; fi
+
+[ -f "/home/josh/.ghcup/env" ] && source "/home/josh/.ghcup/env" # ghcup-env
+
+# Zoxide
+eval "$(zoxide init zsh)"
