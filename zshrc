@@ -18,13 +18,6 @@ setopt append_history
 setopt inc_append_history
 setopt hist_ignore_dups
 
-# ASDF
-. "$HOME/.asdf/asdf.sh"
-# append completions to fpath
-fpath=(${ASDF_DIR}/completions $fpath)
-# initialise completions with ZSH's compinit
-autoload -Uz compinit && compinit
-
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR="vim"
@@ -32,13 +25,22 @@ else
   export EDITOR="$(which nvim)"
 fi
 
+# Starship
+eval "$(starship init zsh)"
+
+# Zoxide
+eval "$(zoxide init zsh)"
+
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
 # Vita SDK
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
 
 # Quartus
-export PATH="/opt/intelFPGA_lite/21.1.1/quartus/bin:$PATH"
-export QSYS_ROOTDIR="/opt/intelFPGA_lite/21.1.1/quartus/sopc_builder/bin"
+export PATH="/opt/intelFPGA_lite/23.1std/quartus/bin:$PATH"
+export QSYS_ROOTDIR="/opt/intelFPGA_lite/23.1.1/quartus/sopc_builder/bin"
 
 # ULX3S
 export PATH="/opt/oss-cad-suite/bin:$PATH"
@@ -54,6 +56,9 @@ export PATH="$PATH:/home/josh/.local/share/coursier/bin"
 
 # Cargo
 export PATH="$HOME/.cargo/bin:$PATH"
+
+# C3
+export PATH="/opt/c3:$PATH"
 
 # Deno
 export DENO_INSTALL="/home/josh/.deno"
@@ -90,9 +95,6 @@ alias open='xdg-open'
 alias pbcopy='xclip -selection clipboard'
 alias pbpaste='xclip -selection clipboard -o'
 
-# Starship
-eval "$(starship init zsh)"
-
 # Bun
 [ -s "/home/josh/.bun/_bun" ] && source "/home/josh/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
@@ -103,5 +105,6 @@ if [ -f '/usr/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/usr/share/g
 
 [ -f "/home/josh/.ghcup/env" ] && source "/home/josh/.ghcup/env" # ghcup-env
 
-# Zoxide
-eval "$(zoxide init zsh)"
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
