@@ -18,6 +18,11 @@ setopt append_history
 setopt inc_append_history
 setopt hist_ignore_dups
 
+autoload bashcompinit && bashcompinit
+autoload -Uz compinit && compinit
+
+complete -C '/usr/local/bin/aws_completer' aws
+
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR="vim"
