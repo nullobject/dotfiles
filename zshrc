@@ -70,7 +70,6 @@ export DENO_INSTALL="/home/josh/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 
 # Aliases
-alias be='bundle exec'
 alias ga='git add -A'
 alias gap='ga -p'
 alias gca='git commit -v -a'
