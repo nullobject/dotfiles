@@ -65,6 +65,9 @@ export PATH="$HOME/.cargo/bin:$PATH"
 # C3
 export PATH="/opt/c3:$PATH"
 
+# Zig
+export PATH="/opt/zig:$PATH"
+
 # Deno
 export DENO_INSTALL="/home/josh/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
