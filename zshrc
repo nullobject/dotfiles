@@ -51,7 +51,7 @@ export QSYS_ROOTDIR="/opt/intelFPGA_lite/23.1.1/quartus/sopc_builder/bin"
 export PATH="/opt/oss-cad-suite/bin:$PATH"
 
 # Neovim
-export PATH="/opt/nvim-linux64/bin:$PATH"
+export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 
 # IDEA
 export PATH="/opt/idea/bin:$PATH"
