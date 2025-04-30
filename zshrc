@@ -116,6 +116,12 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+list-upgradable()
+{
+  sudo apt update
+  apt list --upgradable
+}
+
 # zsh parameter completion for the dotnet CLI
 
 _dotnet_zsh_complete()
