@@ -78,10 +78,6 @@ export PATH="/opt/c3:$PATH"
 # Zig
 export PATH="/opt/zig:$PATH"
 
-# Deno
-export DENO_INSTALL="/home/josh/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"
-
 # Aliases
 alias ga='git add -A'
 alias gap='ga -p'
