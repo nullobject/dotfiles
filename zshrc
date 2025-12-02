@@ -49,8 +49,7 @@ export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
 
 # Quartus
-export PATH="/opt/intelFPGA_lite/23.1std/quartus/bin:$PATH"
-export QSYS_ROOTDIR="/opt/intelFPGA_lite/23.1.1/quartus/sopc_builder/bin"
+export PATH="/opt/intelFPGA_lite/24.1std/quartus/bin:$PATH"
 
 # ULX3S
 export PATH="/opt/oss-cad-suite/bin:$PATH"
