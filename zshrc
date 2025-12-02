@@ -56,6 +56,10 @@ export PATH="/opt/oss-cad-suite/bin:$PATH"
 export PATH="/opt/verible/bin:$PATH"
 export PATH="/opt/riscv/bin:$PATH"
 
+# Pico SDK
+export PICO_SDK_PATH="/home/josh/src/pico/pico-sdk"
+export PATH="/opt/openocd:$PATH"
+
 # Neovim
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 
