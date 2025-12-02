@@ -39,6 +39,11 @@ eval "$(zoxide init zsh)"
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
+# Amiga SDK
+export NDK_INC="/opt/amiga/NDK_1.3/Includes1.3/include.h"
+export VBCC="/opt/amiga/vbcc"
+export PATH="$VBCC/bin:$PATH"
+
 # Vita SDK
 export VITASDK="/usr/local/vitasdk"
 export PATH="$VITASDK/bin:$PATH"
