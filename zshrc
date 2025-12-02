@@ -53,6 +53,8 @@ export PATH="/opt/intelFPGA_lite/24.1std/quartus/bin:$PATH"
 
 # ULX3S
 export PATH="/opt/oss-cad-suite/bin:$PATH"
+export PATH="/opt/verible/bin:$PATH"
+export PATH="/opt/riscv/bin:$PATH"
 
 # Neovim
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
